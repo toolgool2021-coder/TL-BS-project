@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TL BS</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="menu" class="screen active" style="display: flex;">
+    <h1>BRAWL STARS</h1>
+    <h2 id="active-name">ШЕЛЛИ</h2>
+    <div id="char-preview" style="width:100px; height:100px; border-radius:50%; border:5px solid white; background:#bc42f5;"></div>
+    <button class="play-btn btn" onclick="changeScreen('game')">ИГРАТЬ</button>
+    <button id="ai-toggle" class="btn ai-btn" onclick="toggleAI()">БОТ: ВЫКЛ</button>
+    <button class="btn" style="margin-top:20px;" onclick="changeScreen('brawlers')">БОЙЦЫ</button>
+</div>
+
+<div id="brawlers-screen" class="screen">
+    <h2>ВЫБЕРИ БОЙЦА</h2>
+    <div class="scroll-container" id="list"></div>
+    <button class="btn" style="margin-top: 20px;" onclick="changeScreen('menu')">ВЫБРАТЬ</button>
+</div>
+
+<div id="hud">
+    <button class="exit-btn" onclick="exitToMenu()">ВЫЙТИ</button>
+    <div class="ult-container"><div id="ult-bar"></div></div>
+    <div id="ammo-container" class="ammo-wrap"></div>
+
+    <div class="pin-system">
+        <div id="pin-menu" class="pin-menu">
+            <div class="pin-option" onclick="sendPin('👎')">👎</div>
+            <div class="pin-option" onclick="sendPin('💎')">💎</div>
+            <div class="pin-option" onclick="sendPin('🤬')">🤬</div>
+            <div class="pin-option" onclick="sendPin('🤡')">🤡</div>
+            <div class="pin-option" onclick="sendPin('☠️')">☠️</div>
+        </div>
+        <div class="pin-btn" onclick="togglePinMenu()">💬</div>
+    </div>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script src="brawlers.js"></script>
+<script src="attacks.js"></script>
+<script src="super.js"></script>
+<script src="game.js"></script>
+</body>
+</html>

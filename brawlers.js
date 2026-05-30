@@ -1,0 +1,43 @@
+// Brawlers configuration
+const BRAWLERS = {
+    Shelly: { color: '#bc42f5', speed: 4, reload: 1500, type: 'spread', ultType: 'spread_wide', ultChargeRate: 15, maxAmmo: 3 },
+    Colt: { color: '#f54242', speed: 4.5, reload: 1300, type: 'line', ultType: 'line_long', ultChargeRate: 10, maxAmmo: 3 },
+    El_Primo: { color: '#3498db', speed: 3.5, reload: 1000, type: 'short_punches', ultType: 'jump_attack', ultChargeRate: 12, maxAmmo: 3 },
+    Barley: { color: '#95a5a6', speed: 3.8, reload: 1800, type: 'throw', ultType: 'throw_wide', ultChargeRate: 9, maxAmmo: 3 },
+    Brock: { color: '#34495e', speed: 4, reload: 2000, type: 'line', ultType: 'throw_wide', ultChargeRate: 18, maxAmmo: 3 },
+    Dynamike: { color: '#e67e22', speed: 3.8, reload: 1800, type: 'throw', ultType: 'throw_big', ultChargeRate: 12, maxAmmo: 3 },
+    Mortis: { color: '#8e44ad', speed: 4.8, reload: 2400, type: 'dash', ultType: 'line_wide', ultChargeRate: 20, maxAmmo: 3 },
+    Stu: { color: '#e74c3c', speed: 4.5, reload: 1400, type: 'line', ultType: 'dash_short', ultChargeRate: 50, maxAmmo: 2 },
+    Darryl: { color: '#7f8c8d', speed: 4, reload: 1300, type: 'spread', ultType: 'roll', ultChargeRate: 10, maxAmmo: 3 },
+    Nani: { color: '#f1c40f', speed: 3.9, reload: 2100, type: 'nani_aim', ultType: 'pip', ultChargeRate: 25, maxAmmo: 3 },
+    Max: { color: '#ffeb3b', speed: 5.5, reload: 1100, type: 'line_fast', ultType: 'speed_boost', ultChargeRate: 8, maxAmmo: 4 },
+    Crow: { color: '#2ecc71', speed: 5.2, reload: 1400, type: 'spread_thin', ultType: 'jump_attack', ultChargeRate: 12, maxAmmo: 3 },
+    Tara: { color: '#e91e63', speed: 4, reload: 2000, type: 'spread_thin', ultType: 'gravity', ultChargeRate: 14, maxAmmo: 3 },
+    Gene: { color: '#9c27b0', speed: 4, reload: 1800, type: 'gene_shot', ultType: 'pull', ultChargeRate: 20, maxAmmo: 3 },
+    Bibi: { color: '#3f51b5', speed: 4.5, reload: 1200, type: 'spread', ultType: 'bubble', ultChargeRate: 18, maxAmmo: 3 },
+    Bull: { color: '#5d4037', speed: 4, reload: 1400, type: 'spread', ultType: 'roll', ultChargeRate: 15, maxAmmo: 3 },
+    Jessie: { color: '#ff5722', speed: 4, reload: 1800, type: 'line', ultType: 'throw', ultChargeRate: 12, maxAmmo: 3 },
+    Bo: { color: '#2e7d32', speed: 4, reload: 1700, type: 'line_triple', ultType: 'mines', ultChargeRate: 15, maxAmmo: 3 },
+    Tick: { color: '#455a64', speed: 3.5, reload: 2200, type: 'throw_triple', ultType: 'pip', ultChargeRate: 15, maxAmmo: 3 },
+    Rosa: { color: '#4caf50', speed: 4, reload: 1000, type: 'short_punches', ultType: 'shield', ultChargeRate: 12, maxAmmo: 3 },
+    Rico: { color: '#7986cb', speed: 4, reload: 1200, type: 'line_bounce', ultType: 'line_bounce_long', ultChargeRate: 10, maxAmmo: 3 },
+    Frank: { color: '#9575cd', speed: 3.2, reload: 1400, type: 'spread_heavy', ultType: 'stun_wave', ultChargeRate: 25, maxAmmo: 3 }
+};
+
+function renderList() {
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+    Object.keys(BRAWLERS).forEach(key => {
+        const b = BRAWLERS[key];
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<div style="flex:1; background:${b.color}"></div><div style="padding:5px; font-size:10px;">${key.replace('_',' ')}</div>`;
+        div.onclick = () => {
+            current = key;
+            document.getElementById('active-name').innerText = key.replace('_',' ');
+            document.getElementById('char-preview').style.background = b.color;
+            sounds.click.play();
+        };
+        list.appendChild(div);
+    });
+}

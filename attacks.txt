@@ -1,0 +1,22 @@
+ATTACKS/NORMAL SHOTS
+
+Shelly: spread 3 bullets (angle ±0.2) | speed: 12, life: 35
+Colt: 5 sequential bullets | speed: 15, life: 45 (80ms delay)
+El_Primo/Rosa: 3 sequential punches | speed: 10, life: 8 (80ms delay)
+Barley: throwing bottle | distance: 200, spawn after 500ms
+Brock: single line shot | speed: 14, life: 60
+Dynamike: throwing boom bottle | distance: 250, spawn after 500ms
+Tick: 3 mine bottles (angle ±0.2) | distance: 220, spawn after 500ms
+Bo: 3 line triple shots (angle ±0.1) | speed: 13, life: 45 (100ms delay)
+Jessie: energy shot | speed: 12, life: 55, size: 8, special: 'energy'
+Rico: bounce shot | speed: 14, life: 60, size: 5, special: 'bounce'
+Frank: heavy shot | speed: 10, life: 20, size: 15, special: 'heavy'
+Nani: 3 projectiles with curve | distance: 320, curve angles: 0, 45, -45
+Max: 4 sequential fast shots | speed: 18, life: 35 (50ms delay)
+Crow: 3 poison bullets (angle ±0.3) | speed: 14, life: 40, special: 'poison'
+Tara: 3 spread bullets (angle ±0.15) | speed: 13, life: 40
+Gene: split shot | speed: 11, life: 25, size: 10, special: 'gene_main'
+Bibi: melee attack if in range <130 | damage: 1300, pushback: 80px
+Mortis: dash attack | dash: 130px, damage if near enemy: 900
+Stu: 2 sequential shots | speed: 16, life: 30 (100ms delay)
+Darryl/Bull: 5 spread bullets (angle ±0.15) | speed: 13, life: 25

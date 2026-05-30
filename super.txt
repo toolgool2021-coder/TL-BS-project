@@ -1,0 +1,19 @@
+ULTIMATE/SUPER ABILITIES
+
+Shelly: wide spread 9 bullets (angle ±0.15) | speed: 16, life: 40
+Colt: rapid 12 shots | speed: 20, life: 60 (50ms delay)
+Max: speed boost | speedMult: 1.6, duration: 240 frames
+Rosa: shield | shield duration: 180 frames
+Jessie: deploy turret | range: 150px forward, duration: 300 frames, fires every 30 frames
+Bo: 3 mines | range: 200px with spread, duration: 500 frames, damage: 2000
+Frank: stun wave | range: 180px, radius: 150px, duration: 30 frames, damage: 10/frame
+Nani: pip drone control | range: 600 frames, speed: 7px/frame, damage: 3000
+Tick: pip bomb | range: 400 frames, speed: 7px/frame, explosion radius: 120px
+Tara: gravity pull | range: 250px, radius: 100px, duration: 60 frames, pulls enemy
+Gene: pull shot | range: 40px pull radius, special: 'pull'
+Bibi: bubble shield | creates bubble projectile, size: 15, duration: 300 frames
+Stu: dash teleport | distance: 200px instantly
+Bull/Darryl: roll attack | duration: 250ms (25 frames), speed: 12px/frame, damage: 1000
+El_Primo: super jump | target: 250px forward, scale: 2.2, duration: 500ms, damage: 1800
+Barley: wide fire throw | 5 bottles spread (angle ±0.3), range: 250px, fire type
+Dynamike: big explosion | range: 250px, radius: 140px, duration: 60 frames, damage: big boom
