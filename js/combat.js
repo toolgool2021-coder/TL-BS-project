@@ -1,3 +1,18 @@
+const combatTimers = new Set();
+
+function scheduleCombatAction(action, delay) {
+    const timer = setTimeout(() => {
+        combatTimers.delete(timer);
+        if (gameActive) action();
+    }, delay);
+    combatTimers.add(timer);
+}
+
+function clearCombatTimers() {
+    for (const timer of combatTimers) clearTimeout(timer);
+    combatTimers.clear();
+}
+
     function attack(angle, isUltAction) {
         if (p.isFlying || pip.active) return;
         if (isUltAction && isUltReady) {
@@ -13,19 +28,19 @@
             switch(current) {
                 case 'Shelly': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.2, 12, 35); break;
                 case 'Bull': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
-                case 'Colt': for(let i=0; i<5; i++) setTimeout(()=>spawnBullet(angle, 15, 45), i*80); break;
+                case 'Colt': for(let i=0; i<5; i++) scheduleCombatAction(()=>spawnBullet(angle, 15, 45), i*80); break;
                 case 'El_Primo': 
-                case 'Rosa': for(let i=0; i<3; i++) setTimeout(()=>spawnBullet(angle, 10, 8), i*80); break;
+                case 'Rosa': for(let i=0; i<3; i++) scheduleCombatAction(()=>spawnBullet(angle, 10, 8), i*80); break;
                 case 'Barley': spawnBarleyBottle(angle, 200, 'fire'); break;
                 case 'Brock': spawnBullet(angle, 14, 60); break;
                 case 'Dynamike': spawnBarleyBottle(angle, 250, 'boom'); break;
                 case 'Tick': for(let i=-1; i<=1; i++) spawnBarleyBottle(angle+i*0.2, 220, 'mine'); break;
-                case 'Bo': for(let i=-1; i<=1; i++) setTimeout(()=>spawnBullet(angle+i*0.1, 13, 45), i*100+100); break;
+                case 'Bo': for(let i=-1; i<=1; i++) scheduleCombatAction(()=>spawnBullet(angle+i*0.1, 13, 45), i*100+100); break;
                 case 'Jessie': spawnBullet(angle, 12, 55, false, 8, 'energy'); break;
                 case 'Rico': spawnBullet(angle, 14, 60, false, 5, 'bounce'); break;
                 case 'Frank': spawnBullet(angle, 10, 20, false, 15, 'heavy'); break;
                 case 'Nani': spawnNaniProjectiles(angle); break;
-                case 'Max': for(let i=0; i<4; i++) setTimeout(()=>spawnBullet(angle, 18, 35), i*50); break;
+                case 'Max': for(let i=0; i<4; i++) scheduleCombatAction(()=>spawnBullet(angle, 18, 35), i*50); break;
                 case 'Crow': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.3, 14, 40, false, 4, 'poison'); break;
                 case 'Tara': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.15, 13, 40); break;
                 case 'Gene': spawnBullet(angle, 11, 25, false, 10, 'gene_main'); break; 
@@ -35,7 +50,7 @@
                     if(Math.abs(diff) < 0.6) { hitEnemy(1300, true); enemy.x += Math.cos(angle)*80; enemy.y += Math.sin(angle)*80; }
                 } break;
                 case 'Mortis': p.x += Math.cos(angle)*130; p.y += Math.sin(angle)*130; if(Math.hypot(p.x-enemy.x, p.y-enemy.y)<60) hitEnemy(900, true); break;
-                case 'Stu': spawnBullet(angle, 16, 30); setTimeout(()=>spawnBullet(angle, 16, 30), 100); break;
+                case 'Stu': spawnBullet(angle, 16, 30); scheduleCombatAction(()=>spawnBullet(angle, 16, 30), 100); break;
                 case 'Darryl': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
             }
         }
@@ -45,7 +60,7 @@
     function useUltimate(angle) {
         switch(current) {
             case 'Shelly': for(let i=-4; i<=4; i++) spawnBullet(angle+i*0.15, 16, 40, true); break;
-            case 'Colt': for(let i=0; i<12; i++) setTimeout(()=>spawnBullet(angle, 20, 60, true), i*50); break;
+            case 'Colt': for(let i=0; i<12; i++) scheduleCombatAction(()=>spawnBullet(angle, 20, 60, true), i*50); break;
             case 'Max': p.speedMult = 1.6; p.boostTimer = 240; break;
             case 'Rosa': p.shield = 180; break; 
             case 'Jessie': zones.push({x: p.x+Math.cos(angle)*150, y: p.y+Math.sin(angle)*150, r:60, life:300, type:'turret'}); break;
@@ -73,7 +88,7 @@
 
     function spawnBarleyBottle(angle, dist, type, isUlt) { 
         let tx=p.x+Math.cos(angle)*dist, ty=p.y+Math.sin(angle)*dist; 
-        setTimeout(()=>zones.push({x:tx,y:ty,r:type==='fire'?55:80,life:type==='fire'?120:40,type,isUlt}), 500); 
+        scheduleCombatAction(()=>zones.push({x:tx,y:ty,r:type==='fire'?55:80,life:type==='fire'?120:40,type,isUlt}), 500);
     }
     
     function hitEnemy(dmg, canCharge) {

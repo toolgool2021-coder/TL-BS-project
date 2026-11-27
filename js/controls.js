@@ -19,9 +19,9 @@
 
     window.addEventListener('touchend', e => {
         for(let t of e.changedTouches) {
-            if(t.identifier===joyL.id) joyL.active=false;
-            if(t.identifier===joyR.id) { let dx=joyR.cx-joyR.x, dy=joyR.cy-joyR.y; if(Math.hypot(dx,dy)>10) attack(Math.atan2(dy,dx), false); joyR.active=false; }
-            if(t.identifier===joyU.id) { let dx=joyU.cx-joyU.x, dy=joyU.cy-joyU.y; attack(Math.atan2(dy,dx), true); joyU.active=false; }
+            if(t.identifier===joyL.id) { joyL.active=false; joyL.id=null; }
+            if(t.identifier===joyR.id) { let dx=joyR.cx-joyR.x, dy=joyR.cy-joyR.y; if(Math.hypot(dx,dy)>10) attack(Math.atan2(dy,dx), false); joyR.active=false; joyR.id=null; }
+            if(t.identifier===joyU.id) { let dx=joyU.cx-joyU.x, dy=joyU.cy-joyU.y; attack(Math.atan2(dy,dx), true); joyU.active=false; joyU.id=null; }
         }
     });
 
@@ -42,6 +42,7 @@ window.addEventListener('keydown', e => {
     if(e.code===bindings.super && !e.repeat && aimPoint) attack(Math.atan2(aimPoint.y-p.y,aimPoint.x-p.x),true);
 });
 window.addEventListener('keyup', e => pressedKeys.delete(e.code));
+canvas.addEventListener('mouseleave', () => { aimPoint = null; });
 canvas.addEventListener('mousemove', e => {
     const rect=canvas.getBoundingClientRect();
     aimPoint={x:(e.clientX-rect.left)*canvas.width/rect.width,y:(e.clientY-rect.top)*canvas.height/rect.height};

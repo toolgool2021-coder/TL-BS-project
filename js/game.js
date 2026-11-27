@@ -65,7 +65,7 @@
     }
 
     function exitToMenu() { 
-        gameActive = false; resetControls(); cancelAnimationFrame(frameId); pip.active = false; 
+        gameActive = false; clearCombatTimers(); resetControls(); cancelAnimationFrame(frameId); pip.active = false;
         changeScreen('menu'); window.endRoomPreview?.(); 
     }
 
@@ -88,6 +88,8 @@
 
     let frameId = 0, lastFrame = 0, accumulator = 0;
     function initGame() {
+        clearCombatTimers();
+        resetControls();
         cancelAnimationFrame(frameId); lastFrame = 0; accumulator = 0;
         p.scale = 1; isUltReady = false;
         for (const j of [joyL, joyR, joyU]) { j.active = false; j.id = null; }
@@ -190,16 +192,20 @@
 
     function draw() {
         ctx.fillStyle = "#2e7d32"; ctx.fillRect(0,0,canvas.width,canvas.height);
-        if((joyR.active || joyU.active) && !pip.active) {
+        if((joyR.active || joyU.active || aimPoint) && !pip.active) {
             let j = joyU.active ? joyU : joyR;
-            let angle = Math.atan2(j.cy - j.y, j.cx - j.x);
+            const angle = j.active ? Math.atan2(j.cy - j.y, j.cx - j.x) : Math.atan2(aimPoint.y - p.y, aimPoint.x - p.x);
+            ctx.save();
+            ctx.strokeStyle = joyU.active ? "#ffe768" : "#fff";
+            ctx.lineWidth = 2;
             let ind = joyU.active ? BRAWLERS[current].ultType : BRAWLERS[current].type;
             ctx.fillStyle = joyU.active ? "rgba(255, 255, 0, 0.3)" : "rgba(255, 255, 255, 0.2)";
-            if(ind === 'nani_aim' || ind === 'pip') { ctx.beginPath(); ctx.arc(p.x + Math.cos(angle)*320, p.y + Math.sin(angle)*320, 40, 0, 7); ctx.fill(); }
-            else if(ind === 'gravity' || ind === 'throw' || ind === 'throw_triple') { ctx.beginPath(); ctx.arc(p.x + Math.cos(angle)*250, p.y + Math.sin(angle)*250, 100, 0, 7); ctx.fill(); }
+            if(ind === 'nani_aim' || ind === 'pip') { ctx.beginPath(); ctx.arc(p.x + Math.cos(angle)*320, p.y + Math.sin(angle)*320, 40, 0, 7); ctx.fill(); ctx.stroke(); }
+            else if(ind === 'gravity' || ind === 'throw' || ind === 'throw_triple') { ctx.beginPath(); ctx.arc(p.x + Math.cos(angle)*250, p.y + Math.sin(angle)*250, 100, 0, 7); ctx.fill(); ctx.stroke(); }
             else if(ind === 'spread' || ind === 'spread_heavy') { 
-                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.arc(p.x, p.y, 220, angle - 0.5, angle + 0.5); ctx.lineTo(p.x, p.y); ctx.fill();
-            } else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(angle); ctx.fillRect(0, -20, 350, 40); ctx.restore(); }
+                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.arc(p.x, p.y, 220, angle - 0.5, angle + 0.5); ctx.lineTo(p.x, p.y); ctx.fill(); ctx.stroke();
+            } else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(angle); ctx.fillRect(0, -20, 350, 40); ctx.strokeRect(0, -20, 350, 40); ctx.restore(); }
+            ctx.restore();
         }
         ctx.fillStyle="red"; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
         ctx.fillStyle="lime"; ctx.fillRect(enemy.x-40, enemy.y-50, (enemy.hp/30000)*80, 8);
