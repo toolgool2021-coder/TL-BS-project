@@ -47,7 +47,12 @@ function drawSummon(z,brush=ctx){
 }
 function drawCombatProjectile(b){
  ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy||0,b.vx||1));
- if(b.special==='Spike'){
+ if(b.special==='shoe'){
+   ctx.fillStyle='#ec9959';ctx.fillRect(-8,-5,8,8);ctx.fillRect(-2,-1,11,5);ctx.fillStyle='#fff1db';ctx.fillRect(-8,4,18,3);
+ }else if(b.special==='Bea'){
+   ctx.fillStyle=b.charged?'#ffe055':'#eab879';ctx.beginPath();ctx.ellipse(0,0,b.charged?12:7,b.charged?7:4,0,0,7);ctx.fill();
+   ctx.fillStyle='#3b304a';ctx.fillRect(-2,-4,3,8);
+ }else if(b.special==='Spike'){
    ctx.fillStyle='#82d05e';ctx.strokeStyle='#286745';ctx.lineWidth=2;ctx.beginPath();
    for(let i=0;i<16;i++){const r=i%2?7:11,a=i*Math.PI/8;ctx.lineTo(r*Math.cos(a),r*Math.sin(a));}ctx.closePath();ctx.fill();ctx.stroke();
  }else if(b.special==='thorn'){

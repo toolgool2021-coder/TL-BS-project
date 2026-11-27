@@ -24,9 +24,23 @@ for(const [name,[color,hp,reload,speed,life,spread,count,ability]] of Object.ent
         ultChargeRate:12,maxAmmo:name==='Bea'?1:3,shot:{speed,life,spread,count}};
 }
 function rosterAttack(angle) {
+    if(['Poco','Nita','Sandy'].includes(current)){startWave(current,angle);return;}
+    if(current==='Fang'){
+        swipes.push({name:current,x:p.x,y:p.y,age:0,angle});
+        const t=combatTargets().filter(t=>inFan(t,angle,fan(85,.58)) && visibleTo(p,t)).sort((a,b)=>dist(p,a)-dist(p,b))[0];
+        if(t)hitEnemy(1440,true,t);
+        else spawnBullet(angle,15,32,false,6,'shoe');
+        return;
+    }
+    if(current==='Surge'){
+        spawnBullet(angle,13,surgeLife(),false,7,'Surge');bullets.at(-1).level=p.surgeLevel||1;return;
+    }
     if(current==='Kit'){
         if(p.attachment?.ally)spawnBarleyBottle(angle,kitYarn.range,'yarn',false);
-        else for(const t of combatTargets())if(inFan(t,angle,kitClaw))hitEnemy(900,true,t);
+        else {
+            swipes.push({name:current,x:p.x,y:p.y,age:0,angle});
+            for(const t of combatTargets())if(inFan(t,angle,kitClaw))hitEnemy(900,true,t);
+        }
         return;
     }
     const {speed,life,spread}=BRAWLERS[current].shot;
@@ -62,10 +76,7 @@ function rosterSuper(angle) {
         case 'sandstorm': zones.push({...step(160),type:'sandstorm',r:140,life:360}); break;
         case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true}); break;
         case 'aura': zones.push({...p,type:'aura',r:125,life:180}); break;
-        case 'wind': for(const t of targets) if(inFan(t,angle,superAimData.Gale)) {
-            t.x=Math.max(30,Math.min(canvas.width-30,t.x+Math.cos(angle)*150));
-            t.y=Math.max(30,Math.min(canvas.height-30,t.y+Math.sin(angle)*150));
-        } break;
+        case 'wind': startWave('Gale',angle);break;
         case 'swarm': for(let i=-3;i<=3;i++) spawnBullet(angle+i*.11,11,45,true,6,'swarm'); break;
         case 'upgrade': case 'return': case 'kick': case 'leap': case 'pounce': {
             const shape=combatShape(true);beginTravel(angle,shape.range,current==='Kit'?26:20,current,shape.radius);break;

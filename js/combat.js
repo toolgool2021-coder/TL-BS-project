@@ -10,7 +10,7 @@ function scheduleCombatAction(action, delay) {
 
 function clearCombatTimers() {
     for (const timer of combatTimers) clearTimeout(timer);
-    combatTimers.clear();hammer=null;damageNotes=[];
+    combatTimers.clear();waves=[];swipes=[];hammer=null;damageNotes=[];
 }
 
     function attack(angle, isUltAction) {
@@ -227,6 +227,8 @@ function landRosterMove(m){
                 chained.add(next);beginTravel(angleTo(next),dist(p,next),14,'Fang',m.radius);p.motion.chain=chained;
             }
         }
-        if(m.fighter==='Surge'){p.speedMult=1.5;p.boostTimer=600;}
+        if(m.fighter==='Surge'){
+            p.surgeLevel=Math.min(4,(p.surgeLevel||1)+1);p.speedMult=1.25;p.boostTimer=0;
+        }
     }
 }

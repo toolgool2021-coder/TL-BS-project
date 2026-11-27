@@ -25,6 +25,10 @@ const superAimData={
 };
 function combatShape(superMove){
  if(arena?.carrier===p)return ray(8,50,8);
+ if((!superMove && ['Poco','Nita','Sandy'].includes(current)) || (superMove && current==='Gale')){
+   const w=fronts[current];return w.spread?fan(w.range,w.spread):{kind:'ray',range:w.range,width:w.width,spread:0};
+ }
+ if(!superMove && current==='Surge')return ray(13,surgeLife(),7);
  if(current==='Dynamike' || (superMove && current==='Kit')){
    const j=superMove?joyU:joyR;
    const stick=j.active?Math.hypot(j.cx-j.x,j.cy-j.y):aimPoint?Math.hypot(aimPoint.x,aimPoint.y):60;
@@ -50,6 +54,9 @@ function drawAim(angle,superMove){
  const s=combatShape(superMove);
  ctx.save();ctx.lineWidth=2;ctx.strokeStyle=superMove?'#ffe482':'#fff';
  ctx.fillStyle=superMove?'rgba(255,212,88,.18)':'rgba(255,255,255,.17)';
+ if(current==='Fang' && !superMove && arena?.carrier!==p){
+   ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.arc(p.x,p.y,85,angle-.58,angle+.58);ctx.closePath();ctx.fill();ctx.stroke();
+ }
  if(s.kind==='dash'){
    const end=destination(angle,s.range);ctx.lineCap='round';ctx.lineWidth=s.radius*2;
    ctx.strokeStyle=ctx.fillStyle;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(end.x,end.y);ctx.stroke();

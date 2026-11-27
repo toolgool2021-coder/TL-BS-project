@@ -7,7 +7,7 @@ const botTrio=['Shelly','Colt','Brock'];
 let playerTrio=[];
 function duelTurn() {
     clearAttachment();enemy.stun=0;
-    match.nextRound=false;
+    resetFighterStage();match.nextRound=false;
     current=playerTrio[match.deaths];
     const bot=botTrio[match.kills];
     enemy.maxHp=practiceHp[bot];
@@ -24,7 +24,7 @@ function duelTurn() {
 function setupMatch() {
     clearAttachment();enemy.stun=0;
     p.bells=0;p.jackpot=Math.floor(Math.random()*5);p.beeCharge=false;
-    selectedFighter=current;
+    resetFighterStage();selectedFighter=current;
     if(window.roomRace) window.publishRaceScore?.(0);
     const roster=Object.keys(BRAWLERS), start=roster.indexOf(current);
     match.order=roster.slice(start).concat(roster.slice(0,start));
@@ -65,7 +65,7 @@ function receiveHit() {
     p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
     if(p.hp) return;
     clearAttachment();realm=null;
-    match.deaths++;
+    resetFighterStage();match.deaths++;
     p.hp=p.maxHp;
     p.x=canvas.width/2; p.y=canvas.height-65;
     if(match.mode!=='arms' && match.deaths===(match.mode==='custom'?match.limit:3)) finishMatch(false);
@@ -79,7 +79,7 @@ function recordElimination() {
     if(match.mode==='duel') match.nextRound=true;
     if(match.mode==='arms' && match.kills%2===0) {
         clearCombatTimers();p.motion=null;p.isFlying=false;p.scale=1;
-        current=match.order[match.kills/2];
+        resetFighterStage();current=match.order[match.kills/2];
         p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
         ammo=BRAWLERS[current].maxAmmo;
         ultCharge=0;renderAmmo();

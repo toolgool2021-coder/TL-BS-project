@@ -162,7 +162,7 @@
         advanceAttachment();
         tickObjective();
         if(match.finished) return;
-        tickHammer();advanceSuperMotion();
+        tickHammer();tickWaves();advanceSuperMotion();
         combatTick();
         advanceThrows();
         const startX=p.x,startY=p.y;
@@ -245,9 +245,14 @@
             if(b.special==='Piper' || b.special==='Leon' || b.special==='Bea'){
                 const distance=Math.hypot(b.x-b.originX,b.y-b.originY);
                 const damage=b.special==='Bea'?(b.charged?1800:600):b.special==='Piper'?Math.round(440+Math.min(1250,distance*1.6)):Math.round(500-Math.min(290,distance*.55));
-                if(b.special==='Bea' && !b.charged)p.beeCharge=true;
+                if(b.special==='Bea' && current==='Bea' && !p.out && !target.safe && !target.spawnShield)p.beeCharge=true;
                 if(b.special==='Piper' && !target.spawnShield)damageNotes.push({x:target.x,y:target.y,age:0,damage});
                 hitEnemy(damage,true,target);bullets.splice(i,1);continue;
+            }
+            if(b.special==='shoe'||b.special==='Surge'||b.special==='surgeShard'){
+                if(b.special==='Surge')splitSurge(b,target);
+                hitEnemy(b.special==='shoe'?360:b.special==='Surge'?850:340,true,target);
+                bullets.splice(i,1);continue;
             }
             if (b.special==='Edgar') p.hp=Math.min(p.maxHp,p.hp+160);
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
@@ -375,7 +380,7 @@
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(drawCombatProjectile);
-        paintHammer();
+        paintHammer();paintWaves();
         zones.forEach(z => {
             if(drawSummon(z))return;
             if(z.type==='boMine') {

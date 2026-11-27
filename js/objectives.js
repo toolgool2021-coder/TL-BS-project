@@ -32,6 +32,7 @@ function initObjective(){
  trainingTargets=actors.filter(a=>a!==enemy && a.team!==0).concat(arena.safes.filter(a=>a.team===1));
 }
 function resetField(){
+ resetFighterStage();
  clearAttachment();realm=null;clearCombatTimers();bullets.length=0;zones.length=0;throws.length=0;
  p.motion=null;p.isFlying=false;p.scale=1;p.shield=0;p.hiddenTicks=0;pip.active=false;
  for(const a of arena.actors){
@@ -49,7 +50,7 @@ function objectiveDeath(a){
  if(realm && inPlane(a)) realm=null;
  if(a===arena.carrier){arena.ball.x=a.x;arena.ball.y=a.y;arena.carrier=null;}
  for(let i=0;i<a.gems;i++) arena.drops.push({x:a.x+Math.sin(i)*14,y:a.y+Math.cos(i)*14});
- if(a===p) match.deaths++;
+ if(a===p){resetFighterStage();match.deaths++;}
  a.out=true;a.gems=0;a.hp=0;
  a.respawn=['ball','zone','gems','heist'].includes(match.mode)?150:0;
 }
