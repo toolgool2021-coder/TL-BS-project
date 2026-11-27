@@ -340,8 +340,10 @@
         if(p.altitude>0){ctx.save();ctx.fillStyle='#14152366';ctx.beginPath();ctx.ellipse(p.x,p.y,23,9,0,0,7);ctx.fill();ctx.restore();}
         for(const t of combatTargets()) if(t.stun>0){ctx.save();ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe77b';ctx.fillText('Оглушение',t.x,t.y-63);ctx.restore();}
         if(match.mode!=='gems' && !enemy.out && inPlane(enemy)){
-        ctx.fillStyle=match.mode==='duel'?BRAWLERS[botTrio[Math.min(match.kills,2)]].color:'red'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
+        const botName=match.mode==='duel'?botTrio[Math.min(match.kills,2)]:enemy.fighter;
+        ctx.fillStyle=BRAWLERS[botName]?.color||'#d65a65'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
         ctx.fillStyle="lime"; ctx.fillRect(enemy.x-40, enemy.y-50, (enemy.hp/enemy.maxHp)*80, 8);
+        if(match.mode!=='duel'){ctx.save();ctx.textAlign='center';ctx.font='bold 13px sans-serif';ctx.fillStyle='white';ctx.fillText(botName?fighterNames[botName]||botName:match.mode==='training'?'Тренировочный бот':'Бот',enemy.x,enemy.y-58);ctx.restore();}
         }
         for(const t of trainingTargets.filter(t=>match.mode!=='gems' && !t.out && !t.safe && inPlane(t))) {
             ctx.fillStyle='#b04a55'; ctx.beginPath(); ctx.arc(t.x,t.y,24,0,7); ctx.fill();
