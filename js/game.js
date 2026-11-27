@@ -67,7 +67,8 @@
         }
     }
 
-    function exitToMenu() { 
+    function exitToMenu() {
+        window.closeSharedHost?.();
         current=selectedFighter || current;
         gameActive = false; clearCombatTimers(); resetControls(); cancelAnimationFrame(frameId); pip.active = false;
         changeScreen('menu'); window.endRoomPreview?.(); 
@@ -147,6 +148,7 @@
         if (!lastFrame) lastFrame = now;
         accumulator += Math.min(100, now - lastFrame); lastFrame = now;
         while (accumulator >= 1000 / 60) { tick(); accumulator -= 1000 / 60; }
+        if(!match.finished)window.shareMatch?.();
         window.sendRoomPosition?.(p.x/canvas.width,p.y/canvas.height);
         updateUI(); draw(); frameId = requestAnimationFrame(update);
     }
@@ -162,13 +164,14 @@
         advanceSuperMotion();
         combatTick();
         advanceThrows();
+        const startX=p.x,startY=p.y;
         keyboardMovement();
         if(current==='Kit' && !p.attachment && !realm)ultCharge=Math.min(100,ultCharge+100/1200);
         if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / 16.6);
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
-        if(!arena && !enemy.stun && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
+        if(!arena && !enemy.stun && (!p.hiddenTicks || dist(p,enemy)<65) && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
             let d = Math.hypot(p.x - enemy.x, p.y - enemy.y);
             if(d > 160) { let a = Math.atan2(p.y-enemy.y, p.x-enemy.x); enemy.x += Math.cos(a)*1.5; enemy.y += Math.sin(a)*1.5; }
         }
@@ -184,6 +187,7 @@
             let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y, dist=Math.hypot(dx,dy); 
             if(dist>5){ p.x+=(dx/dist)*BRAWLERS[current].speed*p.speedMult; p.y+=(dy/dist)*BRAWLERS[current].speed*p.speedMult; } 
         }
+        if(arena?.walls.length && !p.isFlying){const dx=p.x-startX,dy=p.y-startY;p.x=startX;p.y=startY;moveOnPitch(p,dx,dy);}
         for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; 
             if(b.type === 'nani') {
                 b.progress += 0.035;
@@ -204,6 +208,11 @@
                 }
                 if(b.special==='bounce') { if(b.x<0 || b.x>canvas.width) b.vx *= -1; if(b.y<0 || b.y>canvas.height) b.vy *= -1; }
                 if(b.special==='bubble') { if(b.x<0 || b.x>canvas.width) b.vx *= -1; if(b.y<0 || b.y>canvas.height) b.vy *= -1; }
+            }
+            if(insideCover(b.x,b.y)){bullets.splice(i,1);continue;}
+            if(b.special==='teamShot'){
+                const t=[...arena.actors,...arena.safes].find(t=>!t.out && t.team!==b.owner.team && inPlane(t)===inPlane(b.owner) && dist(t,b)<23);
+                if(t){objectiveHit(t,550);bullets.splice(i,1);}continue;
             }
             if(b.special==='hostile') {
                 if(Math.hypot(b.x-p.x,b.y-p.y)<27) { bullets.splice(i,1); receiveHit(); }
@@ -304,6 +313,7 @@
 
     function draw() {
         ctx.fillStyle = realm ? "#342649" : "#2e7d32"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        if(match.mode==='ball')paintPitch();
         drawObjective();
         if(realm){ctx.save();ctx.fillStyle='#ebd9ff';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('Царство теней · '+Math.ceil(realm.left/60)+' с',canvas.width/2,100);ctx.restore();}
         if((joyR.active || joyU.active || aimPoint) && !pip.active) {
@@ -332,7 +342,7 @@
             ctx.fillText(fighterNames[botTrio[Math.min(match.kills,2)]],enemy.x,enemy.y-57);ctx.restore();
         }
         if(pip.active) { ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.arc(pip.x, pip.y, 15, 0, 7); ctx.fill(); }
-        ctx.save(); if(p.out)ctx.globalAlpha=.18; ctx.translate(p.x,p.y-(p.altitude||0)); ctx.scale(p.scale, p.scale);
+        ctx.save(); if(p.out)ctx.globalAlpha=.18; if(p.hiddenTicks)ctx.globalAlpha=.4;ctx.translate(p.x,p.y-(p.altitude||0)); ctx.scale(p.scale, p.scale);
         if(p.shield > 0) { ctx.strokeStyle = "#4caf50"; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0,0,30,0,7); ctx.stroke(); }
         if(p.boostTimer > 0) { ctx.shadowBlur = 15; ctx.shadowColor = "yellow"; ctx.strokeStyle = "yellow"; ctx.strokeRect(-22,-22,44,44); }
         ctx.fillStyle=BRAWLERS[current].color; ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();
@@ -348,6 +358,8 @@
             const score=match.mode==='arms'?'Боец '+Math.min(match.order.length,1+Math.floor(match.kills/2))+'/'+match.order.length+' · '+match.kills+'/'+(2*match.order.length):match.kills+' : '+match.deaths;
             ctx.fillText(score,canvas.width/2,75);ctx.restore();
         }
+        paintTeamHUD();
+        if(p.hiddenTicks){ctx.save();ctx.fillStyle='white';ctx.textAlign='center';ctx.fillText('Скрыт · '+Math.ceil(p.hiddenTicks/60)+' с',p.x,p.y+65);ctx.restore();}
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(b => { ctx.fillStyle=b.special==='hostile'?'#ff8659':b.special==='poison'?"#2ecc71":b.isUlt?"#ff00ff":"white"; ctx.beginPath(); ctx.arc(b.x,b.y,b.size||5,0,7); ctx.fill(); });

@@ -84,6 +84,7 @@ function recordElimination() {
 }
 function finishMatch(won) {
     match.finished=true;
+    window.shareMatch?.(won?'Поражение':'Победа');
     gameActive=false;
     clearCombatTimers();
     resetControls();

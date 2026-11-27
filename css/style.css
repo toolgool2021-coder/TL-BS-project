@@ -87,3 +87,5 @@ dialog {max-height:85dvh;overflow:auto}
 @keyframes pin-open {from {opacity:0;transform:translateX(6px)} to {opacity:1;transform:translateX(0)}}
 #ult-bar,.ammo-fill {transition:width .12s linear}
 }
+#guest-game {background:#17223a;color:white;border:0;border-radius:14px;text-align:center;width:min(94vw,850px)}
+#guest-canvas {display:block;max-width:100%;max-height:70dvh;width:auto;height:auto;margin:8px auto;touch-action:none}

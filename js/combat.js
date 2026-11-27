@@ -37,7 +37,7 @@ function clearCombatTimers() {
                 case 'Rosa': for(let i=0; i<3; i++) scheduleCombatAction(()=>spawnBullet(angle, 10, 8), i*80); break;
                 case 'Barley': spawnBarleyBottle(angle, 200, 'fire'); break;
                 case 'Brock': spawnBullet(angle, 14, 60); break;
-                case 'Dynamike': spawnBarleyBottle(angle, 250, 'boom'); break;
+                case 'Dynamike': spawnBarleyBottle(angle, combatShape(false).range, 'boom'); break;
                 case 'Tick': for(let i=-1; i<=1; i++) spawnBarleyBottle(angle+i*0.2, 220, 'mine'); break;
                 case 'Bo': for(let i=-1; i<=1; i++) scheduleCombatAction(()=>spawnBullet(angle+i*0.1, 13, 45), i*100+100); break;
                 case 'Jessie': spawnBullet(angle, 12, 55, false, 8, 'energy'); break;
@@ -97,7 +97,7 @@ function clearCombatTimers() {
                 break;
             }
             case 'Barley': for(let i=0; i<5; i++) spawnBarleyBottle(angle+(i-2)*0.3, 250, 'fire', true); break;
-            case 'Dynamike': spawnBarleyBottle(angle,250,'bigBoom',true);break;
+            case 'Dynamike': spawnBarleyBottle(angle,combatShape(true).range,'bigBoom',true);break;
         }
     }
 

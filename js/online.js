@@ -38,3 +38,8 @@ export function publishPosition(x,y){
 export async function publishRaceScore(kills){
  if(session) await session.sdk.update(session.member,{raceKills:kills,updatedAt:session.sdk.serverTimestamp()});
 }
+
+export async function writeMatchField(key,value){
+ if(!session)throw Error('Сначала войди в комнату');
+ await session.sdk.update(session.member,{[key]:value===null?null:JSON.stringify(value)});
+}

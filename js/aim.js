@@ -24,9 +24,12 @@ const superAimData={
  Buzz:ray(14,23,8),Chester:landing(220,80),Cordelius:ray(14,40,10),Kit:kitJump
 };
 function combatShape(superMove){
- if(superMove && current==='Kit'){
-   const stick=joyU.active?Math.hypot(joyU.cx-joyU.x,joyU.cy-joyU.y):aimPoint?Math.hypot(aimPoint.x,aimPoint.y):60;
-   return {...kitJump,range:kitJump.range*Math.min(1,stick/60)};
+ if(arena?.carrier===p)return ray(8,50,8);
+ if(current==='Dynamike' || (superMove && current==='Kit')){
+   const j=superMove?joyU:joyR;
+   const stick=j.active?Math.hypot(j.cx-j.x,j.cy-j.y):aimPoint?Math.hypot(aimPoint.x,aimPoint.y):60;
+   const shape=current==='Kit'?kitJump:superMove?superAimData.Dynamike:basicAim.Dynamike;
+   return {...shape,range:shape.range*Math.min(1,stick/60)};
  }
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove)return superAimData[current];

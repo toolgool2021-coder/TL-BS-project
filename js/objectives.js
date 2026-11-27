@@ -24,7 +24,9 @@ function initObjective(){
  const teams=solo?[0,1,2,3,4,5]:duo?[0,1,0,1,2,2]:[0,1,0,1,0,1];
  const actors=[p,enemy,...Array.from({length:4},()=>({maxHp:5500}))];
  arena={actors,score:[0,0],age:0,drops:[],hold:0,leader:-1,ball:{},carrier:null,safes:[]};
- actors.forEach((a,i)=>{a.team=teams[i];a.slot=i;});
+ arena.walls=match.mode==='ball'?[.29,.68].flatMap(y=>[.13,.67].map(x=>({x:x*canvas.width,y:y*canvas.height,w:.2*canvas.width,h:18}))):[];
+ const lineup=[current,'Shelly','Colt','Brock','Jessie','Bull'];
+ actors.forEach((a,i)=>{a.team=teams[i];a.slot=i;a.fighter=lineup[i];if(i)a.maxHp=practiceHp[a.fighter];});
  resetField();
  if(match.mode==='heist') arena.safes=[0,1].map(team=>({team,safe:true,x:canvas.width/2,y:team?40:canvas.height-40,hp:32000,maxHp:32000}));
  trainingTargets=actors.filter(a=>a!==enemy && a.team!==0).concat(arena.safes.filter(a=>a.team===1));
@@ -67,21 +69,34 @@ function tickObjective(){
  for(const a of A.actors) {
    if(a.out){if(a.respawn && --a.respawn===0)Object.assign(a,{out:false,hp:a.maxHp,x:a.homeX,y:a.homeY});continue;}
    if(a===p || a.stun>0)continue;
-   const rivals=A.actors.filter(b=>!b.out && b.team!==a.team && inPlane(b)===inPlane(a));
+   if(window.roomControlledBot?.(a)){window.stepRoomBot(a);continue;}
+   const rivals=A.actors.filter(b=>!b.out && (b!==p || !p.hiddenTicks || dist(a,p)<65 || A.carrier===p) && b.team!==a.team && inPlane(b)===inPlane(a));
    const safe=A.safes[1-a.team];if(safe && (!realm || !inPlane(a)))rivals.push(safe);
    rivals.sort((b,d)=>dist(a,b)-dist(a,d));const target=rivals[0];if(!target)continue;
    let goal=target,stop=110;
    if(!realm || !inPlane(a)){
      if(mode==='zone'){goal=c;stop=30;}
      if(mode==='gems' && A.drops.length){goal=A.drops[0];stop=4;}
-     if(mode==='ball'){goal=A.carrier===a?{x:c.x,y:a.team?canvas.height:0}:A.carrier || A.ball;stop=12;}
+     if(mode==='ball'){const owner=A.carrier,side=a.slot<3?-1:1;
+       goal=owner===a?{x:c.x,y:a.team?canvas.height:0}:owner?.team===a.team?{x:c.x+side*canvas.width*.21,y:owner.y+(a.team?50:-50)}:A.ball;stop=12;}
      if(mode==='heist' && safe){goal=safe;stop=95;}
      if((mode==='solo'||mode==='duo') && dist(a,c)>safeRadius()-20){goal=c;stop=5;}
    }
    const d=dist(a,goal);
-   if(d>stop){a.x+=(goal.x-a.x)/d*1.65;a.y+=(goal.y-a.y)/d*1.65;}
+   if(d>stop){
+     const speed=BRAWLERS[a.fighter].speed*.65,dx=(goal.x-a.x)/d*speed,dy=(goal.y-a.y)/d*speed;
+     if(insideCover(a.x+dx,a.y+dy,16))moveOnPitch(a,a.x<c.x?speed:-speed,0);
+     else moveOnPitch(a,dx,dy);
+   }
    if(A.carrier===a && d<110)kickBall(a,Math.atan2(goal.y-a.y,goal.x-a.x));
-   if(--a.cool<=0 && dist(a,target)<220){a.cool=58;objectiveHit(target,550);}
+   if(--a.cool<=0 && dist(a,target)<(a.fighter==='Bull'?155:340) && visibleTo(a,target)){
+     a.cool=Math.round(BRAWLERS[a.fighter].reload*.05);
+     const angle=Math.atan2(target.y-a.y,target.x-a.x);
+     for(const offset of ['Bull','Shelly'].includes(a.fighter)?[-.16,0,.16]:[0]){
+       spawnBullet(angle+offset,8,45,false,5,'teamShot',a);
+       bullets[bullets.length-1].owner=a;
+     }
+   }
  }
  if(match.finished)return;
  const live=A.actors.filter(a=>!a.out),field=live.filter(a=>!realm || !inPlane(a));
@@ -104,7 +119,9 @@ function tickObjective(){
  } else if(mode==='ball'){
    const b=A.ball;
    if(A.carrier){b.x=A.carrier.x;b.y=A.carrier.y;}
-   else {b.x+=b.vx;b.y+=b.vy;b.vx*=.98;b.vy*=.98;if(b.lock)b.lock--;else A.carrier=field.find(a=>dist(a,b)<22);}
+   else {if(insideCover(b.x+b.vx,b.y,7))b.vx*=-.65;
+      if(insideCover(b.x,b.y+b.vy,7))b.vy*=-.65;
+      b.x+=b.vx;b.y+=b.vy;b.vx*=.98;b.vy*=.98;if(b.lock)b.lock--;else A.carrier=field.find(a=>dist(a,b)<22);}
    if(Math.abs(b.x-c.x)<65 && (b.y<=24 || b.y>=canvas.height-24)){
       const team=Number(b.y>c.y);if(++A.score[team]===2)finishMatch(team===0);else resetField();
    }else {b.x=Math.max(10,Math.min(canvas.width-10,b.x));b.y=Math.max(10,Math.min(canvas.height-10,b.y));}
@@ -120,8 +137,6 @@ function drawObjective(){
  }
  let score=A.score.join(' : ');
  if(match.mode==='ball'){
-    for(const y of [0,canvas.height-8]){ctx.fillStyle='#ffe08c';ctx.fillRect(cx-65,y,130,8);}
-    ctx.fillStyle='white';ctx.beginPath();ctx.arc(A.ball.x,A.ball.y,10,0,7);ctx.fill();ctx.stroke();
  }else if(match.mode==='zone'||match.mode==='solo'||match.mode==='duo'){
     ctx.strokeStyle='#f0eb94';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,match.mode==='zone'?75:safeRadius(),0,7);ctx.stroke();
     score=match.mode==='zone'?A.score.map(n=>Math.floor(n/18)+'%').join(' : '):'В живых: '+A.actors.filter(a=>!a.out).length;

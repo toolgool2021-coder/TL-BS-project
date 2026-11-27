@@ -1,3 +1,4 @@
+import {hostGame,updateSharedGame} from './room-match.js';
 import {nickname,saveNickname,loadProfile} from './profile.js';
 const input=document.querySelector('#nickname'), status=document.querySelector('#profile-status'), dialog=document.querySelector('#profile-dialog');
 window.playerNickname=nickname();
@@ -37,7 +38,11 @@ document.querySelector('#room-race').onclick=async()=>{
  try { await publishRaceScore(0); } catch {roomStatus.textContent='Запись результата недоступна. Проверь правила Firebase для raceKills.';return;}
  window.roomRace=true;window.roomPreview=true;room.close();drawLeaders(players);changeScreen('game');
 };
-function showMembers(data){drawLeaders(data);players=data;members.replaceChildren();for(const [uid,p] of Object.entries(data)){const line=document.createElement('p');line.textContent=p.nickname+(p.ready?' ✓':' · ожидание');members.append(line)}window.remotePlayers=Object.fromEntries(Object.entries(data).filter(([uid])=>uid!==roomSession?.uid))}
+document.querySelector('#shared-play').onclick=async()=>{
+ try{if(!roomSession)throw Error('Сначала войди в комнату');await hostGame(document.querySelector('#shared-mode').value,roomSession.uid,players);}
+ catch(e){roomStatus.textContent=e.message;}
+};
+function showMembers(data){updateSharedGame(data,roomSession?.uid);drawLeaders(data);players=data;members.replaceChildren();for(const [uid,p] of Object.entries(data)){const line=document.createElement('p');line.textContent=p.nickname+(p.ready?' ✓':' · ожидание');members.append(line)}window.remotePlayers=Object.fromEntries(Object.entries(data).filter(([uid])=>uid!==roomSession?.uid))}
 async function enter(create){roomStatus.textContent='Подключение...';try{roomSession=await (create?createRoom(window.playerNickname,showMembers):joinRoom(code.value,window.playerNickname,showMembers));code.value=roomSession.code;ready=false;showMembers(players);roomStatus.textContent='Комната: '+roomSession.code}catch(e){roomStatus.textContent=e.message}}
 document.querySelector('#room-open').onclick=()=>room.showModal();
 document.querySelector('#room-create').onclick=()=>enter(true);

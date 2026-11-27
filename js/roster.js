@@ -32,7 +32,14 @@ function rosterAttack(angle) {
     const {speed,life,spread}=BRAWLERS[current].shot;
     let count=BRAWLERS[current].shot.count;
     if(current==='Chester'){count=1+(p.bells||0);p.bells=count%4;}
-    if(current==='Leon')p.hiddenTicks=0;
+    if(current==='Leon'){
+        p.hiddenTicks=0;
+        for(let i=0;i<count;i++){
+            const fire=()=>spawnBullet(angle+spread*(2*i/(count-1)-1),speed,life,false,6,'Leon');
+            if(i===0)fire();else scheduleCombatAction(()=>{if(current==='Leon' && !p.out)fire();},i*80);
+        }
+        return;
+    }
     for(let i=0;i<count;i++) {
         const offset=count===1?0:spread*(2*i/(count-1)-1);
         spawnBullet(angle+offset,speed,life,false,6,current);
