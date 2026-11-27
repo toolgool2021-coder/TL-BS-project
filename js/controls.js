@@ -28,10 +28,11 @@
 
 const pressedKeys = new Set();
 let aimPoint = null;
+let drag = null;
 let bindings = {up:'KeyW',down:'KeyS',left:'KeyA',right:'KeyD',super:'Space'};
 try { Object.assign(bindings, JSON.parse(localStorage.getItem('tlbs.keys') || '{}')); } catch {}
 function resetControls() {
-    pressedKeys.clear(); aimPoint = null;
+    pressedKeys.clear(); aimPoint = null; drag = null;
     for(const j of [joyL,joyR,joyU]) { j.active=false; j.id=null; }
 }
 window.addEventListener('blur', resetControls);
@@ -39,19 +40,29 @@ window.addEventListener('touchcancel', resetControls);
 window.addEventListener('keydown', e => {
     if(!gameActive || !Object.values(bindings).includes(e.code)) return;
     e.preventDefault(); pressedKeys.add(e.code);
-    if(e.code===bindings.super && !e.repeat && aimPoint) attack(Math.atan2(aimPoint.y-p.y,aimPoint.x-p.x),true);
+
 });
 window.addEventListener('keyup', e => pressedKeys.delete(e.code));
-canvas.addEventListener('mouseleave', () => { aimPoint = null; });
-canvas.addEventListener('mousemove', e => {
-    const rect=canvas.getBoundingClientRect();
-    aimPoint={x:(e.clientX-rect.left)*canvas.width/rect.width,y:(e.clientY-rect.top)*canvas.height/rect.height};
+canvas.addEventListener('pointerdown', e => {
+    if (!gameActive || e.pointerType !== 'mouse' || e.button !== 0 || drag) return;
+    drag = {id:e.pointerId, x:e.clientX, y:e.clientY};
+    canvas.setPointerCapture(e.pointerId);
 });
-canvas.addEventListener('mousedown', e => {
-    if(!gameActive || e.button!==0) return;
-    const rect=canvas.getBoundingClientRect();
-    const x=(e.clientX-rect.left)*canvas.width/rect.width,y=(e.clientY-rect.top)*canvas.height/rect.height;
-    attack(Math.atan2(y-p.y,x-p.x),false);
+function updateDrag(e) {
+    if (!drag || drag.id !== e.pointerId) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    aimPoint = Math.hypot(dx,dy) > 10 ? {x:p.x+dx, y:p.y+dy} : null;
+}
+canvas.addEventListener('pointermove', updateDrag);
+canvas.addEventListener('pointerup', e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    updateDrag(e);
+    if (gameActive && aimPoint) attack(Math.atan2(aimPoint.y-p.y, aimPoint.x-p.x), pressedKeys.has(bindings.super));
+    drag = null;
+    aimPoint = null;
+});
+canvas.addEventListener('lostpointercapture', e => {
+    if (drag?.id === e.pointerId) { drag = null; aimPoint = null; }
 });
 function keyboardMovement(){
     const x=Number(pressedKeys.has(bindings.right))-Number(pressedKeys.has(bindings.left));

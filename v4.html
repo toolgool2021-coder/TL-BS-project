@@ -12,6 +12,7 @@
     <h1>TL BS 4.0</h1><button id="room-open" class="btn">ОНЛАЙН</button><button id="profile-open" class="btn">ПРОФИЛЬ</button>
     <h2 id="active-name">ШЕЛЛИ</h2>
     <div id="char-preview" style="width:100px; height:100px; border-radius:50%; border:5px solid white; background:#bc42f5;"></div>
+    <label class="mode-label">Режим <select id="mode"><option value="training">Тренировка</option><option value="skirmish">Бой с ботом · до 3 устранений</option><option value="arms">Гонка вооружений · с ботом</option></select></label>
     <button class="play-btn btn" onclick="changeScreen('game')">ИГРАТЬ</button>
     <button id="ai-toggle" class="btn ai-btn" onclick="toggleAI()">БОТ: ВЫКЛ</button>
     <button class="btn" style="margin-top:20px;" onclick="changeScreen('brawlers')">БОЙЦЫ</button>
@@ -44,6 +45,9 @@
 
 <script src="js/audio.js"></script>
 <script src="js/brawlers.js"></script>
+<dialog id="result" oncancel="event.preventDefault()"><h2 id="result-text"></h2><p id="result-total"></p><button class="btn" onclick="this.closest('dialog').close();current=selectedFighter;initGame()">Реванш</button><button class="btn" onclick="this.closest('dialog').close();exitToMenu()">В меню</button></dialog>
+<script src="js/roster.js"></script>
+<script src="js/match.js"></script>
 <script src="js/game.js"></script>
 <script src="js/combat.js"></script>
 <script src="js/controls.js"></script>

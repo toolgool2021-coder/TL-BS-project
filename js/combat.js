@@ -26,6 +26,7 @@ function clearCombatTimers() {
             sounds.shoot.play();
             const b = BRAWLERS[current];
             switch(current) {
+                default: if(BRAWLERS[current].shot) rosterAttack(angle); break;
                 case 'Shelly': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.2, 12, 35); break;
                 case 'Bull': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
                 case 'Colt': for(let i=0; i<5; i++) scheduleCombatAction(()=>spawnBullet(angle, 15, 45), i*80); break;
@@ -49,7 +50,11 @@ function clearCombatTimers() {
                     while(diff > Math.PI) diff -= Math.PI*2; while(diff < -Math.PI) diff += Math.PI*2;
                     if(Math.abs(diff) < 0.6) { hitEnemy(1300, true); enemy.x += Math.cos(angle)*80; enemy.y += Math.sin(angle)*80; }
                 } break;
-                case 'Mortis': p.x += Math.cos(angle)*130; p.y += Math.sin(angle)*130; if(Math.hypot(p.x-enemy.x, p.y-enemy.y)<60) hitEnemy(900, true); break;
+                case 'Mortis': {
+                    Object.assign(p,dashEnd(angle));
+                    for(const t of [enemy,...trainingTargets]) if(Math.hypot(p.x-t.x,p.y-t.y)<60) hitEnemy(900,true,t);
+                    break;
+                }
                 case 'Stu': spawnBullet(angle, 16, 30); scheduleCombatAction(()=>spawnBullet(angle, 16, 30), 100); break;
                 case 'Darryl': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
             }
@@ -58,6 +63,7 @@ function clearCombatTimers() {
     }
 
     function useUltimate(angle) {
+        if(BRAWLERS[current].shot) { rosterSuper(angle); return; }
         switch(current) {
             case 'Shelly': for(let i=-4; i<=4; i++) spawnBullet(angle+i*0.15, 16, 40, true); break;
             case 'Colt': for(let i=0; i<12; i++) scheduleCombatAction(()=>spawnBullet(angle, 20, 60, true), i*50); break;
@@ -82,23 +88,41 @@ function clearCombatTimers() {
         }
     }
 
-    function spawnBullet(angle, speed, life, isUlt, size=5, special='') { 
-        bullets.push({ x: p.x, y: p.y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, life, isUlt, size, type: 'normal', special, angle: angle }); 
+    function spawnBullet(angle, speed, life, isUlt, size=5, special='', origin=p) {
+        bullets.push({ x: origin.x, y: origin.y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, life, isUlt, size, type: 'normal', special, angle: angle });
     }
 
     function spawnBarleyBottle(angle, dist, type, isUlt) { 
         let tx=p.x+Math.cos(angle)*dist, ty=p.y+Math.sin(angle)*dist; 
-        scheduleCombatAction(()=>zones.push({x:tx,y:ty,r:type==='fire'?55:80,life:type==='fire'?120:40,type,isUlt}), 500);
+        throws.push({x:p.x,y:p.y,tx,ty,type,isUlt,age:0});
     }
-    
-    function hitEnemy(dmg, canCharge) {
-        enemy.hp -= dmg;
+
+    function advanceThrows() {
+        for(let i=throws.length-1;i>=0;i--) {
+            const t=throws[i];
+            if(++t.age<30) continue;
+            zones.push({x:t.tx,y:t.ty,type:t.type,isUlt:t.isUlt,r:t.type==='fire'?55:80,
+                life:t.type==='mine'?150:t.type==='fire'?120:14});
+            throws.splice(i,1);
+        }
+    }
+
+    function dashEnd(angle) {
+        return {x:Math.max(22,Math.min(canvas.width-22,p.x+Math.cos(angle)*mortisRange)),
+            y:Math.max(22,Math.min(canvas.height-22,p.y+Math.sin(angle)*mortisRange))};
+    }
+
+    function hitEnemy(dmg, canCharge, target=enemy) {
+        if(match.finished) return;
+        match.damage+=Math.min(target.hp,dmg);
+        target.hp -= dmg;
         sounds.hit.currentTime = 0;
         sounds.hit.play();
-        if(enemy.hp <= 0) {
-            enemy.hp = enemy.maxHp;
-            enemy.x = canvas.width / 2;
-            enemy.y = 150;
+        if(target.hp <= 0) {
+            recordElimination();
+            target.hp = target.maxHp;
+            if(target===enemy) enemy.x = canvas.width / 2;
+            if(target===enemy) enemy.y = 150;
         }
         if(canCharge && ultCharge < 100) { ultCharge += BRAWLERS[current].ultChargeRate; }
     }
