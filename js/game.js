@@ -416,6 +416,14 @@
             ctx.save();ctx.globalAlpha=Math.sin(Math.PI*(0.12+0.88*u));
             ctx.strokeStyle='#ffdb72';ctx.lineWidth=3;ctx.beginPath();
             ctx.arc(superFx.x,superFx.y,25+48*u,0,Math.PI*2);ctx.stroke();
+            ctx.strokeStyle=BRAWLERS[superFx.fighter]?.color||'#ffdb72';
+            ctx.lineWidth=5*(1-u)+1;
+            ctx.beginPath();ctx.arc(superFx.x,superFx.y,18+85*u,0,Math.PI*2);ctx.stroke();
+            for(let i=0;i<12;i++){
+                const a=i*Math.PI/6+u*.8, radius=25+95*u;
+                ctx.beginPath();ctx.moveTo(superFx.x+Math.cos(a)*radius,superFx.y+Math.sin(a)*radius);
+                ctx.lineTo(superFx.x+Math.cos(a)*(radius+18*(1-u)),superFx.y+Math.sin(a)*(radius+18*(1-u)));ctx.stroke();
+            }
             ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff4bd';
             ctx.fillText('Супер · '+fighterNames[superFx.fighter],superFx.x,superFx.y-42-14*u);
             ctx.restore();
