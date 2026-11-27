@@ -52,6 +52,7 @@ canvas.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
     updateDrag(e);
     if (gameActive && aimPoint) attack(Math.atan2(aimPoint.y, aimPoint.x), pressedKeys.has(bindings.super));
+    else if(gameActive && ['Dynamike','Barley','Tick'].includes(current)){aimPoint={x:0,y:0};attack(0,pressedKeys.has(bindings.super));}
     drag = null;
     aimPoint = null;
 });
