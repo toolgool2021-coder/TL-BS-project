@@ -3,40 +3,73 @@ const practiceHp = {Shelly:7400,Colt:5600,El_Primo:12000,Barley:4800,Brock:4800,
     Tick:4400,Jessie:6000,Mortis:7600,Bo:7200,Bull:10000,Frank:14000,Rosa:10000,
     Darryl:10600,Bibi:9600,Crow:4800,Gene:7200,Tara:6600,Stu:6400,Nani:4800,Max:6600,Rico:5600};
 let selectedFighter;
+const botTrio=['Shelly','Colt','Brock'];
+let playerTrio=[];
+function duelTurn() {
+    match.nextRound=false;
+    current=playerTrio[match.deaths];
+    const bot=botTrio[match.kills];
+    enemy.maxHp=practiceHp[bot];
+    enemy.hp=enemy.maxHp;
+    p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current];
+    p.x=canvas.width/2;p.y=canvas.height-65;
+    enemy.x=canvas.width/2;enemy.y=65;
+    clearCombatTimers();resetControls();
+    bullets.length=0;zones.length=0;throws.length=0;
+    pip.active=false;p.isFlying=false;p.scale=1;p.hiddenTicks=0;p.boostTimer=0;p.speedMult=1;p.shield=0;
+    ammo=BRAWLERS[current].maxAmmo;ultCharge=0;match.cooldown=75;
+    renderAmmo();
+}
 function setupMatch() {
     selectedFighter=current;
-    Object.assign(match,{mode:window.roomPreview?'training':document.querySelector('#mode').value,kills:0,deaths:0,damage:0,cooldown:60,finished:false});
+    Object.assign(match,{mode:window.roomPreview?'training':document.querySelector('#mode').value,kills:0,deaths:0,damage:0,cooldown:60,finished:false,nextRound:false});
     p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
     p.hp=p.maxHp; p.hiddenTicks=0;
     enemy.maxHp=match.mode==='training'?30000:7000;
     enemy.hp=enemy.maxHp;
     if(match.mode!=='training') trainingTargets=[];
+    if(match.mode==='duel') {
+        playerTrio=[current,...reserves.map(select=>select.value)];
+        duelTurn();
+    }
 }
 function combatTick() {
     if(match.mode==='training' || match.finished) return;
     if(!p.hiddenTicks && --match.cooldown<=0 && Math.hypot(enemy.x-p.x,enemy.y-p.y)<440) {
+        if(match.mode==='duel') {
+            const bot=botTrio[match.kills],angle=Math.atan2(p.y-enemy.y,p.x-enemy.x);
+            match.cooldown=Math.round(BRAWLERS[bot].reload*0.06);
+            const fire=offset=>spawnBullet(angle+offset,bot==='Brock'?8:6,74,false,7,'hostile',enemy);
+            if(bot==='Shelly') [-0.2,0,0.2].forEach(fire);
+            else if(bot==='Colt') for(let n=0;n<4;n++) scheduleCombatAction(()=>fire(0),n*90);
+            else fire(0);
+            return;
+        }
         match.cooldown=65;
         spawnBullet(Math.atan2(p.y-enemy.y,p.x-enemy.x),6,74,false,7,'hostile',enemy);
     }
 }
 function receiveHit() {
+    if(match.finished || match.nextRound) return;
     p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
     if(p.hp) return;
     match.deaths++;
     p.hp=p.maxHp;
     p.x=canvas.width/2; p.y=canvas.height-65;
     if(match.deaths===3) finishMatch(false);
+    else if(match.mode==='duel') match.nextRound=true;
 }
 function recordElimination() {
     if(match.mode==='training' || match.finished) return;
     match.kills++;
     if(match.kills===(match.mode==='arms'?6:3)) { finishMatch(true); return; }
+    if(match.mode==='duel') match.nextRound=true;
     if(match.mode==='arms' && match.kills%2===0) {
         const roster=Object.keys(BRAWLERS);
         current=roster[(roster.indexOf(current)+1)%roster.length];
         p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
         ammo=BRAWLERS[current].maxAmmo;
-        ultCharge=0;
+        ultCharge=0;renderAmmo();
     }
 }
 function finishMatch(won) {

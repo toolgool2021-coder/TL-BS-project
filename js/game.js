@@ -62,6 +62,7 @@
             sounds.battleMusic.pause();
             sounds.menuMusic.play();
             if(id === 'brawlers') renderList();
+            if(id === 'menu') syncLobby();
         }
     }
 
@@ -73,19 +74,23 @@
 
     function renderList() {
         const list = document.getElementById('list'); list.innerHTML = '';
-        Object.keys(BRAWLERS).forEach(key => {
+        const query=document.querySelector('#fighter-search').value.trim().toLowerCase();
+        const keys=Object.keys(BRAWLERS).filter(key=>(key+' '+fighterNames[key]).toLowerCase().includes(query));
+        document.querySelector('#search-empty').hidden=keys.length>0;
+        keys.forEach(key => {
             const b = BRAWLERS[key];
             const div = document.createElement('button');
             div.type = 'button';
             div.setAttribute('aria-pressed', String(current === key));
             div.className = 'card';
-            div.innerHTML = `<div style="flex:1; background:${b.color}"></div><div style="padding:5px; font-size:10px;">${key.replace('_',' ')}</div>`;
+            div.style.setProperty('--accent',b.color);
+            div.innerHTML = '<span class="glyph">'+fighterNames[key].slice(0,2).toUpperCase()+'</span><strong>'+fighterNames[key]+'</strong><small>'+(b.hp || practiceHp[key])+' HP</small>';
             div.onclick = () => { 
                 current = key;
                 for (const card of list.children) card.setAttribute('aria-pressed', String(card === div));
                 try { localStorage.setItem('tlbs.fighter',key); } catch {}
                 document.getElementById('active-name').innerText = key.replace('_',' '); 
-                document.getElementById('char-preview').style.background = b.color; 
+                syncLobby();
                 sounds.click.play();
             };
             list.appendChild(div);
@@ -114,10 +119,14 @@
         }));
         setupMatch();
         ammo = BRAWLERS[current].maxAmmo;
+        renderAmmo();
+        gameActive = true; frameId = requestAnimationFrame(update);
+    }
+
+    function renderAmmo() {
         const ammoCont = document.getElementById('ammo-container');
         ammoCont.innerHTML = '';
         for(let i=0; i<BRAWLERS[current].maxAmmo; i++) ammoCont.innerHTML += `<div class="ammo-cell"><div id="ammo-${i}" class="ammo-fill"></div></div>`;
-        gameActive = true; frameId = requestAnimationFrame(update);
     }
 
     function updateUI() {
@@ -139,6 +148,8 @@
         updateUI(); draw(); frameId = requestAnimationFrame(update);
     }
     function tick() {
+        if(match.finished) return;
+        if(match.nextRound) duelTurn();
         if(p.hiddenTicks>0) p.hiddenTicks--;
         combatTick();
         advanceThrows();
@@ -276,7 +287,7 @@
             } else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(angle); ctx.fillRect(0, -20, 350, 40); ctx.strokeRect(0, -20, 350, 40); ctx.restore(); }
             ctx.restore();
         }
-        ctx.fillStyle="red"; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
+        ctx.fillStyle=match.mode==='duel'?BRAWLERS[botTrio[Math.min(match.kills,2)]].color:'red'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
         ctx.fillStyle="lime"; ctx.fillRect(enemy.x-40, enemy.y-50, (enemy.hp/enemy.maxHp)*80, 8);
         for(const t of trainingTargets) {
             ctx.fillStyle='#b04a55'; ctx.beginPath(); ctx.arc(t.x,t.y,24,0,7); ctx.fill();
@@ -287,6 +298,10 @@
             const u=t.age/30, x=t.x+(t.tx-t.x)*u, y=t.y+(t.ty-t.y)*u;
             ctx.fillStyle='#17213488';ctx.beginPath();ctx.ellipse(x,y,9,4,0,0,7);ctx.fill();
             ctx.fillStyle=t.type==='mine'?'#81dbff':'#ffbd5e';ctx.beginPath();ctx.arc(x,y-70*Math.sin(Math.PI*u),8,0,7);ctx.fill();
+        }
+        if(match.mode==='duel') {
+            ctx.save();ctx.textAlign='center';ctx.fillStyle='white';ctx.font='bold 14px sans-serif';
+            ctx.fillText(fighterNames[botTrio[Math.min(match.kills,2)]],enemy.x,enemy.y-57);ctx.restore();
         }
         if(pip.active) { ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.arc(pip.x, pip.y, 15, 0, 7); ctx.fill(); }
         ctx.save(); ctx.translate(p.x,p.y); ctx.scale(p.scale, p.scale);
@@ -326,6 +341,6 @@ try {
     if(Object.hasOwn(BRAWLERS,saved)) {
         current=saved;
         document.getElementById('active-name').textContent=current.replace('_',' ');
-        document.getElementById('char-preview').style.background=BRAWLERS[current].color;
+
     }
 } catch {}

@@ -113,7 +113,7 @@ function clearCombatTimers() {
     }
 
     function hitEnemy(dmg, canCharge, target=enemy) {
-        if(match.finished) return;
+        if(match.finished || match.nextRound) return;
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
         sounds.hit.currentTime = 0;
