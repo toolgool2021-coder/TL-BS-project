@@ -10,7 +10,7 @@ function scheduleCombatAction(action, delay) {
 
 function clearCombatTimers() {
     for (const timer of combatTimers) clearTimeout(timer);
-    combatTimers.clear();waves=[];swipes=[];hammer=null;damageNotes=[];
+    combatTimers.clear();waves=[];swipes=[];hammer=null;damageNotes=[];attackFx=[];
 }
 
     function attack(angle, isUltAction) {
@@ -26,6 +26,7 @@ function clearCombatTimers() {
             useUltimate(angle);
         } else if (!isUltAction && ammo >= 1) {
             ammo -= 1;
+            if(current!=='Frank') attackFx.push({x:p.x,y:p.y,angle,shape:combatShape(false),color:BRAWLERS[current].color,age:0});
             sounds.shoot.currentTime = 0;
             sounds.shoot.play();
             const b = BRAWLERS[current];
