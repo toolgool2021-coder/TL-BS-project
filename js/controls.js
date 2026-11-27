@@ -64,13 +64,13 @@ canvas.addEventListener('pointerdown', e => {
 function updateDrag(e) {
     if (!drag || drag.id !== e.pointerId) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    aimPoint = Math.hypot(dx,dy) > 10 ? {x:p.x+dx, y:p.y+dy} : null;
+    aimPoint = Math.hypot(dx,dy) > 10 ? {x:dx, y:dy} : null;
 }
 canvas.addEventListener('pointermove', updateDrag);
 canvas.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
     updateDrag(e);
-    if (gameActive && aimPoint) attack(Math.atan2(aimPoint.y-p.y, aimPoint.x-p.x), pressedKeys.has(bindings.super));
+    if (gameActive && aimPoint) attack(Math.atan2(aimPoint.y, aimPoint.x), pressedKeys.has(bindings.super));
     drag = null;
     aimPoint = null;
 });
@@ -81,7 +81,7 @@ function keyboardMovement(){
     const x=Number(pressedKeys.has(bindings.right))-Number(pressedKeys.has(bindings.left));
     const y=Number(pressedKeys.has(bindings.down))-Number(pressedKeys.has(bindings.up));
     const d=Math.hypot(x,y);
-    if(!d || joyL.active) return;
+    if(p.out || !d || joyL.active) return;
     if(pip.active) pip.angle=Math.atan2(y,x);
     else if(!p.isFlying){p.x+=x/d*BRAWLERS[current].speed*p.speedMult;p.y+=y/d*BRAWLERS[current].speed*p.speedMult;}
 }

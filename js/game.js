@@ -155,6 +155,9 @@
         if(match.nextRound) duelTurn();
         if(p.hiddenTicks>0) p.hiddenTicks--;
         if(superFx && ++superFx.age>=45) superFx=null;
+        if(realm && --realm.left<=0) realm=null;
+        tickObjective();
+        if(match.finished) return;
         advanceSuperMotion();
         combatTick();
         advanceThrows();
@@ -163,7 +166,7 @@
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
-        if(enemyAI || match.mode!=='training') {
+        if(!arena && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
             let d = Math.hypot(p.x - enemy.x, p.y - enemy.y);
             if(d > 160) { let a = Math.atan2(p.y-enemy.y, p.x-enemy.x); enemy.x += Math.cos(a)*1.5; enemy.y += Math.sin(a)*1.5; }
         }
@@ -175,7 +178,7 @@
                 zones.push({x: pip.x, y: pip.y, r: 120, life: 20, type: 'boom'});
                 pip.active = false;
             }
-        } else if(joyL.active && !p.isFlying) { 
+        } else if(joyL.active && !p.isFlying && !p.out) {
             let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y, dist=Math.hypot(dx,dy); 
             if(dist>5){ p.x+=(dx/dist)*BRAWLERS[current].speed*p.speedMult; p.y+=(dy/dist)*BRAWLERS[current].speed*p.speedMult; } 
         }
@@ -185,7 +188,7 @@
                 let ang = Math.atan2(b.ty - b.y, b.tx - b.x);
                 let offX = Math.cos(ang + 1.57) * Math.sin(b.progress * Math.PI) * b.curve;
                 let offY = Math.sin(ang + 1.57) * Math.sin(b.progress * Math.PI) * b.curve;
-                b.x = p.x + (b.tx - p.x) * b.progress + offX; b.y = p.y + (b.ty - p.y) * b.progress + offY;
+                b.x = b.originX + (b.tx - b.originX) * b.progress + offX; b.y = b.originY + (b.ty - b.originY) * b.progress + offY;
                 if(b.progress >= 1) { bullets.splice(i, 1); continue; }
             } else {
                 b.x+=b.vx; b.y+=b.vy; if(--b.life<=0) {
@@ -204,9 +207,10 @@
                 if(Math.hypot(b.x-p.x,b.y-p.y)<27) { bullets.splice(i,1); receiveHit(); }
                 continue;
             }
-            const targets = [enemy,...trainingTargets];
+            const targets = combatTargets();
             const target = targets.find(t => !b.visited?.includes(t) && Math.hypot(b.x-t.x,b.y-t.y)<30);
             if (!target) continue;
+            if(b.special==='realm' && !target.safe){startRealm(target);break;}
             if(b.special==='bats') {
                 (b.visited ||= []).push(target);
                 const damage=Math.min(1200,target.hp);hitEnemy(damage,false,target);
@@ -235,7 +239,15 @@
         for(let i=zones.length-1;i>=0;i--){ const z=zones[i]; 
             if(z.type === 'gravity') { enemy.x += (z.x - enemy.x) * 0.1; enemy.y += (z.y - enemy.y) * 0.1; if(z.life === 1) hitEnemy(2000, false); }
             if(z.type === 'stun' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) hitEnemy(10, false);
-            const nearby = [enemy,...trainingTargets].filter(t=>Math.hypot(t.x-z.x,t.y-z.y)<z.r);
+            const nearby = combatTargets().filter(t=>Math.hypot(t.x-z.x,t.y-z.y)<z.r);
+            if(z.type==='head') {
+                const target=combatTargets().filter(t=>!t.safe).sort((a,b)=>dist(z,a)-dist(z,b))[0];
+                if(target){
+                    const d=dist(z,target);
+                    if(d<26){for(const t of nearby)hitEnemy(2400,false,t);z.type='blast';z.life=14;}
+                    else {z.x+=(target.x-z.x)/d*4;z.y+=(target.y-z.y)/d*4;}
+                }
+            }
             if(z.type==='bear') {
                 const angle=Math.atan2(enemy.y-z.y,enemy.x-z.x);
                 if(!nearby.length) {z.x+=1.7*Math.cos(angle);z.y+=1.7*Math.sin(angle);}
@@ -258,8 +270,8 @@
                 z.type='blast'; z.life=12;
             }
             if (z.type==='turret' && z.life%30===0) {
-                const target=[enemy,...trainingTargets].sort((a,b)=>Math.hypot(a.x-z.x,a.y-z.y)-Math.hypot(b.x-z.x,b.y-z.y))[0];
-                if(Math.hypot(target.x-z.x,target.y-z.y)<390)
+                const target=combatTargets().sort((a,b)=>Math.hypot(a.x-z.x,a.y-z.y)-Math.hypot(b.x-z.x,b.y-z.y))[0];
+                if(target && Math.hypot(target.x-z.x,target.y-z.y)<390)
                     spawnBullet(Math.atan2(target.y-z.y,target.x-z.x),10,40,true,5,'turret',z);
             }
             if (z.type==='fire' && z.life%30===0) for(const target of nearby) hitEnemy(400,!z.isUlt,target);
@@ -274,10 +286,12 @@
     }
 
     function draw() {
-        ctx.fillStyle = "#2e7d32"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = realm ? "#342649" : "#2e7d32"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        drawObjective();
+        if(realm){ctx.save();ctx.fillStyle='#ebd9ff';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('Царство теней · '+Math.ceil(realm.left/60)+' с',canvas.width/2,100);ctx.restore();}
         if((joyR.active || joyU.active || aimPoint) && !pip.active) {
             let j = joyU.active ? joyU : joyR;
-            const angle = j.active ? Math.atan2(j.cy - j.y, j.cx - j.x) : Math.atan2(aimPoint.y - p.y, aimPoint.x - p.x);
+            const angle = j.active ? Math.atan2(j.cy - j.y, j.cx - j.x) : Math.atan2(aimPoint.y, aimPoint.x);
             ctx.save();
             ctx.strokeStyle = joyU.active ? "#ffe768" : "#fff";
             ctx.lineWidth = 2;
@@ -306,9 +320,11 @@
             } else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(angle); ctx.fillRect(0, -20, 350, 40); ctx.strokeRect(0, -20, 350, 40); ctx.restore(); }
             ctx.restore();
         }
+        if(!enemy.out && inPlane(enemy)){
         ctx.fillStyle=match.mode==='duel'?BRAWLERS[botTrio[Math.min(match.kills,2)]].color:'red'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
         ctx.fillStyle="lime"; ctx.fillRect(enemy.x-40, enemy.y-50, (enemy.hp/enemy.maxHp)*80, 8);
-        for(const t of trainingTargets) {
+        }
+        for(const t of trainingTargets.filter(t=>!t.out && !t.safe && inPlane(t))) {
             ctx.fillStyle='#b04a55'; ctx.beginPath(); ctx.arc(t.x,t.y,24,0,7); ctx.fill();
             ctx.fillStyle='#1a2030'; ctx.fillRect(t.x-25,t.y-36,50,5);
             ctx.fillStyle='#a4ffa5'; ctx.fillRect(t.x-25,t.y-36,50*t.hp/t.maxHp,5);
@@ -323,14 +339,14 @@
             ctx.fillText(fighterNames[botTrio[Math.min(match.kills,2)]],enemy.x,enemy.y-57);ctx.restore();
         }
         if(pip.active) { ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.arc(pip.x, pip.y, 15, 0, 7); ctx.fill(); }
-        ctx.save(); ctx.translate(p.x,p.y); ctx.scale(p.scale, p.scale);
+        ctx.save(); if(p.out)ctx.globalAlpha=.18; ctx.translate(p.x,p.y); ctx.scale(p.scale, p.scale);
         if(p.shield > 0) { ctx.strokeStyle = "#4caf50"; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0,0,30,0,7); ctx.stroke(); }
         if(p.boostTimer > 0) { ctx.shadowBlur = 15; ctx.shadowColor = "yellow"; ctx.strokeStyle = "yellow"; ctx.strokeRect(-22,-22,44,44); }
         ctx.fillStyle=BRAWLERS[current].color; ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();
         ctx.restore();
         ctx.save(); ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.lineWidth=3; ctx.strokeStyle="#17202a"; ctx.fillStyle="white";
         const label=window.playerNickname || "Player"; ctx.strokeText(label,p.x,p.y-35); ctx.fillText(label,p.x,p.y-35); ctx.restore();
-        if(window.roomPreview){for(const remote of Object.values(window.remotePlayers||{})){const x=remote.x*canvas.width,y=remote.y*canvas.height;ctx.save();ctx.fillStyle="#62cfff";ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fill();ctx.fillStyle="white";ctx.font="14px Arial";ctx.textAlign="center";ctx.fillText(remote.nickname,x,y-35);ctx.restore()}}
+        if(window.roomPreview && !realm){for(const remote of Object.values(window.remotePlayers||{})){const x=remote.x*canvas.width,y=remote.y*canvas.height;ctx.save();ctx.fillStyle="#62cfff";ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fill();ctx.fillStyle="white";ctx.font="14px Arial";ctx.textAlign="center";ctx.fillText(remote.nickname,x,y-35);ctx.restore()}}
         if(match.mode!=='training') {
             ctx.save();ctx.fillStyle='#192338';ctx.fillRect(p.x-32,p.y+30,64,7);
             ctx.fillStyle='#67efac';ctx.fillRect(p.x-32,p.y+30,64*p.hp/p.maxHp,7);
@@ -365,7 +381,7 @@
         if(drag) {
             ctx.save();ctx.fillStyle='#ffffff30';ctx.strokeStyle='#fff';ctx.lineWidth=2;
             ctx.beginPath();ctx.arc(drag.x,drag.y,16,0,7);ctx.fill();ctx.stroke();
-            if(aimPoint) {ctx.beginPath();ctx.moveTo(drag.x,drag.y);ctx.lineTo(drag.x+aimPoint.x-p.x,drag.y+aimPoint.y-p.y);ctx.stroke();}
+            if(aimPoint) {ctx.beginPath();ctx.moveTo(drag.x,drag.y);ctx.lineTo(drag.x+aimPoint.x,drag.y+aimPoint.y);ctx.stroke();}
             ctx.restore();
         }
         if(!touchControls) return;

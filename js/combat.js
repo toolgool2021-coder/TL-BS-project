@@ -14,7 +14,8 @@ function clearCombatTimers() {
 }
 
     function attack(angle, isUltAction) {
-        if (p.isFlying || pip.active) return;
+        if (!gameActive || p.out || p.isFlying || pip.active || (realm && isUltAction)) return;
+        if(kickBall(p,angle)) return;
         if (isUltAction && isUltReady) {
             ultCharge = 0;
             sounds.ult.currentTime = 0;
@@ -78,10 +79,10 @@ function clearCombatTimers() {
                 break;
             case 'Frank': zones.push({x: p.x+Math.cos(angle)*180, y: p.y+Math.sin(angle)*180, r:150, life:30, type:'stun'}); break;
             case 'Nani': pip.active = true; pip.x = p.x; pip.y = p.y; pip.angle = angle; pip.life = 600; break;
-            case 'Tick': pip.active = true; pip.x = p.x; pip.y = p.y; pip.angle = angle; pip.life = 400; break;
+            case 'Tick': zones.push({type:'head',x:p.x,y:p.y,r:65,life:400});break;
             case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
             case 'Gene': spawnBullet(angle, 18, 40, true, 12, 'pull'); break;
-            case 'Bibi': bullets.push({ x:p.x, y:p.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:300, type:'bubble', size:15 }); break;
+            case 'Bibi': bullets.push({ x:p.x, y:p.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:300, special:'bubble', isUlt:true, type:'normal', size:15 }); break;
             case 'Mortis': spawnBullet(angle,12,48,true,14,'bats');break;
             case 'Rico':
                 for(let n=0;n<9;n++) scheduleCombatAction(()=>spawnBullet(angle,15,60,true,5,'bounce'),n*55);
@@ -131,25 +132,27 @@ function clearCombatTimers() {
     }
 
     function hitEnemy(dmg, canCharge, target=enemy) {
-        if(match.finished || match.nextRound) return;
+        if(!inPlane(target) || target.out || match.finished || match.nextRound) return;
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
         sounds.hit.currentTime = 0;
         sounds.hit.play();
         if(target.hp <= 0) {
+            if(arena){if(!target.safe)match.kills++;objectiveDeath(target);return;}
+            if(realm?.target===target) realm=null;
             recordElimination();
             target.hp = target.maxHp;
             if(target===enemy) enemy.x = canvas.width / 2;
             if(target===enemy) enemy.y = 150;
         }
-        if(canCharge && ultCharge < 100) { ultCharge += BRAWLERS[current].ultChargeRate; }
+        if(!realm && canCharge && ultCharge < 100) { ultCharge += BRAWLERS[current].ultChargeRate; }
     }
 
     function spawnNaniProjectiles(angle) {
         const dist = 320;
         const tx = p.x + Math.cos(angle) * dist;
         const ty = p.y + Math.sin(angle) * dist;
-        [0, 45, -45].forEach(c => bullets.push({ x: p.x, y: p.y, tx, ty, progress: 0, curve: c, type: 'nani' }));
+        [0, 45, -45].forEach(c => bullets.push({ x:p.x,y:p.y,originX:p.x,originY:p.y,tx,ty,progress: 0, curve: c, type: 'nani' }));
     }
 
 

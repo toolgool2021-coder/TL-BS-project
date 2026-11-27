@@ -32,7 +32,7 @@ function rosterAttack(angle) {
 }
 function rosterSuper(angle) {
     const ability=BRAWLERS[current].ultType;
-    const targets=[enemy,...trainingTargets];
+    const targets=combatTargets();
     const step=d=>({x:Math.max(22,Math.min(canvas.width-22,p.x+Math.cos(angle)*d)),y:Math.max(22,Math.min(canvas.height-22,p.y+Math.sin(angle)*d))});
     const area=(pos,r,dmg)=>{for(const t of targets) if(Math.hypot(t.x-pos.x,t.y-pos.y)<r) hitEnemy(dmg,false,t);};
     switch(ability) {
@@ -52,7 +52,7 @@ function rosterSuper(angle) {
         case 'upgrade': p.speedMult=1.5;p.boostTimer=600;area(p,90,1400);break;
         case 'return': {const origin={x:p.x,y:p.y}; Object.assign(p,step(220));area(p,80,1500);scheduleCombatAction(()=>Object.assign(p,origin),220);break;}
         case 'surprise': if(Math.random()<.5) p.hp=Math.min(p.maxHp,p.hp+2200);else spawnBarleyBottle(angle,220,'boom',true);break;
-        case 'isolate': spawnBullet(angle,14,40,true,10,'silence'); break;
+        case 'isolate': spawnBullet(angle,14,40,true,10,'realm'); break;
         case 'hook': case 'kick': case 'leap': case 'pounce': Object.assign(p,step(ability==='hook'?290:190));area(p,ability==='leap'?100:65,1600);break;
     }
 }

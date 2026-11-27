@@ -31,13 +31,15 @@ function setupMatch() {
     enemy.maxHp=match.mode==='training'?30000:7000;
     enemy.hp=enemy.maxHp;
     if(match.mode!=='training') trainingTargets=[];
+    match.limit=Math.min(50,Math.max(1,Math.round(Number(document.querySelector('#kill-limit').value)||5)));
+    initObjective();
     if(match.mode==='duel') {
         playerTrio=[current,...reserves.map(select=>select.value)];
         duelTurn();
     }
 }
 function combatTick() {
-    if(match.mode==='training' || match.finished) return;
+    if(arena || !inPlane(enemy) || match.mode==='training' || match.finished) return;
     if(!p.hiddenTicks && --match.cooldown<=0 && Math.hypot(enemy.x-p.x,enemy.y-p.y)<440) {
         if(match.mode==='duel') {
             const bot=botTrio[match.kills],angle=Math.atan2(p.y-enemy.y,p.x-enemy.x);
@@ -56,17 +58,18 @@ function receiveHit() {
     if(match.finished || match.nextRound) return;
     p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
     if(p.hp) return;
+    realm=null;
     match.deaths++;
     p.hp=p.maxHp;
     p.x=canvas.width/2; p.y=canvas.height-65;
-    if(match.mode!=='arms' && match.deaths===3) finishMatch(false);
+    if(match.mode!=='arms' && match.deaths===(match.mode==='custom'?match.limit:3)) finishMatch(false);
     else if(match.mode==='duel') match.nextRound=true;
 }
 function recordElimination() {
     if(match.mode==='training' || match.finished) return;
     match.kills++;
     if(window.roomRace) window.publishRaceScore?.(match.kills);
-    if(match.kills===(match.mode==='arms'?2*match.order.length:3)) { finishMatch(true); return; }
+    if(match.kills===(match.mode==='arms'?2*match.order.length:match.mode==='custom'?match.limit:3)) { finishMatch(true); return; }
     if(match.mode==='duel') match.nextRound=true;
     if(match.mode==='arms' && match.kills%2===0) {
         clearCombatTimers();p.motion=null;p.isFlying=false;p.scale=1;
