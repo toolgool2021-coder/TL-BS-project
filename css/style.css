@@ -95,3 +95,8 @@ dialog {max-height:85dvh;overflow:auto}
 .gem-scores span:last-child {color:#ffaaa4}
 .gem-scores b {font-size:19px;font-variant-numeric:tabular-nums}
 #gem-life:not(:empty) {border-top:1px solid #5d687e;margin-top:4px;color:#bceaff}
+
+#gameCanvas{width:100vw;height:100dvh;touch-action:none}
+#fullscreen-toggle{position:fixed;right:max(8px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));z-index:110;background:#172037df;color:white;border:1px solid #ffffff55;border-radius:10px;padding:8px 12px;font:600 18px system-ui;touch-action:manipulation}
+#hud{top:max(8px,env(safe-area-inset-top))}
+@media(max-width:700px){.topbar{flex-wrap:wrap}.lobby{min-width:0}.loadout,.match-panel{min-width:0}.pin-system{right:8px;top:65px}.pin-btn{width:38px;height:38px;font-size:18px}.exit-btn{padding:6px 9px;font-size:12px}.ult-container{width:110px}.ammo-cell{width:25px}}
