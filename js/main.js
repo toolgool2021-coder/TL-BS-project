@@ -15,3 +15,20 @@ document.querySelector('#profile-sync').onclick=async()=>{
  status.textContent='Подключение...';
  try{const p=await loadProfile();if(p.nickname){window.playerNickname=p.nickname;input.value=p.nickname;localStorage.setItem('tlbs.nickname',p.nickname)}status.textContent='UID: '+p.uid}catch(e){status.textContent='Не удалось подключиться к Firebase'}
 };
+
+import {createRoom,joinRoom,leaveRoom,setReady,publishPosition} from './online.js';
+const room=document.querySelector('#room-dialog'), code=document.querySelector('#room-code'), roomStatus=document.querySelector('#room-status'), members=document.querySelector('#room-members');
+let roomSession=null, ready=false, players={};
+window.remotePlayers={};
+function showMembers(data){players=data;members.replaceChildren();for(const [uid,p] of Object.entries(data)){const line=document.createElement('p');line.textContent=p.nickname+(p.ready?' ✓':' · ожидание');members.append(line)}window.remotePlayers=Object.fromEntries(Object.entries(data).filter(([uid])=>uid!==roomSession?.uid))}
+async function enter(create){roomStatus.textContent='Подключение...';try{roomSession=await (create?createRoom(window.playerNickname,showMembers):joinRoom(code.value,window.playerNickname,showMembers));code.value=roomSession.code;ready=false;showMembers(players);roomStatus.textContent='Комната: '+roomSession.code}catch(e){roomStatus.textContent=e.message}}
+document.querySelector('#room-open').onclick=()=>room.showModal();
+document.querySelector('#room-create').onclick=()=>enter(true);
+document.querySelector('#room-join').onclick=()=>enter(false);
+document.querySelector('#room-ready').onclick=async()=>{if(!roomSession)return;try{await setReady(!ready);ready=!ready}catch(e){roomStatus.textContent=e.message}};
+document.querySelector('#room-preview').onclick=()=>{if(!roomSession)return;room.close();window.roomPreview=true;changeScreen('game')};
+async function closeRoom(){window.roomPreview=false;window.remotePlayers={};roomSession=null;try{await leaveRoom()}catch(e){roomStatus.textContent=e.message}}
+document.querySelector('#room-leave').onclick=()=>{closeRoom();room.close()};
+room.addEventListener('cancel',()=>closeRoom());
+window.sendRoomPosition=(x,y)=>{if(window.roomPreview)publishPosition(x,y)};
+window.endRoomPreview=()=>{if(window.roomPreview){window.roomPreview=false;room.showModal()}};
