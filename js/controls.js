@@ -45,7 +45,8 @@ canvas.addEventListener('pointerdown', e => {
 function updateDrag(e) {
     if (!drag || drag.id !== e.pointerId) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    aimPoint = Math.hypot(dx,dy) > 10 ? {x:dx, y:dy} : null;
+    const variableThrow=['Dynamike','Barley'].includes(current)||(current==='Tick'&&!pressedKeys.has(bindings.super));
+    aimPoint = variableThrow || Math.hypot(dx,dy)>10 ? {x:dx,y:dy} : null;
 }
 canvas.addEventListener('pointermove', updateDrag);
 canvas.addEventListener('pointerup', e => {
