@@ -8,7 +8,7 @@ canvas.addEventListener('touchstart',e=>{
  if(j.active)continue;Object.assign(j,{active:true,id:t.identifier,x,y,cx:x,cy:y});}
 },{passive:false});
 canvas.addEventListener('touchmove',e=>{if(!gameActive)return;e.preventDefault();for(const t of e.changedTouches){const q=touchPoint(t);for(const j of [joyL,joyR,joyU])if(j.active&&j.id===t.identifier){j.cx=q.x;j.cy=q.y;}}},{passive:false});
-canvas.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches){const q=touchPoint(t);for(const j of [joyL,joyR,joyU])if(j.active&&j.id===t.identifier){const dx=q.x-j.x,dy=q.y-j.y;j.active=false;j.id=null;if(gameActive&&j!==joyL&&Math.hypot(dx,dy)>10)attack(Math.atan2(dy,dx),j===joyU);}}},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches){const q=touchPoint(t);for(const j of [joyL,joyR,joyU])if(j.active&&j.id===t.identifier){const dx=q.x-j.x,dy=q.y-j.y;j.cx=q.x;j.cy=q.y;const variableThrow=['Dynamike','Barley'].includes(current)||(current==='Tick'&&j===joyR);try{if(gameActive&&j!==joyL&&(variableThrow||Math.hypot(dx,dy)>10))attack(Math.atan2(dy,dx),j===joyU);}finally{j.active=false;j.id=null;}}}},{passive:false});
 const pressedKeys = new Set();
 let aimPoint = null;
 let drag = null;
