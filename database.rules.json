@@ -17,6 +17,35 @@
           ".validate": false
         }
       }
+    },
+    "rooms": {
+      "$code": {
+        "members": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && $code.matches(/^[A-Z0-9]{6}$/)",
+            ".validate": "newData.hasChildren(['nickname','ready','x','y','updatedAt'])",
+            "nickname": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 24"
+            },
+            "ready": {
+              ".validate": "newData.isBoolean()"
+            },
+            "x": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+            },
+            "y": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
     }
   }
 }
