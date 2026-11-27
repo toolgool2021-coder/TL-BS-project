@@ -43,9 +43,12 @@ function setupMatch() {
 }
 function combatTick() {
     if(arena || enemy.stun || !inPlane(enemy) || match.mode==='training' || match.finished) return;
-    if(!p.hiddenTicks && --match.cooldown<=0 && Math.hypot(enemy.x-p.x,enemy.y-p.y)<440) {
+    const candidates=hostileSummons(enemy);
+    if(!p.hiddenTicks)candidates.push(p);
+    const target=candidates.sort((a,b)=>dist(a,enemy)-dist(b,enemy))[0];
+    if(target && --match.cooldown<=0 && dist(target,enemy)<440) {
         if(match.mode==='duel') {
-            const bot=botTrio[match.kills],angle=Math.atan2(p.y-enemy.y,p.x-enemy.x);
+            const bot=botTrio[match.kills],angle=Math.atan2(target.y-enemy.y,target.x-enemy.x);
             match.cooldown=Math.round(BRAWLERS[bot].reload*0.06);
             const fire=offset=>spawnBullet(angle+offset,bot==='Brock'?8:6,74,false,7,'hostile',enemy);
             if(bot==='Shelly') [-0.2,0,0.2].forEach(fire);
@@ -54,7 +57,7 @@ function combatTick() {
             return;
         }
         match.cooldown=65;
-        spawnBullet(Math.atan2(p.y-enemy.y,p.x-enemy.x),6,74,false,7,'hostile',enemy);
+        spawnBullet(Math.atan2(target.y-enemy.y,target.x-enemy.x),6,74,false,7,'hostile',enemy);
     }
 }
 function receiveHit() {

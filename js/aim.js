@@ -13,13 +13,13 @@ const basicAim={
  Gene:ray(11,25,10),Bibi:fan(130,.6),Mortis:{kind:'dash',range:130,radius:60},Stu:ray(16,30),Kit:kitClaw
 };
 const superAimData={
- Shelly:ray(16,40,5,.6),Colt:ray(20,60),Max:ring(90),Rosa:ring(28),Jessie:landing(150,22),
+ Shelly:ray(16,40,5,.6),Colt:ray(20,60),Max:ring(90),Rosa:ring(28),Jessie:landing(215,22),
  Bo:landing(200,58,[-.28,0,.28]),Frank:fan(330,.48),Nani:ring(22),Tick:ring(26),Tara:landing(250,100),
  Gene:ray(18,40,12),Bibi:ray(10,300,15),Mortis:ray(12,48,14),Rico:ray(15,60),
  Brock:landing(240,80,[-.26,0,.26]),Crow:jump(225,80),Stu:jump(200,22),Bull:jump(312,50),
  Darryl:jump(312,50),El_Primo:jump(250,120),Barley:landing(250,55,[-.6,-.3,0,.3,.6]),
- Dynamike:landing(250,140),Poco:fan(360,.55),Nita:landing(150,32),Piper:jump(200,24),Pam:landing(140,95),
- Leon:ring(25),Spike:landing(220,100),Sandy:landing(160,140),Edgar:jump(190,100),Colette:jump(220,48),
+ Dynamike:landing(250,140),Poco:fan(360,.55),Nita:landing(205,38),Piper:jump(200,24),Pam:landing(235,95),
+ Leon:ring(25),Spike:landing(220,100),Sandy:landing(160,140),Edgar:jump(260,100),Colette:jump(220,48),
  Emz:ring(125),Bea:ray(11,45,6,.33),Gale:fan(350,.5),Surge:jump(90,90),Fang:jump(190,65),
  Buzz:ray(14,23,8),Chester:landing(220,80),Cordelius:ray(14,40,10),Kit:kitJump
 };
@@ -56,7 +56,7 @@ function drawAim(angle,superMove){
    ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,Math.PI*2);ctx.stroke();
  }else if(s.kind==='jump'||s.kind==='landing'){
    for(const offset of s.offsets){
-     const a=angle+offset, end=s.kind==='jump'?destination(a,s.range):{x:p.x+Math.cos(a)*s.range,y:p.y+Math.sin(a)*s.range};
+     const a=angle+offset, end=s.kind==='jump'||(superMove && ['Pam','Jessie','Nita'].includes(current))?destination(a,s.range):{x:p.x+Math.cos(a)*s.range,y:p.y+Math.sin(a)*s.range};
      if(s.range){
        ctx.beginPath();ctx.setLineDash([5,6]);ctx.moveTo(p.x,p.y);
        ctx.quadraticCurveTo((p.x+end.x)/2,(p.y+end.y)/2-(s.kind==='jump'?36:16),end.x,end.y);

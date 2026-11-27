@@ -162,12 +162,13 @@
         advanceAttachment();
         tickObjective();
         if(match.finished) return;
-        advanceSuperMotion();
+        tickHammer();advanceSuperMotion();
         combatTick();
         advanceThrows();
         const startX=p.x,startY=p.y;
         keyboardMovement();
-        if(current==='Kit' && !p.attachment && !realm)ultCharge=Math.min(100,ultCharge+100/1200);
+        if(!p.out && !realm && (current==='Edgar'||(current==='Kit' && !p.attachment)))
+            ultCharge=Math.min(100,ultCharge+100/(current==='Edgar'?1800:1200));
         if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / 16.6);
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
@@ -199,6 +200,7 @@
                 if(b.progress >= 1) { bullets.splice(i, 1); continue; }
             } else {
                 b.x+=b.vx; b.y+=b.vy; if(--b.life<=0) {
+                    if(b.special==='Spike')burstSpike(b);
                     if(b.special === 'gene_main') {
                         for(let j=-1; j<=1; j++) {
                             spawnBullet(b.angle + j*0.25, 12, 25, false, 5, 'gene_split');
@@ -210,7 +212,11 @@
                 if(b.special==='bounce') { if(b.x<0 || b.x>canvas.width) b.vx *= -1; if(b.y<0 || b.y>canvas.height) b.vy *= -1; }
                 if(b.special==='bubble') { if(b.x<0 || b.x>canvas.width) b.vx *= -1; if(b.y<0 || b.y>canvas.height) b.vy *= -1; }
             }
-            if(insideCover(b.x,b.y)){bullets.splice(i,1);continue;}
+            if(insideCover(b.x,b.y)){if(b.special==='Spike'){b.x-=b.vx;b.y-=b.vy;burstSpike(b);}bullets.splice(i,1);continue;}
+            if(b.special==='hostile' || b.special==='teamShot'){
+                const unit=hostileSummons(b.owner||enemy).find(z=>dist(z,b)<20);
+                if(unit){strikeSummon(unit,b.special==='hostile'?800:550);bullets.splice(i,1);continue;}
+            }
             if(b.special==='teamShot'){
                 const t=[...arena.actors,...arena.safes].find(t=>!t.out && t.team!==b.owner.team && inPlane(t)===inPlane(b.owner) && dist(t,b)<23);
                 if(t){objectiveHit(t,550);bullets.splice(i,1);}continue;
@@ -240,11 +246,12 @@
                 const distance=Math.hypot(b.x-b.originX,b.y-b.originY);
                 const damage=b.special==='Bea'?(b.charged?1800:600):b.special==='Piper'?Math.round(440+Math.min(1250,distance*1.6)):Math.round(500-Math.min(290,distance*.55));
                 if(b.special==='Bea' && !b.charged)p.beeCharge=true;
+                if(b.special==='Piper' && !target.spawnShield)damageNotes.push({x:target.x,y:target.y,age:0,damage});
                 hitEnemy(damage,true,target);bullets.splice(i,1);continue;
             }
             if (b.special==='Edgar') p.hp=Math.min(p.maxHp,p.hp+160);
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
-            if (b.special==='Spike') for(let k=0;k<6;k++) spawnBullet(k*Math.PI/3,9,14,false,4,'thorn',b);
+            if (b.special==='Spike')burstSpike(b);
             if (b.special === 'pull') { target.x=p.x; target.y=p.y; }
             if (b.special === 'poison') {
                 for(let n=1;n<=6;n++) scheduleCombatAction(()=>hitEnemy(150,false,target),500*n);
@@ -263,6 +270,7 @@
             if(b.special !== 'bubble' && b.special !== 'bounce') bullets.splice(i,1);
         }
         for(let i=zones.length-1;i>=0;i--){ const z=zones[i]; 
+            if(summonStats[z.type]){z.age++;if(z.hitFlash)z.hitFlash--;}
             if(z.type === 'gravity') { enemy.x += (z.x - enemy.x) * 0.1; enemy.y += (z.y - enemy.y) * 0.1; if(z.life === 1) hitEnemy(2000, false); }
             if(z.type === 'stun' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) hitEnemy(10, false);
             const nearby = combatTargets().filter(t=>Math.hypot(t.x-z.x,t.y-z.y)<z.r);
@@ -277,11 +285,13 @@
             if(z.type==='bear') {
                 const angle=Math.atan2(enemy.y-z.y,enemy.x-z.x);
                 if(!nearby.length) {z.x+=1.7*Math.cos(angle);z.y+=1.7*Math.sin(angle);}
-                if(z.life%40===0) for(const t of nearby) hitEnemy(700,false,t);
+                if(z.age%40===0) for(const t of nearby) hitEnemy(700,false,t);
             }
             if(z.type==='aura') {z.x=p.x;z.y=p.y;if(z.life%30===0) for(const t of nearby) hitEnemy(500,false,t);}
             if(z.type==='poprocks' && z.life%20===0)for(const t of nearby)hitEnemy(240,false,t);
-            if(z.type==='station' && z.life%45===0 && Math.hypot(p.x-z.x,p.y-z.y)<z.r) p.hp=Math.min(p.maxHp,p.hp+600);
+            if(z.type==='station' && z.age%45===0){
+                for(const a of arena?.actors||[p])if(!a.out && (a===p||a.team===p.team) && dist(a,z)<=z.r)a.hp=Math.min(a.maxHp,a.hp+600);
+            }
             if(z.type==='sandstorm' && Math.hypot(p.x-z.x,p.y-z.y)<z.r) p.hiddenTicks=2;
             if(z.type==='boMine') {
                 if(z.arm>0) z.arm--;
@@ -296,10 +306,10 @@
                 for(const target of nearby) hitEnemy(2000,true,target);
                 z.type='blast'; z.life=12;
             }
-            if (z.type==='turret' && z.life%30===0) {
+            if (z.type==='turret' && z.age%30===0) {
                 const target=combatTargets().sort((a,b)=>Math.hypot(a.x-z.x,a.y-z.y)-Math.hypot(b.x-z.x,b.y-z.y))[0];
                 if(target && Math.hypot(target.x-z.x,target.y-z.y)<390)
-                    spawnBullet(Math.atan2(target.y-z.y,target.x-z.x),10,40,true,5,'turret',z);
+                    spawnBullet(z.angle=Math.atan2(target.y-z.y,target.x-z.x),10,40,true,5,'turret',z);
             }
             if (z.type==='fire' && z.life%30===0) for(const target of nearby) hitEnemy(400,!z.isUlt,target);
             if (z.type==='boom' && !z.exploded) {
@@ -364,8 +374,10 @@
         if(match.mode==='gems')drawGemActors();
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
-        bullets.forEach(b => { ctx.fillStyle=b.special==='hostile'?'#ff8659':b.special==='poison'?"#2ecc71":b.isUlt?"#ff00ff":"white"; ctx.beginPath(); ctx.arc(b.x,b.y,b.size||5,0,7); ctx.fill(); });
-        zones.forEach(z => { 
+        bullets.forEach(drawCombatProjectile);
+        paintHammer();
+        zones.forEach(z => {
+            if(drawSummon(z))return;
             if(z.type==='boMine') {
                 ctx.save();ctx.strokeStyle=z.fuse?'#ff995e':'#bbcdd580';
                 ctx.lineWidth=z.fuse?3:1;ctx.beginPath();ctx.arc(z.x,z.y,z.fuse?8+(24-z.fuse)*1.5:7,0,7);ctx.stroke();ctx.restore();return;

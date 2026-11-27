@@ -72,6 +72,7 @@ function tickObjective(){
    if(a===p || a.stun>0)continue;
    if(window.roomControlledBot?.(a)){window.stepRoomBot(a);continue;}
    const rivals=A.actors.filter(b=>!b.out && (b!==p || !p.hiddenTicks || dist(a,p)<65 || A.carrier===p) && b.team!==a.team && inPlane(b)===inPlane(a));
+   rivals.push(...hostileSummons(a));
    const safe=A.safes[1-a.team];if(safe && (!realm || !inPlane(a)))rivals.push(safe);
    const priority=b=>dist(a,b)-(mode==='gems'?Math.min(5,b.gems||0)*18:0);
    rivals.sort((b,d)=>priority(b)-priority(d));const target=rivals[0];if(!target)continue;

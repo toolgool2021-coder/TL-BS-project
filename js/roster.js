@@ -55,8 +55,8 @@ function rosterSuper(angle) {
         case 'heal':
             for(const ally of arena?.actors || [p])if(!ally.out && ally.team===p.team && (ally===p || inFan(ally,angle,superAimData.Poco)))ally.hp=Math.min(ally.maxHp,ally.hp+3000);
             break;
-        case 'station': zones.push({...step(140),type:'station',r:95,life:420}); break;
-        case 'bear': zones.push({...step(150),type:'bear',r:32,life:600}); break;
+        case 'station': summon('station',destination(angle,superAimData.Pam.range)); break;
+        case 'bear': summon('bear',destination(angle,superAimData.Nita.range)); break;
         case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true}); beginTravel(angle,200,28,'Piper',24); break;
         case 'cloak': p.hiddenTicks=260; break;
         case 'sandstorm': zones.push({...step(160),type:'sandstorm',r:140,life:360}); break;

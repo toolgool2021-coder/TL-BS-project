@@ -10,10 +10,11 @@ function scheduleCombatAction(action, delay) {
 
 function clearCombatTimers() {
     for (const timer of combatTimers) clearTimeout(timer);
-    combatTimers.clear();
+    combatTimers.clear();hammer=null;damageNotes=[];
 }
 
     function attack(angle, isUltAction) {
+        if (hammer && hammer.age<hammer.windup) return;
         if (!gameActive || p.out || p.isFlying || pip.active || (realm && isUltAction)) return;
         if(p.attachment && !p.attachment.ally)return;
         if(p.attachment?.ally && isUltAction){clearAttachment();return;}
@@ -42,7 +43,7 @@ function clearCombatTimers() {
                 case 'Bo': for(let i=-1; i<=1; i++) scheduleCombatAction(()=>spawnBullet(angle+i*0.1, 13, 45), i*100+100); break;
                 case 'Jessie': spawnBullet(angle, 12, 55, false, 8, 'energy'); break;
                 case 'Rico': spawnBullet(angle, 14, 60, false, 5, 'bounce'); break;
-                case 'Frank': scheduleCombatAction(()=>{for(const t of combatTargets())if(inFan(t,angle,basicAim.Frank))hitEnemy(1100,true,t);},220);break;
+                case 'Frank': startHammer(angle,false);break;
                 case 'Nani': spawnNaniProjectiles(angle); break;
                 case 'Max': for(let i=0; i<4; i++) scheduleCombatAction(()=>spawnBullet(angle, 18, 35), i*50); break;
                 case 'Crow': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.3, 14, 40, false, 4, 'poison'); break;
@@ -67,17 +68,15 @@ function clearCombatTimers() {
             case 'Colt': for(let i=0; i<12; i++) scheduleCombatAction(()=>spawnBullet(angle, 20, 60, true), i*50); break;
             case 'Max': p.speedMult = 1.6; p.boostTimer = 240; break;
             case 'Rosa': p.shield = 180; break; 
-            case 'Jessie': zones.push({x: p.x+Math.cos(angle)*150, y: p.y+Math.sin(angle)*150, r:60, life:300, type:'turret'}); break;
+            case 'Jessie': summon('turret',destination(angle,superAimData.Jessie.range)); break;
             case 'Bo':
                 zones=zones.filter(z=>z.type!=='boMine');
                 throws=throws.filter(t=>t.type!=='boMine');
                 for(const spread of [-0.28,0,0.28]) spawnBarleyBottle(angle+spread,200,'boMine',true);
                 break;
-            case 'Frank': scheduleCombatAction(()=>{for(const t of combatTargets())if(inFan(t,angle,superAimData.Frank)){
-                if(!t.safe)t.stun=90;hitEnemy(2000,false,t);
-            }},360);break;
+            case 'Frank': startHammer(angle,true);break;
             case 'Nani': pip.active = true; pip.x = p.x; pip.y = p.y; pip.angle = angle; pip.life = 600; break;
-            case 'Tick': zones.push({type:'head',x:p.x,y:p.y,r:65,life:400});break;
+            case 'Tick': summon('head',{x:p.x,y:p.y});break;
             case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
             case 'Gene': spawnBullet(angle, 18, 40, true, 12, 'pull'); break;
             case 'Bibi': bullets.push({ x:p.x, y:p.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:300, special:'bubble', isUlt:true, type:'normal', size:15 }); break;

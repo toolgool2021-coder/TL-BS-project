@@ -57,6 +57,7 @@ window.shareMatch=(result=null)=>{
  const actors=arena.actors.map(a=>({...point(a),hp:a.hp,maxHp:a.maxHp,out:a.out || (a===p && !visibleTo(arena.actors[1],p) && p.hiddenTicks>0),fighter:a.fighter,team:a.team}));
  send('matchState',{...host,actors,score:arena.score,ball:point(arena.ball),carrier:arena.carrier?.slot??-1,
    walls:arena.walls.map(w=>({...point(w),w:w.w/canvas.width,h:w.h/canvas.height})),
+   units:zones.filter(z=>Object.hasOwn(summonStats,z.type)).map(z=>({...point(z),type:z.type,hp:z.hp,age:z.age,angle:z.angle||0,r:z.r/canvas.width})),
    shots:bullets.slice(-30).map(point),aspect:canvas.width/canvas.height,result});
 };
 window.closeSharedHost=()=>{if(host){host=null;command=null;send('matchState',null);}};
@@ -67,6 +68,11 @@ function paintGuest(){
  g.fillStyle='#2b7545';g.fillRect(0,0,w,h);
  if(s.mode==='ball'){g.fillStyle='#f0bc73';g.fillRect(w*.41,0,w*.18,9);g.fillRect(w*.41,h-9,w*.18,9);}
  for(const r of s.walls){g.fillStyle='#aa9477';g.fillRect(r.x*w,r.y*h,r.w*w,r.h*h);}
+ if(Array.isArray(s.units))for(const u of s.units.slice(0,4)){
+   if(Object.hasOwn(summonStats,u.type) && [u.x,u.y,u.hp,u.age,u.angle,u.r].every(Number.isFinite)){
+     drawSummon({...u,x:u.x*w,y:u.y*h,r:Math.max(0,Math.min(w,u.r*w)),maxHp:summonStats[u.type].hp},g);
+   }
+ }
  g.textAlign='center';g.font='16px sans-serif';
  s.actors.forEach((a,i)=>{if(a.out)return;g.fillStyle=a.team?'#62cef5':'#fc8d85';g.beginPath();g.arc(a.x*w,a.y*h,15,0,7);g.fill();
  g.fillStyle='white';g.fillText((i===1?'Ты · ':'')+fighterNames[a.fighter],a.x*w,a.y*h-20);});
