@@ -35,3 +35,6 @@ export function publishPosition(x,y){
  const now=performance.now();if(now-session.last<100)return;session.last=now;
  session.sdk.update(session.member,{x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y)),updatedAt:session.sdk.serverTimestamp()}).catch(()=>{});
 }
+export async function publishRaceScore(kills){
+ if(session) await session.sdk.update(session.member,{raceKills:kills,updatedAt:session.sdk.serverTimestamp()});
+}

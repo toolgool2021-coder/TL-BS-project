@@ -63,6 +63,7 @@ function clearCombatTimers() {
     }
 
     function useUltimate(angle) {
+        superFx={x:p.x,y:p.y,fighter:current,age:0};
         if(BRAWLERS[current].shot) { rosterSuper(angle); return; }
         switch(current) {
             case 'Shelly': for(let i=-4; i<=4; i++) spawnBullet(angle+i*0.15, 16, 40, true); break;
@@ -70,21 +71,34 @@ function clearCombatTimers() {
             case 'Max': p.speedMult = 1.6; p.boostTimer = 240; break;
             case 'Rosa': p.shield = 180; break; 
             case 'Jessie': zones.push({x: p.x+Math.cos(angle)*150, y: p.y+Math.sin(angle)*150, r:60, life:300, type:'turret'}); break;
-            case 'Bo': for(let i=-1; i<=1; i++) { let tx=p.x+Math.cos(angle+i*0.4)*200, ty=p.y+Math.sin(angle+i*0.4)*200; zones.push({x:tx, y:ty, r:50, life:500, type:'mine'}); } break;
+            case 'Bo':
+                zones=zones.filter(z=>z.type!=='boMine');
+                throws=throws.filter(t=>t.type!=='boMine');
+                for(const spread of [-0.28,0,0.28]) spawnBarleyBottle(angle+spread,200,'boMine',true);
+                break;
             case 'Frank': zones.push({x: p.x+Math.cos(angle)*180, y: p.y+Math.sin(angle)*180, r:150, life:30, type:'stun'}); break;
             case 'Nani': pip.active = true; pip.x = p.x; pip.y = p.y; pip.angle = angle; pip.life = 600; break;
             case 'Tick': pip.active = true; pip.x = p.x; pip.y = p.y; pip.angle = angle; pip.life = 400; break;
             case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
             case 'Gene': spawnBullet(angle, 18, 40, true, 12, 'pull'); break;
             case 'Bibi': bullets.push({ x:p.x, y:p.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:300, type:'bubble', size:15 }); break;
-            case 'Stu': p.x += Math.cos(angle)*200; p.y += Math.sin(angle)*200; break;
-            case 'Bull':
-            case 'Darryl': p.isFlying=true; let step=0; let f=setInterval(()=>{p.x += Math.cos(angle)*12; p.y += Math.sin(angle)*12; if(Math.hypot(p.x-enemy.x,p.y-enemy.y)<50) hitEnemy(1000,false); if(++step>25){clearInterval(f); p.isFlying=false;}}, 20); break;
-            case 'El_Primo': p.isFlying=true; p.scale=2.2; 
-                let jx=p.x+Math.cos(angle)*250, jy=p.y+Math.sin(angle)*250;
-                let c=0; let fly=setInterval(()=>{p.x+=(jx-p.x)/5; p.y+=(jy-p.y)/5; if(++c>=20){clearInterval(fly); p.isFlying=false; p.scale=1; if(Math.hypot(p.x-enemy.x, p.y-enemy.y)<120) hitEnemy(1800, false);}}, 25); break;
+            case 'Mortis': spawnBullet(angle,12,48,true,14,'bats');break;
+            case 'Rico':
+                for(let n=0;n<9;n++) scheduleCombatAction(()=>spawnBullet(angle,15,60,true,5,'bounce'),n*55);
+                break;
+            case 'Brock':
+                for(let n=0;n<7;n++) scheduleCombatAction(()=>spawnBarleyBottle(angle+Math.sin(n*2)*0.26,240+Math.cos(n)*35,'boom',true),n*90);
+                break;
+            case 'Crow': case 'Stu': case 'Bull': case 'Darryl': case 'El_Primo': {
+                const travel={Crow:[225,26],Stu:[200,13],Bull:[312,32],Darryl:[312,28],El_Primo:[250,30]};
+                const [distance,total]=travel[current];
+                p.motion={fighter:current,x:p.x,y:p.y,dx:Math.cos(angle)*distance,dy:Math.sin(angle)*distance,total,age:0,hits:new Set()};
+                p.isFlying=true;
+                if(current==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
+                break;
+            }
             case 'Barley': for(let i=0; i<5; i++) spawnBarleyBottle(angle+(i-2)*0.3, 250, 'fire', true); break;
-            case 'Dynamike': zones.push({x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r:140, life:60, type:'boom', isBig:true, isUlt:true}); break;
+            case 'Dynamike': spawnBarleyBottle(angle,250,'bigBoom',true);break;
         }
     }
 
@@ -101,7 +115,11 @@ function clearCombatTimers() {
         for(let i=throws.length-1;i>=0;i--) {
             const t=throws[i];
             if(++t.age<30) continue;
-            zones.push({x:t.tx,y:t.ty,type:t.type,isUlt:t.isUlt,r:t.type==='fire'?55:80,
+            if(t.type==='boMine') {
+                zones.push({x:t.tx,y:t.ty,r:58,type:'boMine',arm:30,fuse:0,life:Infinity});
+                throws.splice(i,1);continue;
+            }
+            zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'?'boom':t.type,isBig:t.type==='bigBoom',isUlt:t.isUlt,r:t.type==='bigBoom'?140:t.type==='fire'?55:80,
                 life:t.type==='mine'?150:t.type==='fire'?120:14});
             throws.splice(i,1);
         }
@@ -134,3 +152,24 @@ function clearCombatTimers() {
         [0, 45, -45].forEach(c => bullets.push({ x: p.x, y: p.y, tx, ty, progress: 0, curve: c, type: 'nani' }));
     }
 
+
+function advanceSuperMotion(){
+    const m=p.motion;
+    if(!m) return;
+    const progress=Math.min(1,++m.age/m.total);
+    const eased=progress*progress*(3-2*progress);
+    p.x=Math.max(22,Math.min(canvas.width-22,m.x+m.dx*eased));
+    p.y=Math.max(22,Math.min(canvas.height-22,m.y+m.dy*eased));
+    if(m.fighter==='El_Primo' || m.fighter==='Crow') p.scale=1+0.65*Math.sin(progress*Math.PI);
+    for(const target of [enemy,...trainingTargets]) {
+        const slam=m.fighter==='El_Primo' && progress===1;
+        if(!slam && m.fighter!=='Bull' && m.fighter!=='Darryl') continue;
+        if(!m.hits.has(target) && Math.hypot(target.x-p.x,target.y-p.y)<(slam?120:50)){
+            m.hits.add(target);hitEnemy(slam?1800:1000,false,target);
+        }
+    }
+    if(progress===1){
+        if(m.fighter==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
+        p.motion=null;p.isFlying=false;p.scale=1;
+    }
+}

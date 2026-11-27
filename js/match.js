@@ -16,13 +16,16 @@ function duelTurn() {
     enemy.x=canvas.width/2;enemy.y=65;
     clearCombatTimers();resetControls();
     bullets.length=0;zones.length=0;throws.length=0;
-    pip.active=false;p.isFlying=false;p.scale=1;p.hiddenTicks=0;p.boostTimer=0;p.speedMult=1;p.shield=0;
+    p.motion=null;superFx=null;pip.active=false;p.isFlying=false;p.scale=1;p.hiddenTicks=0;p.boostTimer=0;p.speedMult=1;p.shield=0;
     ammo=BRAWLERS[current].maxAmmo;ultCharge=0;match.cooldown=75;
     renderAmmo();
 }
 function setupMatch() {
     selectedFighter=current;
-    Object.assign(match,{mode:window.roomPreview?'training':document.querySelector('#mode').value,kills:0,deaths:0,damage:0,cooldown:60,finished:false,nextRound:false});
+    if(window.roomRace) window.publishRaceScore?.(0);
+    const roster=Object.keys(BRAWLERS), start=roster.indexOf(current);
+    match.order=roster.slice(start).concat(roster.slice(0,start));
+    Object.assign(match,{mode:window.roomPreview?(window.roomRace?'arms':'training'):document.querySelector('#mode').value,kills:0,deaths:0,damage:0,cooldown:60,finished:false,nextRound:false});
     p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
     p.hp=p.maxHp; p.hiddenTicks=0;
     enemy.maxHp=match.mode==='training'?30000:7000;
@@ -56,17 +59,18 @@ function receiveHit() {
     match.deaths++;
     p.hp=p.maxHp;
     p.x=canvas.width/2; p.y=canvas.height-65;
-    if(match.deaths===3) finishMatch(false);
+    if(match.mode!=='arms' && match.deaths===3) finishMatch(false);
     else if(match.mode==='duel') match.nextRound=true;
 }
 function recordElimination() {
     if(match.mode==='training' || match.finished) return;
     match.kills++;
-    if(match.kills===(match.mode==='arms'?6:3)) { finishMatch(true); return; }
+    if(window.roomRace) window.publishRaceScore?.(match.kills);
+    if(match.kills===(match.mode==='arms'?2*match.order.length:3)) { finishMatch(true); return; }
     if(match.mode==='duel') match.nextRound=true;
     if(match.mode==='arms' && match.kills%2===0) {
-        const roster=Object.keys(BRAWLERS);
-        current=roster[(roster.indexOf(current)+1)%roster.length];
+        clearCombatTimers();p.motion=null;p.isFlying=false;p.scale=1;
+        current=match.order[match.kills/2];
         p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
         ammo=BRAWLERS[current].maxAmmo;
         ultCharge=0;renderAmmo();

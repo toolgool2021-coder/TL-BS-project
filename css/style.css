@@ -78,3 +78,12 @@ dialog {max-height:85dvh;overflow:auto}
 }
 @media(hover:hover) {button:hover {filter:brightness(1.14)}}
 @media(prefers-reduced-motion:no-preference) {.loadout,.match-panel {animation:enter-panel .24s ease-out}@keyframes enter-panel {from {opacity:0;transform:translateY(6px)} to {opacity:1;transform:none}}}
+#pin-menu {counter-reset:pin}
+.pin-option {position:relative}
+.pin-option::after {counter-increment:pin;content:counter(pin);position:absolute;right:-3px;bottom:-2px;font:700 11px system-ui;color:white;background:#22304c;border-radius:50%;padding:2px 5px}
+#race-leaders {position:absolute;right:10px;top:0;margin:0;padding:6px 8px 6px 24px;background:#172037d9;border-radius:8px;font:600 12px system-ui}
+@media(prefers-reduced-motion:no-preference) {
+.pin-menu {animation:pin-open .22s ease-out}
+@keyframes pin-open {from {opacity:0;transform:translateX(6px)} to {opacity:1;transform:translateX(0)}}
+#ult-bar,.ammo-fill {transition:width .12s linear}
+}

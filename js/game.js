@@ -1,3 +1,4 @@
+    let superFx=null;
     let enemyAI = false;
     let activePin = { type: '', timer: 0, scale: 0 };
     let enemyPin = { type: '', timer: 0, scale: 0 };
@@ -117,6 +118,8 @@
         trainingTargets = window.roomPreview ? [] : [-1,1].map(side => ({
             x:Math.max(30,Math.min(canvas.width-30,enemy.x+side*110)), y:enemy.y+75, hp:30000, maxHp:30000
         }));
+        superFx=null;
+        p.motion=null;
         setupMatch();
         ammo = BRAWLERS[current].maxAmmo;
         renderAmmo();
@@ -151,6 +154,8 @@
         if(match.finished) return;
         if(match.nextRound) duelTurn();
         if(p.hiddenTicks>0) p.hiddenTicks--;
+        if(superFx && ++superFx.age>=45) superFx=null;
+        advanceSuperMotion();
         combatTick();
         advanceThrows();
         keyboardMovement();
@@ -202,6 +207,11 @@
             const targets = [enemy,...trainingTargets];
             const target = targets.find(t => !b.visited?.includes(t) && Math.hypot(b.x-t.x,b.y-t.y)<30);
             if (!target) continue;
+            if(b.special==='bats') {
+                (b.visited ||= []).push(target);
+                const damage=Math.min(1200,target.hp);hitEnemy(damage,false,target);
+                p.hp=Math.min(p.maxHp,p.hp+damage);continue;
+            }
             if (b.special==='Edgar') p.hp=Math.min(p.maxHp,p.hp+160);
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
             if (b.special==='Spike') for(let k=0;k<6;k++) spawnBullet(k*Math.PI/3,9,14,false,4,'thorn',b);
@@ -234,6 +244,15 @@
             if(z.type==='aura') {z.x=p.x;z.y=p.y;if(z.life%30===0) for(const t of nearby) hitEnemy(500,false,t);}
             if(z.type==='station' && z.life%45===0 && Math.hypot(p.x-z.x,p.y-z.y)<z.r) p.hp=Math.min(p.maxHp,p.hp+600);
             if(z.type==='sandstorm' && Math.hypot(p.x-z.x,p.y-z.y)<z.r) p.hiddenTicks=2;
+            if(z.type==='boMine') {
+                if(z.arm>0) z.arm--;
+                else if(z.fuse>0) {
+                    if(--z.fuse===0) {
+                        for(const target of nearby) hitEnemy(2000,false,target);
+                        z.type='blast'; z.life=16;
+                    }
+                } else if(nearby.length) z.fuse=24;
+            }
             if (z.type==='mine' && nearby.length) {
                 for(const target of nearby) hitEnemy(2000,true,target);
                 z.type='blast'; z.life=12;
@@ -317,18 +336,39 @@
             ctx.fillStyle='#67efac';ctx.fillRect(p.x-32,p.y+30,64*p.hp/p.maxHp,7);
             ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 13px sans-serif';
             ctx.fillText(current+' · '+p.hp+' HP',p.x,p.y+53);
-            ctx.fillText(match.kills+' : '+match.deaths,canvas.width/2,75);ctx.restore();
+            const score=match.mode==='arms'?'Боец '+Math.min(match.order.length,1+Math.floor(match.kills/2))+'/'+match.order.length+' · '+match.kills+'/'+(2*match.order.length):match.kills+' : '+match.deaths;
+            ctx.fillText(score,canvas.width/2,75);ctx.restore();
         }
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(b => { ctx.fillStyle=b.special==='hostile'?'#ff8659':b.special==='poison'?"#2ecc71":b.isUlt?"#ff00ff":"white"; ctx.beginPath(); ctx.arc(b.x,b.y,b.size||5,0,7); ctx.fill(); });
         zones.forEach(z => { 
+            if(z.type==='boMine') {
+                ctx.save();ctx.strokeStyle=z.fuse?'#ff995e':'#bbcdd580';
+                ctx.lineWidth=z.fuse?3:1;ctx.beginPath();ctx.arc(z.x,z.y,z.fuse?8+(24-z.fuse)*1.5:7,0,7);ctx.stroke();ctx.restore();return;
+            }
             if(z.type==='gravity') ctx.fillStyle="rgba(0,0,0,0.6)";
             else if(z.type==='mine') ctx.fillStyle="rgba(255,0,0,0.5)";
             else if(z.type==='turret') ctx.fillStyle="rgba(255,87,34,0.6)";
             else ctx.fillStyle="rgba(255,255,0,0.4)";
             ctx.beginPath(); ctx.arc(z.x,z.y,z.r,0,7); ctx.fill(); 
         });
+        if(superFx) {
+            const u=superFx.age/45;
+            ctx.save();ctx.globalAlpha=Math.sin(Math.PI*(0.12+0.88*u));
+            ctx.strokeStyle='#ffdb72';ctx.lineWidth=3;ctx.beginPath();
+            ctx.arc(superFx.x,superFx.y,25+48*u,0,Math.PI*2);ctx.stroke();
+            ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff4bd';
+            ctx.fillText('Супер · '+fighterNames[superFx.fighter],superFx.x,superFx.y-42-14*u);
+            ctx.restore();
+        }
+        if(drag) {
+            ctx.save();ctx.fillStyle='#ffffff30';ctx.strokeStyle='#fff';ctx.lineWidth=2;
+            ctx.beginPath();ctx.arc(drag.x,drag.y,16,0,7);ctx.fill();ctx.stroke();
+            if(aimPoint) {ctx.beginPath();ctx.moveTo(drag.x,drag.y);ctx.lineTo(drag.x+aimPoint.x-p.x,drag.y+aimPoint.y-p.y);ctx.stroke();}
+            ctx.restore();
+        }
+        if(!touchControls) return;
         ctx.globalAlpha = 0.2; ctx.fillStyle = "white";
         ctx.beginPath(); ctx.arc(joyL.x, joyL.y, 60, 0, 7); ctx.fill();
         ctx.beginPath(); ctx.arc(joyR.x, joyR.y, 60, 0, 7); ctx.fill();

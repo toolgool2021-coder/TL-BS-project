@@ -34,6 +34,7 @@
 <div id="hud">
     <button class="exit-btn" onclick="exitToMenu()">ВЫЙТИ</button>
     <div class="ult-container"><div id="ult-bar"></div></div>
+    <ol id="race-leaders" hidden aria-label="Лидеры гонки"></ol>
     <div id="ammo-container" class="ammo-wrap"></div>
 
     <div class="pin-system">
@@ -44,11 +45,11 @@
             <div class="pin-option" onclick="sendPin('🤡')">🤡</div>
             <div class="pin-option" onclick="sendPin('☠️')">☠️</div>
         </div>
-        <div class="pin-btn" onclick="togglePinMenu()">💬</div>
+        <div class="pin-btn" title="Пины (E), выбор 1–5" onclick="togglePinMenu()">💬</div>
     </div>
 </div>
 
-<dialog id="profile-dialog" style="max-width:85vw;border:0;border-radius:16px;padding:20px;color:white;background:#18243c"><h2>Профиль</h2><label>Ник <input id="nickname" maxlength="24" autocomplete="off"></label><p id="profile-status" role="status" style="overflow-wrap:anywhere"></p><button id="profile-save" class="btn">Сохранить</button><button id="profile-sync" class="btn">Синхронизировать</button><button id="profile-close" class="btn">Закрыть</button></dialog><dialog id="room-dialog" style="max-width:85vw;background:#18243c;color:white;border:0;border-radius:16px"><h2>Онлайн-лобби</h2><input id="room-code" maxlength="6" placeholder="Код комнаты"><button class="btn" id="room-create">Создать</button><button class="btn" id="room-join">Войти</button><p id="room-status" role="status"></p><div id="room-members"></div><button class="btn" id="room-ready">Готов</button><button class="btn" id="room-preview">Тест синхронизации</button><button class="btn" id="room-leave">Выйти</button></dialog><canvas id="gameCanvas"></canvas>
+<dialog id="profile-dialog" style="max-width:85vw;border:0;border-radius:16px;padding:20px;color:white;background:#18243c"><h2>Профиль</h2><label>Ник <input id="nickname" maxlength="24" autocomplete="off"></label><p id="profile-status" role="status" style="overflow-wrap:anywhere"></p><button id="profile-save" class="btn">Сохранить</button><button id="profile-sync" class="btn">Синхронизировать</button><button id="profile-close" class="btn">Закрыть</button></dialog><dialog id="room-dialog" style="max-width:85vw;background:#18243c;color:white;border:0;border-radius:16px"><h2>Онлайн-лобби</h2><input id="room-code" maxlength="6" placeholder="Код комнаты"><button class="btn" id="room-create">Создать</button><button class="btn" id="room-join">Войти</button><p id="room-status" role="status"></p><div id="room-members"></div><button class="btn" id="room-ready">Готов</button><button class="btn" id="room-race">Гонка с ботами · общий топ</button><button class="btn" id="room-preview">Тест синхронизации</button><button class="btn" id="room-leave">Выйти</button></dialog><canvas id="gameCanvas"></canvas>
 
 <script src="js/audio.js"></script>
 <script src="js/brawlers.js"></script>

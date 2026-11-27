@@ -1,5 +1,7 @@
+let touchControls=window.matchMedia('(pointer: coarse)').matches;
     window.addEventListener('touchstart', e => {
         if (!gameActive || e.target !== canvas) return;
+        touchControls=true;
         for(let t of e.changedTouches) {
             let tx = t.clientX, ty = t.clientY;
             
@@ -32,19 +34,30 @@ let drag = null;
 let bindings = {up:'KeyW',down:'KeyS',left:'KeyA',right:'KeyD',super:'Space'};
 try { Object.assign(bindings, JSON.parse(localStorage.getItem('tlbs.keys') || '{}')); } catch {}
 function resetControls() {
+    document.getElementById('pin-menu').style.display='none';
     pressedKeys.clear(); aimPoint = null; drag = null;
     for(const j of [joyL,joyR,joyU]) { j.active=false; j.id=null; }
 }
 window.addEventListener('blur', resetControls);
 window.addEventListener('touchcancel', resetControls);
 window.addEventListener('keydown', e => {
-    if(!gameActive || !Object.values(bindings).includes(e.code)) return;
+    if(!gameActive) return;
+    if(e.code==='Escape') { exitToMenu();return; }
+    if(e.code==='KeyE') { e.preventDefault();if(!e.repeat) togglePinMenu();return; }
+    const digit=/^(?:Digit|Numpad)([1-5])$/.exec(e.code);
+    if(digit && document.getElementById('pin-menu').style.display==='flex') {
+        e.preventDefault();
+        if(!e.repeat) document.querySelectorAll('.pin-option')[Number(digit[1])-1]?.click();
+        return;
+    }
+    if(!Object.values(bindings).includes(e.code)) return;
     e.preventDefault(); pressedKeys.add(e.code);
 
 });
 window.addEventListener('keyup', e => pressedKeys.delete(e.code));
 canvas.addEventListener('pointerdown', e => {
     if (!gameActive || e.pointerType !== 'mouse' || e.button !== 0 || drag) return;
+    touchControls=false;
     drag = {id:e.pointerId, x:e.clientX, y:e.clientY};
     canvas.setPointerCapture(e.pointerId);
 });
