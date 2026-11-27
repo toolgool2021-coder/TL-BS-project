@@ -65,7 +65,7 @@
     }
 
     function exitToMenu() { 
-        gameActive = false; cancelAnimationFrame(frameId); pip.active = false; 
+        gameActive = false; resetControls(); cancelAnimationFrame(frameId); pip.active = false; 
         changeScreen('menu'); 
     }
 
@@ -126,6 +126,7 @@
         updateUI(); draw(); frameId = requestAnimationFrame(update);
     }
     function tick() {
+        keyboardMovement();
         if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / 16.6);
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
