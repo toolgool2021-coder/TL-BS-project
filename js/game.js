@@ -208,6 +208,8 @@
         if(p.boostTimer > 0) { ctx.shadowBlur = 15; ctx.shadowColor = "yellow"; ctx.strokeStyle = "yellow"; ctx.strokeRect(-22,-22,44,44); }
         ctx.fillStyle=BRAWLERS[current].color; ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill();
         ctx.restore();
+        ctx.save(); ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.lineWidth=3; ctx.strokeStyle="#17202a"; ctx.fillStyle="white";
+        const label=window.playerNickname || "Player"; ctx.strokeText(label,p.x,p.y-35); ctx.fillText(label,p.x,p.y-35); ctx.restore();
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(b => { ctx.fillStyle=b.special==='poison'?"#2ecc71":b.isUlt?"#ff00ff":"white"; ctx.beginPath(); ctx.arc(b.x,b.y,b.size||5,0,7); ctx.fill(); });
