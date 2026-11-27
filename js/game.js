@@ -245,7 +245,7 @@
             if(b.special==='Piper' || b.special==='Leon' || b.special==='Bea'){
                 const distance=Math.hypot(b.x-b.originX,b.y-b.originY);
                 const damage=b.special==='Bea'?(b.charged?1800:600):b.special==='Piper'?Math.round(440+Math.min(1250,distance*1.6)):Math.round(500-Math.min(290,distance*.55));
-                if(b.special==='Bea' && current==='Bea' && !p.out && !target.safe && !target.spawnShield)p.beeCharge=true;
+                if(b.special==='Bea' && !b.charged && current==='Bea' && !p.out && !target.safe && !target.spawnShield)p.beeCharge=true;
                 if(b.special==='Piper' && !target.spawnShield)damageNotes.push({x:target.x,y:target.y,age:0,damage});
                 hitEnemy(damage,true,target);bullets.splice(i,1);continue;
             }
@@ -308,7 +308,7 @@
                 } else if(nearby.length) z.fuse=24;
             }
             if (z.type==='mine' && nearby.length) {
-                for(const target of nearby) hitEnemy(2000,true,target);
+                for(const target of nearby) hitEnemy(640,true,target);
                 z.type='blast'; z.life=12;
             }
             if (z.type==='turret' && z.age%30===0) {
