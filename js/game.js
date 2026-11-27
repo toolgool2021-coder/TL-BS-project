@@ -65,7 +65,7 @@
     }
 
     function exitToMenu() { 
-        gameActive = false; pip.active = false; 
+        gameActive = false; cancelAnimationFrame(frameId); pip.active = false; 
         changeScreen('menu'); 
     }
 
@@ -86,7 +86,12 @@
         });
     }
 
+    let frameId = 0, lastFrame = 0, accumulator = 0;
     function initGame() {
+        cancelAnimationFrame(frameId); lastFrame = 0; accumulator = 0;
+        p.scale = 1; isUltReady = false;
+        for (const j of [joyL, joyR, joyU]) { j.active = false; j.id = null; }
+        activePin.timer = enemyPin.timer = 0;
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         p.x = canvas.width/2; p.y = canvas.height - 150; 
         p.isFlying = false; p.speedMult = 1; p.boostTimer = 0; p.shield = 0;
@@ -100,7 +105,7 @@
         const ammoCont = document.getElementById('ammo-container');
         ammoCont.innerHTML = '';
         for(let i=0; i<BRAWLERS[current].maxAmmo; i++) ammoCont.innerHTML += `<div class="ammo-cell"><div id="ammo-${i}" class="ammo-fill"></div></div>`;
-        gameActive = true; requestAnimationFrame(update);
+        gameActive = true; frameId = requestAnimationFrame(update);
     }
 
     function updateUI() {
@@ -113,8 +118,14 @@
         }
     }
 
-    function update() {
-        if(!gameActive) return;
+    function update(now) {
+        if (!gameActive) return;
+        if (!lastFrame) lastFrame = now;
+        accumulator += Math.min(100, now - lastFrame); lastFrame = now;
+        while (accumulator >= 1000 / 60) { tick(); accumulator -= 1000 / 60; }
+        updateUI(); draw(); frameId = requestAnimationFrame(update);
+    }
+    function tick() {
         if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / 16.6);
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
@@ -135,14 +146,14 @@
             let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y, dist=Math.hypot(dx,dy); 
             if(dist>5){ p.x+=(dx/dist)*BRAWLERS[current].speed*p.speedMult; p.y+=(dy/dist)*BRAWLERS[current].speed*p.speedMult; } 
         }
-        bullets.forEach((b,i)=>{ 
+        for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; 
             if(b.type === 'nani') {
                 b.progress += 0.035;
                 let ang = Math.atan2(b.ty - b.y, b.tx - b.x);
                 let offX = Math.cos(ang + 1.57) * Math.sin(b.progress * Math.PI) * b.curve;
                 let offY = Math.sin(ang + 1.57) * Math.sin(b.progress * Math.PI) * b.curve;
                 b.x = p.x + (b.tx - p.x) * b.progress + offX; b.y = p.y + (b.ty - p.y) * b.progress + offY;
-                if(b.progress >= 1) bullets.splice(i, 1);
+                if(b.progress >= 1) { bullets.splice(i, 1); continue; }
             } else {
                 b.x+=b.vx; b.y+=b.vy; if(--b.life<=0) {
                     if(b.special === 'gene_main') {
@@ -151,7 +162,7 @@
                             bullets[bullets.length-1].x = b.x; bullets[bullets.length-1].y = b.y;
                         }
                     }
-                    bullets.splice(i,1);
+                    bullets.splice(i,1); continue;
                 }
                 if(b.special==='bounce') { if(b.x<0 || b.x>canvas.width) b.vx *= -1; if(b.y<0 || b.y>canvas.height) b.vy *= -1; }
                 if(b.special==='bubble') { if(b.x<0 || b.x>canvas.width) b.vx *= -1; if(b.y<0 || b.y>canvas.height) b.vy *= -1; }
@@ -162,18 +173,17 @@
                 if(b.special === 'energy') { hitEnemy(800, true); }
                 hitEnemy(b.special === 'gene_split' ? 150 : 400, !b.isUlt); if(b.special !== 'bubble' && b.special !== 'bounce') bullets.splice(i,1); 
             } 
-        });
-        zones.forEach((z,i)=>{ 
+        }
+        for(let i=zones.length-1;i>=0;i--){ const z=zones[i]; 
             if(z.type === 'gravity') { enemy.x += (z.x - enemy.x) * 0.1; enemy.y += (z.y - enemy.y) * 0.1; if(z.life === 1) hitEnemy(2000, false); }
             if(z.type === 'stun' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) hitEnemy(10, false);
-            if(z.type === 'mine' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) { hitEnemy(2000, true); zones.splice(i,1); }
+            if(z.type === 'mine' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) { hitEnemy(2000, true); zones.splice(i,1); continue; }
             if(z.type === 'turret') { if(z.life % 30 === 0) spawnBullet(Math.atan2(enemy.y-z.y, enemy.x-z.x), 10, 40); }
             if(Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) hitEnemy(5, false); 
             if(--z.life<=0) zones.splice(i,1); 
-        });
-        updateUI();
-        draw();
-        requestAnimationFrame(update);
+        }
+        p.x = Math.max(22, Math.min(canvas.width-22,p.x));
+        p.y = Math.max(22, Math.min(canvas.height-22,p.y));
     }
 
     function draw() {
