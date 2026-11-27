@@ -66,7 +66,7 @@
 
     function exitToMenu() { 
         gameActive = false; resetControls(); cancelAnimationFrame(frameId); pip.active = false; 
-        changeScreen('menu'); 
+        changeScreen('menu'); window.endRoomPreview?.(); 
     }
 
     function renderList() {
@@ -123,6 +123,7 @@
         if (!lastFrame) lastFrame = now;
         accumulator += Math.min(100, now - lastFrame); lastFrame = now;
         while (accumulator >= 1000 / 60) { tick(); accumulator -= 1000 / 60; }
+        window.sendRoomPosition?.(p.x/canvas.width,p.y/canvas.height);
         updateUI(); draw(); frameId = requestAnimationFrame(update);
     }
     function tick() {
@@ -210,6 +211,7 @@
         ctx.restore();
         ctx.save(); ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.lineWidth=3; ctx.strokeStyle="#17202a"; ctx.fillStyle="white";
         const label=window.playerNickname || "Player"; ctx.strokeText(label,p.x,p.y-35); ctx.fillText(label,p.x,p.y-35); ctx.restore();
+        if(window.roomPreview){for(const remote of Object.values(window.remotePlayers||{})){const x=remote.x*canvas.width,y=remote.y*canvas.height;ctx.save();ctx.fillStyle="#62cfff";ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fill();ctx.fillStyle="white";ctx.font="14px Arial";ctx.textAlign="center";ctx.fillText(remote.nickname,x,y-35);ctx.restore()}}
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(b => { ctx.fillStyle=b.special==='poison'?"#2ecc71":b.isUlt?"#ff00ff":"white"; ctx.beginPath(); ctx.arc(b.x,b.y,b.size||5,0,7); ctx.fill(); });
