@@ -10,6 +10,7 @@ function duelTurn() {
     resetFighterStage();match.nextRound=false;
     current=playerTrio[match.deaths];
     const bot=botTrio[match.kills];
+    enemy.fighter=bot;
     enemy.maxHp=practiceHp[bot];
     enemy.hp=enemy.maxHp;
     p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current];
@@ -31,7 +32,8 @@ function setupMatch() {
     Object.assign(match,{mode:window.roomPreview?(window.roomRace?'arms':'training'):document.querySelector('#mode').value,kills:0,deaths:0,damage:0,cooldown:60,finished:false,nextRound:false});
     p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
     p.hp=p.maxHp; p.hiddenTicks=0;
-    enemy.maxHp=match.mode==='training'?30000:7000;
+    enemy.fighter=match.mode==='training'?null:['Shelly','Colt','Brock'][Math.floor(Math.random()*3)];
+    enemy.maxHp=match.mode==='training'?30000:practiceHp[enemy.fighter];
     enemy.hp=enemy.maxHp;
     if(match.mode!=='training') trainingTargets=[];
     match.limit=Math.min(50,Math.max(1,Math.round(Number(document.querySelector('#kill-limit').value)||5)));
@@ -46,9 +48,18 @@ function combatTick() {
     const candidates=hostileSummons(enemy);
     if(!p.hiddenTicks)candidates.push(p);
     const target=candidates.sort((a,b)=>dist(a,enemy)-dist(b,enemy))[0];
+    if(target){
+        const d=dist(target,enemy), a=Math.atan2(target.y-enemy.y,target.x-enemy.x);
+        const bot=enemy.fighter||'Colt', preferred=bot==='Shelly'?155:285;
+        const approach=d>preferred+35?1:d<preferred-45?-1:0;
+        const strafe=Math.sin((performance.now()/650))*0.65;
+        const speed=2.1;
+        enemy.x=Math.max(30,Math.min(canvas.width-30,enemy.x+speed*(Math.cos(a)*approach-Math.sin(a)*strafe)));
+        enemy.y=Math.max(30,Math.min(canvas.height-30,enemy.y+speed*(Math.sin(a)*approach+Math.cos(a)*strafe)));
+    }
     if(target && --match.cooldown<=0 && dist(target,enemy)<440) {
-        if(match.mode==='duel') {
-            const bot=botTrio[match.kills],angle=Math.atan2(target.y-enemy.y,target.x-enemy.x);
+        if(enemy.fighter) {
+            const bot=enemy.fighter,angle=Math.atan2(target.y-enemy.y,target.x-enemy.x);
             match.cooldown=Math.round(BRAWLERS[bot].reload*0.06);
             const fire=offset=>spawnBullet(angle+offset,bot==='Brock'?8:6,74,false,7,'hostile',enemy);
             if(bot==='Shelly') [-0.2,0,0.2].forEach(fire);
@@ -87,7 +98,7 @@ function recordElimination() {
 }
 function finishMatch(won) {
     match.finished=true;
-    window.shareMatch?.(won?'Поражение':'Победа');
+    window.shareMatch?.(won?'Победа':'Поражение');
     gameActive=false;
     clearCombatTimers();
     resetControls();
