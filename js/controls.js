@@ -1,10 +1,11 @@
     window.addEventListener('touchstart', e => {
+        if (!gameActive || e.target !== canvas) return;
         for(let t of e.changedTouches) {
             let tx = t.clientX, ty = t.clientY;
-            if(tx > canvas.width - 100 && ty < canvas.height * 0.6) return;
-            if(tx < canvas.width/2) { joyL.id=t.identifier; joyL.active=true; joyL.cx=tx; joyL.cy=ty; }
+            
+            if(tx < canvas.width/2 && !joyL.active) { joyL.id=t.identifier; joyL.active=true; joyL.cx=tx; joyL.cy=ty; }
             else if(isUltReady && Math.hypot(tx - joyU.x, ty - joyU.y) < 60) { joyU.id=t.identifier; joyU.active=true; joyU.cx=tx; joyU.cy=ty; }
-            else { joyR.id=t.identifier; joyR.active=true; joyR.cx=tx; joyR.cy=ty; }
+            else if(tx >= canvas.width/2 && !joyR.active) { joyR.id=t.identifier; joyR.active=true; joyR.cx=tx; joyR.cy=ty; }
         }
     });
 
@@ -24,3 +25,38 @@
         }
     });
 
+
+const pressedKeys = new Set();
+let aimPoint = null;
+let bindings = {up:'KeyW',down:'KeyS',left:'KeyA',right:'KeyD',super:'Space'};
+try { Object.assign(bindings, JSON.parse(localStorage.getItem('tlbs.keys') || '{}')); } catch {}
+function resetControls() {
+    pressedKeys.clear(); aimPoint = null;
+    for(const j of [joyL,joyR,joyU]) { j.active=false; j.id=null; }
+}
+window.addEventListener('blur', resetControls);
+window.addEventListener('touchcancel', resetControls);
+window.addEventListener('keydown', e => {
+    if(!gameActive || !Object.values(bindings).includes(e.code)) return;
+    e.preventDefault(); pressedKeys.add(e.code);
+    if(e.code===bindings.super && !e.repeat && aimPoint) attack(Math.atan2(aimPoint.y-p.y,aimPoint.x-p.x),true);
+});
+window.addEventListener('keyup', e => pressedKeys.delete(e.code));
+canvas.addEventListener('mousemove', e => {
+    const rect=canvas.getBoundingClientRect();
+    aimPoint={x:(e.clientX-rect.left)*canvas.width/rect.width,y:(e.clientY-rect.top)*canvas.height/rect.height};
+});
+canvas.addEventListener('mousedown', e => {
+    if(!gameActive || e.button!==0) return;
+    const rect=canvas.getBoundingClientRect();
+    const x=(e.clientX-rect.left)*canvas.width/rect.width,y=(e.clientY-rect.top)*canvas.height/rect.height;
+    attack(Math.atan2(y-p.y,x-p.x),false);
+});
+function keyboardMovement(){
+    const x=Number(pressedKeys.has(bindings.right))-Number(pressedKeys.has(bindings.left));
+    const y=Number(pressedKeys.has(bindings.down))-Number(pressedKeys.has(bindings.up));
+    const d=Math.hypot(x,y);
+    if(!d || joyL.active) return;
+    if(pip.active) pip.angle=Math.atan2(y,x);
+    else if(!p.isFlying){p.x+=x/d*BRAWLERS[current].speed*p.speedMult;p.y+=y/d*BRAWLERS[current].speed*p.speedMult;}
+}
