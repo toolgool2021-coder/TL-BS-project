@@ -9,7 +9,7 @@
 <body>
 
 <div id="menu" class="screen active" style="display: flex;">
-    <h1>BRAWL STARS</h1>
+    <h1>TL BS 4.0</h1><button id="profile-open" class="btn">ПРОФИЛЬ</button>
     <h2 id="active-name">ШЕЛЛИ</h2>
     <div id="char-preview" style="width:100px; height:100px; border-radius:50%; border:5px solid white; background:#bc42f5;"></div>
     <button class="play-btn btn" onclick="changeScreen('game')">ИГРАТЬ</button>
@@ -40,12 +40,13 @@
     </div>
 </div>
 
-<canvas id="gameCanvas"></canvas>
+<dialog id="profile-dialog" style="max-width:85vw;border:0;border-radius:16px;padding:20px;color:white;background:#18243c"><h2>Профиль</h2><label>Ник <input id="nickname" maxlength="24" autocomplete="off"></label><p id="profile-status" role="status" style="overflow-wrap:anywhere"></p><button id="profile-save" class="btn">Сохранить</button><button id="profile-sync" class="btn">Синхронизировать</button><button id="profile-close" class="btn">Закрыть</button></dialog><canvas id="gameCanvas"></canvas>
 
 <script src="js/audio.js"></script>
 <script src="js/brawlers.js"></script>
 <script src="js/game.js"></script>
 <script src="js/combat.js"></script>
 <script src="js/controls.js"></script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
