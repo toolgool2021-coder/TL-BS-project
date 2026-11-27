@@ -9,7 +9,7 @@
 <body>
 
 <div id="menu" class="screen active" style="display: flex;">
-    <h1>TL BS 4.0</h1><button id="profile-open" class="btn">ПРОФИЛЬ</button>
+    <h1>TL BS 4.0</h1><button id="room-open" class="btn">ОНЛАЙН</button><button id="profile-open" class="btn">ПРОФИЛЬ</button>
     <h2 id="active-name">ШЕЛЛИ</h2>
     <div id="char-preview" style="width:100px; height:100px; border-radius:50%; border:5px solid white; background:#bc42f5;"></div>
     <button class="play-btn btn" onclick="changeScreen('game')">ИГРАТЬ</button>
@@ -40,7 +40,7 @@
     </div>
 </div>
 
-<dialog id="profile-dialog" style="max-width:85vw;border:0;border-radius:16px;padding:20px;color:white;background:#18243c"><h2>Профиль</h2><label>Ник <input id="nickname" maxlength="24" autocomplete="off"></label><p id="profile-status" role="status" style="overflow-wrap:anywhere"></p><button id="profile-save" class="btn">Сохранить</button><button id="profile-sync" class="btn">Синхронизировать</button><button id="profile-close" class="btn">Закрыть</button></dialog><canvas id="gameCanvas"></canvas>
+<dialog id="profile-dialog" style="max-width:85vw;border:0;border-radius:16px;padding:20px;color:white;background:#18243c"><h2>Профиль</h2><label>Ник <input id="nickname" maxlength="24" autocomplete="off"></label><p id="profile-status" role="status" style="overflow-wrap:anywhere"></p><button id="profile-save" class="btn">Сохранить</button><button id="profile-sync" class="btn">Синхронизировать</button><button id="profile-close" class="btn">Закрыть</button></dialog><dialog id="room-dialog" style="max-width:85vw;background:#18243c;color:white;border:0;border-radius:16px"><h2>Онлайн-лобби</h2><input id="room-code" maxlength="6" placeholder="Код комнаты"><button class="btn" id="room-create">Создать</button><button class="btn" id="room-join">Войти</button><p id="room-status" role="status"></p><div id="room-members"></div><button class="btn" id="room-ready">Готов</button><button class="btn" id="room-preview">Тест синхронизации</button><button class="btn" id="room-leave">Выйти</button></dialog><canvas id="gameCanvas"></canvas>
 
 <script src="js/audio.js"></script>
 <script src="js/brawlers.js"></script>
