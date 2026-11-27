@@ -1,0 +1,22 @@
+
+        body { margin: 0; background: #004dc0; font-family: 'Arial Black', sans-serif; overflow: hidden; color: white; touch-action: none; }
+        .screen { position: absolute; width: 100vw; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 20; }
+        #menu { display: flex; background: radial-gradient(circle, #0066ff, #003399); }
+        .btn { background: #ffcc00; border: 4px solid #000; padding: 10px 20px; border-radius: 12px; color: #000; cursor: pointer; text-transform: uppercase; font-size: 14px; margin: 5px; box-shadow: 0 4px #b38f00; z-index: 50; }
+        .play-btn { padding: 20px 80px; font-size: 30px; background: #00ff00; margin-top: 20px; }
+        .scroll-container { width: 90%; height: 60%; overflow-y: auto; display: flex; flex-wrap: wrap; justify-content: center; padding: 10px; border: 2px solid #555; border-radius: 15px; background: #222; }
+        .card { width: 110px; height: 140px; background: #333; border: 3px solid #fff; border-radius: 15px; margin: 10px; text-align: center; cursor: pointer; display: flex; flex-direction: column; overflow: hidden; }
+        canvas { display: none; background: #2e7d32; }
+        #hud { position: absolute; top: 10px; width: 100%; display: none; flex-direction: column; align-items: center; z-index: 30; pointer-events: none; }
+        .exit-btn { position: absolute; top: 10px; left: 10px; z-index: 40; background: #ff4444; color: white; border: 3px solid black; padding: 8px 15px; border-radius: 8px; pointer-events: auto; }
+        .ult-container { width: 150px; height: 16px; background: #333; border: 2px solid #fff; border-radius: 8px; overflow: hidden; }
+        #ult-bar { width: 0%; height: 100%; background: #ffff00; }
+        .ammo-wrap { display: flex; gap: 4px; margin-top: 5px; }
+        .ammo-cell { width: 35px; height: 8px; background: #555; border: 1px solid #fff; border-radius: 4px; }
+        .ammo-fill { width: 100%; height: 100%; background: #ffaa00; }
+        .pin-system { position: absolute; right: 25px; top: 400%; display: flex; align-items: center; z-index: 100; pointer-events: auto; }
+        .pin-btn { background: rgba(0, 0, 0, 0.7); border: 3px solid white; border-radius: 12px; width: 50px; height: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px #000; }
+        .pin-menu { position: absolute; right: 65px; display: none; gap: 8px; background: rgba(0,0,0,0.7); padding: 8px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.2); flex-direction: column; }
+        .pin-option { background: white; border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 2px solid #333; cursor: pointer; }
+        .ai-btn { background: #ff4444 !important; color: white !important; margin-top: 10px; border-width: 3px; }
+    
