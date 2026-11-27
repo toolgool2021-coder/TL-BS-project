@@ -6,6 +6,7 @@ let selectedFighter;
 const botTrio=['Shelly','Colt','Brock'];
 let playerTrio=[];
 function duelTurn() {
+    clearAttachment();enemy.stun=0;
     match.nextRound=false;
     current=playerTrio[match.deaths];
     const bot=botTrio[match.kills];
@@ -21,6 +22,8 @@ function duelTurn() {
     renderAmmo();
 }
 function setupMatch() {
+    clearAttachment();enemy.stun=0;
+    p.bells=0;p.jackpot=Math.floor(Math.random()*5);p.beeCharge=false;
     selectedFighter=current;
     if(window.roomRace) window.publishRaceScore?.(0);
     const roster=Object.keys(BRAWLERS), start=roster.indexOf(current);
@@ -39,7 +42,7 @@ function setupMatch() {
     }
 }
 function combatTick() {
-    if(arena || !inPlane(enemy) || match.mode==='training' || match.finished) return;
+    if(arena || enemy.stun || !inPlane(enemy) || match.mode==='training' || match.finished) return;
     if(!p.hiddenTicks && --match.cooldown<=0 && Math.hypot(enemy.x-p.x,enemy.y-p.y)<440) {
         if(match.mode==='duel') {
             const bot=botTrio[match.kills],angle=Math.atan2(p.y-enemy.y,p.x-enemy.x);
@@ -58,7 +61,7 @@ function receiveHit() {
     if(match.finished || match.nextRound) return;
     p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
     if(p.hp) return;
-    realm=null;
+    clearAttachment();realm=null;
     match.deaths++;
     p.hp=p.maxHp;
     p.x=canvas.width/2; p.y=canvas.height-65;

@@ -24,10 +24,19 @@ for(const [name,[color,hp,reload,speed,life,spread,count,ability]] of Object.ent
         ultChargeRate:12,maxAmmo:name==='Bea'?1:3,shot:{speed,life,spread,count}};
 }
 function rosterAttack(angle) {
-    const {speed,life,spread,count}=BRAWLERS[current].shot;
+    if(current==='Kit'){
+        if(p.attachment?.ally)spawnBarleyBottle(angle,kitYarn.range,'yarn',false);
+        else for(const t of combatTargets())if(inFan(t,angle,kitClaw))hitEnemy(900,true,t);
+        return;
+    }
+    const {speed,life,spread}=BRAWLERS[current].shot;
+    let count=BRAWLERS[current].shot.count;
+    if(current==='Chester'){count=1+(p.bells||0);p.bells=count%4;}
+    if(current==='Leon')p.hiddenTicks=0;
     for(let i=0;i<count;i++) {
         const offset=count===1?0:spread*(2*i/(count-1)-1);
         spawnBullet(angle+offset,speed,life,false,6,current);
+        if(current==='Bea'){bullets[bullets.length-1].charged=Boolean(p.beeCharge);p.beeCharge=false;}
     }
 }
 function rosterSuper(angle) {
@@ -36,23 +45,35 @@ function rosterSuper(angle) {
     const step=d=>({x:Math.max(22,Math.min(canvas.width-22,p.x+Math.cos(angle)*d)),y:Math.max(22,Math.min(canvas.height-22,p.y+Math.sin(angle)*d))});
     const area=(pos,r,dmg)=>{for(const t of targets) if(Math.hypot(t.x-pos.x,t.y-pos.y)<r) hitEnemy(dmg,false,t);};
     switch(ability) {
-        case 'heal': p.hp=Math.min(p.maxHp,p.hp+3000); break;
+        case 'heal':
+            for(const ally of arena?.actors || [p])if(!ally.out && ally.team===p.team && (ally===p || inFan(ally,angle,superAimData.Poco)))ally.hp=Math.min(ally.maxHp,ally.hp+3000);
+            break;
         case 'station': zones.push({...step(140),type:'station',r:95,life:420}); break;
         case 'bear': zones.push({...step(150),type:'bear',r:32,life:600}); break;
-        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true}); Object.assign(p,step(200)); break;
+        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true}); beginTravel(angle,200,28,'Piper',24); break;
         case 'cloak': p.hiddenTicks=260; break;
         case 'sandstorm': zones.push({...step(160),type:'sandstorm',r:140,life:360}); break;
         case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true}); break;
         case 'aura': zones.push({...p,type:'aura',r:125,life:180}); break;
-        case 'wind': for(const t of targets) if(Math.hypot(t.x-p.x,t.y-p.y)<350) {
+        case 'wind': for(const t of targets) if(inFan(t,angle,superAimData.Gale)) {
             t.x=Math.max(30,Math.min(canvas.width-30,t.x+Math.cos(angle)*150));
             t.y=Math.max(30,Math.min(canvas.height-30,t.y+Math.sin(angle)*150));
         } break;
         case 'swarm': for(let i=-3;i<=3;i++) spawnBullet(angle+i*.11,11,45,true,6,'swarm'); break;
-        case 'upgrade': p.speedMult=1.5;p.boostTimer=600;area(p,90,1400);break;
-        case 'return': {const origin={x:p.x,y:p.y}; Object.assign(p,step(220));area(p,80,1500);scheduleCombatAction(()=>Object.assign(p,origin),220);break;}
-        case 'surprise': if(Math.random()<.5) p.hp=Math.min(p.maxHp,p.hp+2200);else spawnBarleyBottle(angle,220,'boom',true);break;
+        case 'upgrade': case 'return': case 'kick': case 'leap': case 'pounce': {
+            const shape=combatShape(true);beginTravel(angle,shape.range,current==='Kit'?26:20,current,shape.radius);break;
+        }
+        case 'hook': spawnBullet(angle,14,23,true,8,'anchor');break;
+        case 'surprise': {
+            switch(p.jackpot||0){
+                case 0:spawnBarleyBottle(angle,220,'boom',true);break;
+                case 1:for(const t of targets)if(inFan(t,angle,fan(235,.45)))for(let i=0;i<4;i++)scheduleCombatAction(()=>hitEnemy(300,false,t),i*350);break;
+                case 2:spawnBullet(angle,12,35,true,8,'jawbreaker');break;
+                case 3:zones.push({...p,type:'poprocks',r:120,life:180});break;
+                case 4:for(let i=0;i<3;i++)scheduleCombatAction(()=>{p.hp=Math.min(p.maxHp,p.hp+800);},i*450);break;
+            }
+            p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;break;
+        }
         case 'isolate': spawnBullet(angle,14,40,true,10,'realm'); break;
-        case 'hook': case 'kick': case 'leap': case 'pounce': Object.assign(p,step(ability==='hook'?290:190));area(p,ability==='leap'?100:65,1600);break;
     }
 }

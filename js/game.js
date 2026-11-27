@@ -156,17 +156,19 @@
         if(p.hiddenTicks>0) p.hiddenTicks--;
         if(superFx && ++superFx.age>=45) superFx=null;
         if(realm && --realm.left<=0) realm=null;
+        advanceAttachment();
         tickObjective();
         if(match.finished) return;
         advanceSuperMotion();
         combatTick();
         advanceThrows();
         keyboardMovement();
+        if(current==='Kit' && !p.attachment && !realm)ultCharge=Math.min(100,ultCharge+100/1200);
         if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / 16.6);
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
-        if(!arena && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
+        if(!arena && !enemy.stun && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
             let d = Math.hypot(p.x - enemy.x, p.y - enemy.y);
             if(d > 160) { let a = Math.atan2(p.y-enemy.y, p.x-enemy.x); enemy.x += Math.cos(a)*1.5; enemy.y += Math.sin(a)*1.5; }
         }
@@ -178,7 +180,7 @@
                 zones.push({x: pip.x, y: pip.y, r: 120, life: 20, type: 'boom'});
                 pip.active = false;
             }
-        } else if(joyL.active && !p.isFlying && !p.out) {
+        } else if(joyL.active && !p.attachment && !p.isFlying && !p.out) {
             let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y, dist=Math.hypot(dx,dy); 
             if(dist>5){ p.x+=(dx/dist)*BRAWLERS[current].speed*p.speedMult; p.y+=(dy/dist)*BRAWLERS[current].speed*p.speedMult; } 
         }
@@ -211,10 +213,24 @@
             const target = targets.find(t => !b.visited?.includes(t) && Math.hypot(b.x-t.x,b.y-t.y)<30);
             if (!target) continue;
             if(b.special==='realm' && !target.safe){startRealm(target);break;}
+            if(b.special==='anchor'){
+                if(!target.safe) beginTravel(angleTo(target),Math.min(dist(p,target),308),18,'Buzz',65,target);
+                bullets.splice(i,1);continue;
+            }
             if(b.special==='bats') {
                 (b.visited ||= []).push(target);
                 const damage=Math.min(1200,target.hp);hitEnemy(damage,false,target);
                 p.hp=Math.min(p.maxHp,p.hp+damage);continue;
+            }
+            if(b.special==='jawbreaker' && !target.safe)target.stun=75;
+            if(b.special==='Nita'){
+                (b.visited ||= []).push(target);hitEnemy(950,true,target);continue;
+            }
+            if(b.special==='Piper' || b.special==='Leon' || b.special==='Bea'){
+                const distance=Math.hypot(b.x-b.originX,b.y-b.originY);
+                const damage=b.special==='Bea'?(b.charged?1800:600):b.special==='Piper'?Math.round(440+Math.min(1250,distance*1.6)):Math.round(500-Math.min(290,distance*.55));
+                if(b.special==='Bea' && !b.charged)p.beeCharge=true;
+                hitEnemy(damage,true,target);bullets.splice(i,1);continue;
             }
             if (b.special==='Edgar') p.hp=Math.min(p.maxHp,p.hp+160);
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
@@ -254,6 +270,7 @@
                 if(z.life%40===0) for(const t of nearby) hitEnemy(700,false,t);
             }
             if(z.type==='aura') {z.x=p.x;z.y=p.y;if(z.life%30===0) for(const t of nearby) hitEnemy(500,false,t);}
+            if(z.type==='poprocks' && z.life%20===0)for(const t of nearby)hitEnemy(240,false,t);
             if(z.type==='station' && z.life%45===0 && Math.hypot(p.x-z.x,p.y-z.y)<z.r) p.hp=Math.min(p.maxHp,p.hp+600);
             if(z.type==='sandstorm' && Math.hypot(p.x-z.x,p.y-z.y)<z.r) p.hiddenTicks=2;
             if(z.type==='boMine') {
@@ -292,34 +309,10 @@
         if((joyR.active || joyU.active || aimPoint) && !pip.active) {
             let j = joyU.active ? joyU : joyR;
             const angle = j.active ? Math.atan2(j.cy - j.y, j.cx - j.x) : Math.atan2(aimPoint.y, aimPoint.x);
-            ctx.save();
-            ctx.strokeStyle = joyU.active ? "#ffe768" : "#fff";
-            ctx.lineWidth = 2;
-            const superAim = joyU.active || (aimPoint && pressedKeys.has(bindings.super));
-            let ind = superAim ? BRAWLERS[current].ultType : BRAWLERS[current].type;
-            ctx.fillStyle = joyU.active ? "rgba(255, 255, 0, 0.3)" : "rgba(255, 255, 255, 0.2)";
-            if(BRAWLERS[current].shot && !superAim) {
-                const shot=BRAWLERS[current].shot, range=shot.speed*(shot.life-1);
-                ctx.beginPath();ctx.moveTo(p.x,p.y);
-                if(shot.spread) {ctx.arc(p.x,p.y,range,angle-shot.spread,angle+shot.spread);ctx.closePath();ctx.fill();}
-                else ctx.lineTo(p.x+Math.cos(angle)*range,p.y+Math.sin(angle)*range);
-                ctx.stroke();
-            } else if(current==='Mortis' && !superAim) {
-                const end=dashEnd(angle);
-                ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(end.x,end.y); ctx.stroke();
-                ctx.beginPath(); ctx.arc(end.x,end.y,60,0,2*Math.PI); ctx.fill(); ctx.stroke();
-            } else if(['Tick','Barley','Dynamike'].includes(current) && !superAim) {
-                const dist=current==='Tick'?220:current==='Barley'?200:250;
-                for(const offset of current==='Tick'?[-0.2,0,0.2]:[0]) {
-                    ctx.beginPath(); ctx.arc(p.x+Math.cos(angle+offset)*dist,p.y+Math.sin(angle+offset)*dist,current==='Barley'?55:80,0,2*Math.PI); ctx.fill(); ctx.stroke();
-                }
-            } else if(ind === 'nani_aim' || ind === 'pip') { ctx.beginPath(); ctx.arc(p.x + Math.cos(angle)*320, p.y + Math.sin(angle)*320, 40, 0, 7); ctx.fill(); ctx.stroke(); }
-            else if(ind === 'gravity' || ind === 'throw' || ind === 'throw_triple') { ctx.beginPath(); ctx.arc(p.x + Math.cos(angle)*250, p.y + Math.sin(angle)*250, 100, 0, 7); ctx.fill(); ctx.stroke(); }
-            else if(ind === 'spread' || ind === 'spread_heavy') { 
-                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.arc(p.x, p.y, 220, angle - 0.5, angle + 0.5); ctx.lineTo(p.x, p.y); ctx.fill(); ctx.stroke();
-            } else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(angle); ctx.fillRect(0, -20, 350, 40); ctx.strokeRect(0, -20, 350, 40); ctx.restore(); }
-            ctx.restore();
+            drawAim(angle,joyU.active || Boolean(aimPoint && pressedKeys.has(bindings.super)));
         }
+        if(p.altitude>0){ctx.save();ctx.fillStyle='#14152366';ctx.beginPath();ctx.ellipse(p.x,p.y,23,9,0,0,7);ctx.fill();ctx.restore();}
+        for(const t of combatTargets()) if(t.stun>0){ctx.save();ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe77b';ctx.fillText('Оглушение',t.x,t.y-63);ctx.restore();}
         if(!enemy.out && inPlane(enemy)){
         ctx.fillStyle=match.mode==='duel'?BRAWLERS[botTrio[Math.min(match.kills,2)]].color:'red'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
         ctx.fillStyle="lime"; ctx.fillRect(enemy.x-40, enemy.y-50, (enemy.hp/enemy.maxHp)*80, 8);
@@ -339,7 +332,7 @@
             ctx.fillText(fighterNames[botTrio[Math.min(match.kills,2)]],enemy.x,enemy.y-57);ctx.restore();
         }
         if(pip.active) { ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.arc(pip.x, pip.y, 15, 0, 7); ctx.fill(); }
-        ctx.save(); if(p.out)ctx.globalAlpha=.18; ctx.translate(p.x,p.y); ctx.scale(p.scale, p.scale);
+        ctx.save(); if(p.out)ctx.globalAlpha=.18; ctx.translate(p.x,p.y-(p.altitude||0)); ctx.scale(p.scale, p.scale);
         if(p.shield > 0) { ctx.strokeStyle = "#4caf50"; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0,0,30,0,7); ctx.stroke(); }
         if(p.boostTimer > 0) { ctx.shadowBlur = 15; ctx.shadowColor = "yellow"; ctx.strokeStyle = "yellow"; ctx.strokeRect(-22,-22,44,44); }
         ctx.fillStyle=BRAWLERS[current].color; ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();

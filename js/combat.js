@@ -15,6 +15,8 @@ function clearCombatTimers() {
 
     function attack(angle, isUltAction) {
         if (!gameActive || p.out || p.isFlying || pip.active || (realm && isUltAction)) return;
+        if(p.attachment && !p.attachment.ally)return;
+        if(p.attachment?.ally && isUltAction){clearAttachment();return;}
         if(kickBall(p,angle)) return;
         if (isUltAction && isUltReady) {
             ultCharge = 0;
@@ -40,22 +42,16 @@ function clearCombatTimers() {
                 case 'Bo': for(let i=-1; i<=1; i++) scheduleCombatAction(()=>spawnBullet(angle+i*0.1, 13, 45), i*100+100); break;
                 case 'Jessie': spawnBullet(angle, 12, 55, false, 8, 'energy'); break;
                 case 'Rico': spawnBullet(angle, 14, 60, false, 5, 'bounce'); break;
-                case 'Frank': spawnBullet(angle, 10, 20, false, 15, 'heavy'); break;
+                case 'Frank': scheduleCombatAction(()=>{for(const t of combatTargets())if(inFan(t,angle,basicAim.Frank))hitEnemy(1100,true,t);},220);break;
                 case 'Nani': spawnNaniProjectiles(angle); break;
                 case 'Max': for(let i=0; i<4; i++) scheduleCombatAction(()=>spawnBullet(angle, 18, 35), i*50); break;
                 case 'Crow': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.3, 14, 40, false, 4, 'poison'); break;
                 case 'Tara': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.15, 13, 40); break;
                 case 'Gene': spawnBullet(angle, 11, 25, false, 10, 'gene_main'); break; 
-                case 'Bibi': if(Math.hypot(p.x-enemy.x, p.y-enemy.y)<130) { 
-                    let diff = Math.atan2(enemy.y-p.y, enemy.x-p.x) - angle;
-                    while(diff > Math.PI) diff -= Math.PI*2; while(diff < -Math.PI) diff += Math.PI*2;
-                    if(Math.abs(diff) < 0.6) { hitEnemy(1300, true); enemy.x += Math.cos(angle)*80; enemy.y += Math.sin(angle)*80; }
-                } break;
-                case 'Mortis': {
-                    Object.assign(p,dashEnd(angle));
-                    for(const t of [enemy,...trainingTargets]) if(Math.hypot(p.x-t.x,p.y-t.y)<60) hitEnemy(900,true,t);
-                    break;
-                }
+                case 'Bibi': for(const t of combatTargets()) if(inFan(t,angle,basicAim.Bibi)){
+                    hitEnemy(1300,true,t);if(!t.safe){t.x+=Math.cos(angle)*60;t.y+=Math.sin(angle)*60;}
+                }break;
+                case 'Mortis': beginTravel(angle,basicAim.Mortis.range,12,'Mortis',basicAim.Mortis.radius);break;
                 case 'Stu': spawnBullet(angle, 16, 30); scheduleCombatAction(()=>spawnBullet(angle, 16, 30), 100); break;
                 case 'Darryl': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
             }
@@ -77,7 +73,9 @@ function clearCombatTimers() {
                 throws=throws.filter(t=>t.type!=='boMine');
                 for(const spread of [-0.28,0,0.28]) spawnBarleyBottle(angle+spread,200,'boMine',true);
                 break;
-            case 'Frank': zones.push({x: p.x+Math.cos(angle)*180, y: p.y+Math.sin(angle)*180, r:150, life:30, type:'stun'}); break;
+            case 'Frank': scheduleCombatAction(()=>{for(const t of combatTargets())if(inFan(t,angle,superAimData.Frank)){
+                if(!t.safe)t.stun=90;hitEnemy(2000,false,t);
+            }},360);break;
             case 'Nani': pip.active = true; pip.x = p.x; pip.y = p.y; pip.angle = angle; pip.life = 600; break;
             case 'Tick': zones.push({type:'head',x:p.x,y:p.y,r:65,life:400});break;
             case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
@@ -104,7 +102,7 @@ function clearCombatTimers() {
     }
 
     function spawnBullet(angle, speed, life, isUlt, size=5, special='', origin=p) {
-        bullets.push({ x: origin.x, y: origin.y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, life, isUlt, size, type: 'normal', special, angle: angle });
+        bullets.push({ x: origin.x, y: origin.y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, life, isUlt, size, originX:origin.x,originY:origin.y,type: 'normal', special, angle: angle });
     }
 
     function spawnBarleyBottle(angle, dist, type, isUlt) { 
@@ -120,7 +118,7 @@ function clearCombatTimers() {
                 zones.push({x:t.tx,y:t.ty,r:58,type:'boMine',arm:30,fuse:0,life:Infinity});
                 throws.splice(i,1);continue;
             }
-            zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'?'boom':t.type,isBig:t.type==='bigBoom',isUlt:t.isUlt,r:t.type==='bigBoom'?140:t.type==='fire'?55:80,
+            zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
                 life:t.type==='mine'?150:t.type==='fire'?120:14});
             throws.splice(i,1);
         }
@@ -139,6 +137,7 @@ function clearCombatTimers() {
         sounds.hit.play();
         if(target.hp <= 0) {
             if(arena){if(!target.safe)match.kills++;objectiveDeath(target);return;}
+            if(p.attachment?.target===target)clearAttachment();
             if(realm?.target===target) realm=null;
             recordElimination();
             target.hp = target.maxHp;
@@ -164,7 +163,11 @@ function advanceSuperMotion(){
     p.x=Math.max(22,Math.min(canvas.width-22,m.x+m.dx*eased));
     p.y=Math.max(22,Math.min(canvas.height-22,m.y+m.dy*eased));
     if(m.fighter==='El_Primo' || m.fighter==='Crow') p.scale=1+0.65*Math.sin(progress*Math.PI);
-    for(const target of [enemy,...trainingTargets]) {
+    if(['Kit','Edgar','Surge','Piper','Crow','El_Primo'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
+    for(const target of combatTargets()) {
+        if((m.fighter==='Colette' || m.fighter==='Mortis') && !m.hits.has(target) && dist(p,target)<=m.radius){
+            m.hits.add(target);hitEnemy(m.fighter==='Mortis'?900:Math.round(target.maxHp*.16),m.fighter==='Mortis',target);
+        }
         const slam=m.fighter==='El_Primo' && progress===1;
         if(!slam && m.fighter!=='Bull' && m.fighter!=='Darryl') continue;
         if(!m.hits.has(target) && Math.hypot(target.x-p.x,target.y-p.y)<(slam?120:50)){
@@ -173,6 +176,58 @@ function advanceSuperMotion(){
     }
     if(progress===1){
         if(m.fighter==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
-        p.motion=null;p.isFlying=false;p.scale=1;
+        p.motion=null;p.isFlying=false;p.scale=1;p.altitude=0;landRosterMove(m);
+    }
+}
+
+function angleTo(target){return Math.atan2(target.y-p.y,target.x-p.x);}
+function beginTravel(angle,range,total,fighter,radius,target=null){
+    const end=destination(angle,range);
+    p.motion={fighter,x:p.x,y:p.y,dx:end.x-p.x,dy:end.y-p.y,total,age:0,hits:new Set(),radius,target};
+    p.isFlying=true;
+}
+function clearAttachment(){
+    if(p.attachment && !p.attachment.ally)p.attachment.target.stun=0;
+    p.attachment=null;p.altitude=0;
+}
+function advanceAttachment(){
+    for(const t of [enemy,...trainingTargets]) if(t.stun>0)t.stun--;
+    const grip=p.attachment;
+    if(!grip)return;
+    const target=grip.target;
+    if(current!=='Kit'||p.out||target.out||--grip.left<=0){clearAttachment();return;}
+    p.x=target.x;p.y=target.y;
+    if(grip.left%30===0){
+        if(grip.ally)target.hp=Math.min(target.maxHp,target.hp+380);
+        else hitEnemy(240,false,target);
+    }
+}
+function landRosterMove(m){
+    const targets=combatTargets();
+    if(m.fighter==='Kit'){
+        const allies=arena?.actors.filter(t=>t!==p && t.team===p.team && !t.out && inPlane(t)) || [];
+        const target=[...targets.filter(t=>!t.safe),...allies].filter(t=>dist(t,p)<=m.radius).sort((a,b)=>dist(a,p)-dist(b,p))[0];
+        if(!target)return;
+        const ally=allies.includes(target);
+        p.attachment={target,ally,left:ally?480:120};
+        if(!ally){target.stun=120;hitEnemy(950,false,target);}
+    }else if(m.fighter==='Colette' && !m.returning){
+        const distance=Math.hypot(m.dx,m.dy);
+        beginTravel(Math.atan2(-m.dy,-m.dx),distance,16,'Colette',m.radius);
+        p.motion.returning=true;
+    }else if(['Edgar','Surge','Fang','Buzz'].includes(m.fighter)){
+        for(const t of targets) if(dist(t,p)<=m.radius){
+            if(m.fighter==='Buzz' && !t.safe)t.stun=70;
+            hitEnemy(1600,false,t);
+        }
+        if(m.fighter==='Fang'){
+            const chained=m.chain || new Set();
+            for(const t of targets)if(dist(t,p)<=m.radius)chained.add(t);
+            const next=targets.filter(t=>!t.safe && !chained.has(t) && dist(p,t)<=160).sort((a,b)=>dist(p,a)-dist(p,b))[0];
+            if(next && chained.size>0 && chained.size<4){
+                chained.add(next);beginTravel(angleTo(next),dist(p,next),14,'Fang',m.radius);p.motion.chain=chained;
+            }
+        }
+        if(m.fighter==='Surge'){p.speedMult=1.5;p.boostTimer=600;}
     }
 }

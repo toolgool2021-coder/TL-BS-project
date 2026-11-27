@@ -30,9 +30,10 @@ function initObjective(){
  trainingTargets=actors.filter(a=>a!==enemy && a.team!==0).concat(arena.safes.filter(a=>a.team===1));
 }
 function resetField(){
- realm=null;clearCombatTimers();bullets.length=0;zones.length=0;throws.length=0;
+ clearAttachment();realm=null;clearCombatTimers();bullets.length=0;zones.length=0;throws.length=0;
  p.motion=null;p.isFlying=false;p.scale=1;p.shield=0;p.hiddenTicks=0;pip.active=false;
  for(const a of arena.actors){
+    a.stun=0;
     const slot=Math.floor(a.slot/2);
     a.homeX=canvas.width*(slot+1)/4;a.homeY=a.slot%2?65:canvas.height-65;
     Object.assign(a,{x:a.homeX,y:a.homeY,hp:a.maxHp,out:false,respawn:0,gems:0,cool:45+a.slot*7});
@@ -65,7 +66,7 @@ function tickObjective(){
  A.age++;
  for(const a of A.actors) {
    if(a.out){if(a.respawn && --a.respawn===0)Object.assign(a,{out:false,hp:a.maxHp,x:a.homeX,y:a.homeY});continue;}
-   if(a===p)continue;
+   if(a===p || a.stun>0)continue;
    const rivals=A.actors.filter(b=>!b.out && b.team!==a.team && inPlane(b)===inPlane(a));
    const safe=A.safes[1-a.team];if(safe && (!realm || !inPlane(a)))rivals.push(safe);
    rivals.sort((b,d)=>dist(a,b)-dist(a,d));const target=rivals[0];if(!target)continue;
