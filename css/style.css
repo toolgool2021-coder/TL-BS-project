@@ -89,3 +89,9 @@ dialog {max-height:85dvh;overflow:auto}
 }
 #guest-game {background:#17223a;color:white;border:0;border-radius:14px;text-align:center;width:min(94vw,850px)}
 #guest-canvas {display:block;max-width:100%;max-height:70dvh;width:auto;height:auto;margin:8px auto;touch-action:none}
+#gem-panel {position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:max-content;max-width:65vw;padding:8px 13px;background:#111828f2;border:1px solid #6d728d;border-radius:12px;text-align:center;color:#f3f3fa;font:600 13px/1.4 system-ui;pointer-events:none}
+.gem-scores {display:flex;align-items:center;justify-content:center;gap:14px}
+.gem-scores span:first-child {color:#8ae5ff}
+.gem-scores span:last-child {color:#ffaaa4}
+.gem-scores b {font-size:19px;font-variant-numeric:tabular-nums}
+#gem-life:not(:empty) {border-top:1px solid #5d687e;margin-top:4px;color:#bceaff}

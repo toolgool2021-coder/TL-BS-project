@@ -36,6 +36,10 @@
     <button class="exit-btn" onclick="exitToMenu()">ВЫЙТИ</button>
     <div class="ult-container"><div id="ult-bar"></div></div>
     <ol id="race-leaders" hidden aria-label="Лидеры гонки"></ol>
+    <section id="gem-panel" hidden aria-label="Захват кристаллов">
+        <div class="gem-scores"><span>Мы <b id="gem-us">0</b></span><span>Соперники <b id="gem-them">0</b></span></div>
+        <div id="gem-clock"></div><div id="gem-life"></div>
+    </section>
     <div id="ammo-container" class="ammo-wrap"></div>
 
     <div class="pin-system">
@@ -56,6 +60,7 @@
 <script src="js/brawlers.js"></script>
 <dialog id="result" oncancel="event.preventDefault()"><h2 id="result-text"></h2><p id="result-total"></p><button class="btn" onclick="this.closest('dialog').close();current=selectedFighter;initGame()">Реванш</button><button class="btn" onclick="this.closest('dialog').close();exitToMenu()">В меню</button></dialog>
 <script src="js/roster.js"></script>
+<script src="js/gems.js"></script>
 <script src="js/pitch.js"></script>
 <script src="js/objectives.js"></script>
 <script src="js/match.js"></script>

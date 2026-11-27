@@ -18,7 +18,7 @@ function startRealm(target){
  if(arena?.carrier===p || arena?.carrier===target) {Object.assign(arena.ball,{x:arena.carrier.x,y:arena.carrier.y});arena.carrier=null;}
 }
 function initObjective(){
- realm=null;arena=null;delete p.out;delete enemy.out;
+ realm=null;arena=null;delete p.out;delete enemy.out;delete p.spawnShield;delete enemy.spawnShield;
  if(!objectives[match.mode] || match.mode==='custom') return;
  const solo=match.mode==='solo', duo=match.mode==='duo';
  const teams=solo?[0,1,2,3,4,5]:duo?[0,1,0,1,2,2]:[0,1,0,1,0,1];
@@ -35,7 +35,7 @@ function resetField(){
  clearAttachment();realm=null;clearCombatTimers();bullets.length=0;zones.length=0;throws.length=0;
  p.motion=null;p.isFlying=false;p.scale=1;p.shield=0;p.hiddenTicks=0;pip.active=false;
  for(const a of arena.actors){
-    a.stun=0;
+    a.stun=0;a.spawnShield=match.mode==='gems'?90:0;
     const slot=Math.floor(a.slot/2);
     a.homeX=canvas.width*(slot+1)/4;a.homeY=a.slot%2?65:canvas.height-65;
     Object.assign(a,{x:a.homeX,y:a.homeY,hp:a.maxHp,out:false,respawn:0,gems:0,cool:45+a.slot*7});
@@ -54,7 +54,7 @@ function objectiveDeath(a){
  a.respawn=['ball','zone','gems','heist'].includes(match.mode)?150:0;
 }
 function objectiveHit(a,dmg){
- if(a.out || match.finished) return;
+ if(a.out || a.spawnShield>0 || match.finished) return;
  a.hp=Math.max(0,a.hp-dmg);if(a.hp===0)objectiveDeath(a);
 }
 function kickBall(a,angle){
@@ -67,16 +67,18 @@ function tickObjective(){
  const A=arena,mode=match.mode,c={x:canvas.width/2,y:canvas.height/2};
  A.age++;
  for(const a of A.actors) {
-   if(a.out){if(a.respawn && --a.respawn===0)Object.assign(a,{out:false,hp:a.maxHp,x:a.homeX,y:a.homeY});continue;}
+   if(a.spawnShield>0)a.spawnShield--;
+   if(a.out){if(a.respawn && --a.respawn===0)Object.assign(a,{out:false,spawnShield:match.mode==='gems'?90:0,hp:a.maxHp,x:a.homeX,y:a.homeY});continue;}
    if(a===p || a.stun>0)continue;
    if(window.roomControlledBot?.(a)){window.stepRoomBot(a);continue;}
    const rivals=A.actors.filter(b=>!b.out && (b!==p || !p.hiddenTicks || dist(a,p)<65 || A.carrier===p) && b.team!==a.team && inPlane(b)===inPlane(a));
    const safe=A.safes[1-a.team];if(safe && (!realm || !inPlane(a)))rivals.push(safe);
-   rivals.sort((b,d)=>dist(a,b)-dist(a,d));const target=rivals[0];if(!target)continue;
+   const priority=b=>dist(a,b)-(mode==='gems'?Math.min(5,b.gems||0)*18:0);
+   rivals.sort((b,d)=>priority(b)-priority(d));const target=rivals[0];if(!target)continue;
    let goal=target,stop=110;
    if(!realm || !inPlane(a)){
      if(mode==='zone'){goal=c;stop=30;}
-     if(mode==='gems' && A.drops.length){goal=A.drops[0];stop=4;}
+     if(mode==='gems'){goal=gemBotGoal(a,target,c);stop=5;}
      if(mode==='ball'){const owner=A.carrier,side=a.slot<3?-1:1;
        goal=owner===a?{x:c.x,y:a.team?canvas.height:0}:owner?.team===a.team?{x:c.x+side*canvas.width*.21,y:owner.y+(a.team?50:-50)}:A.ball;stop=12;}
      if(mode==='heist' && safe){goal=safe;stop=95;}
@@ -141,8 +143,7 @@ function drawObjective(){
     ctx.strokeStyle='#f0eb94';ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,cy,match.mode==='zone'?75:safeRadius(),0,7);ctx.stroke();
     score=match.mode==='zone'?A.score.map(n=>Math.floor(n/18)+'%').join(' : '):'В живых: '+A.actors.filter(a=>!a.out).length;
  }else if(match.mode==='gems'){
-    ctx.fillStyle='#efa5ff';for(const g of A.drops)ctx.fillRect(g.x-5,g.y-5,10,10);
-    if(A.hold)score+=' · '+Math.ceil((900-A.hold)/60)+' с';
+    drawGemMine();ctx.restore();return;
  }else if(match.mode==='heist'){
     for(const s of A.safes){ctx.fillStyle=s.team?'#e6757e':'#76cff1';ctx.fillRect(s.x-20,s.y-15,40,30);}
     score=A.safes.map(s=>Math.ceil(100*s.hp/s.maxHp)+'%').join(' : ');

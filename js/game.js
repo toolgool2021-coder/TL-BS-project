@@ -134,6 +134,7 @@
     }
 
     function updateUI() {
+        gemHUD();
         isUltReady = (ultCharge >= 100);
         document.getElementById('ult-bar').style.width = Math.min(ultCharge, 100) + '%';
         document.getElementById('ult-bar').style.background = isUltReady ? '#ff00ff' : '#ffff00';
@@ -323,11 +324,11 @@
         }
         if(p.altitude>0){ctx.save();ctx.fillStyle='#14152366';ctx.beginPath();ctx.ellipse(p.x,p.y,23,9,0,0,7);ctx.fill();ctx.restore();}
         for(const t of combatTargets()) if(t.stun>0){ctx.save();ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe77b';ctx.fillText('Оглушение',t.x,t.y-63);ctx.restore();}
-        if(!enemy.out && inPlane(enemy)){
+        if(match.mode!=='gems' && !enemy.out && inPlane(enemy)){
         ctx.fillStyle=match.mode==='duel'?BRAWLERS[botTrio[Math.min(match.kills,2)]].color:'red'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
         ctx.fillStyle="lime"; ctx.fillRect(enemy.x-40, enemy.y-50, (enemy.hp/enemy.maxHp)*80, 8);
         }
-        for(const t of trainingTargets.filter(t=>!t.out && !t.safe && inPlane(t))) {
+        for(const t of trainingTargets.filter(t=>match.mode!=='gems' && !t.out && !t.safe && inPlane(t))) {
             ctx.fillStyle='#b04a55'; ctx.beginPath(); ctx.arc(t.x,t.y,24,0,7); ctx.fill();
             ctx.fillStyle='#1a2030'; ctx.fillRect(t.x-25,t.y-36,50,5);
             ctx.fillStyle='#a4ffa5'; ctx.fillRect(t.x-25,t.y-36,50*t.hp/t.maxHp,5);
@@ -348,9 +349,9 @@
         ctx.fillStyle=BRAWLERS[current].color; ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();
         ctx.restore();
         ctx.save(); ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.lineWidth=3; ctx.strokeStyle="#17202a"; ctx.fillStyle="white";
-        const label=window.playerNickname || "Player"; ctx.strokeText(label,p.x,p.y-35); ctx.fillText(label,p.x,p.y-35); ctx.restore();
+        const label=window.playerNickname || "Player"; if(match.mode!=='gems'){ctx.strokeText(label,p.x,p.y-35); ctx.fillText(label,p.x,p.y-35);} ctx.restore();
         if(window.roomPreview && !realm){for(const remote of Object.values(window.remotePlayers||{})){const x=remote.x*canvas.width,y=remote.y*canvas.height;ctx.save();ctx.fillStyle="#62cfff";ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fill();ctx.fillStyle="white";ctx.font="14px Arial";ctx.textAlign="center";ctx.fillText(remote.nickname,x,y-35);ctx.restore()}}
-        if(match.mode!=='training') {
+        if(match.mode!=='training' && match.mode!=='gems') {
             ctx.save();ctx.fillStyle='#192338';ctx.fillRect(p.x-32,p.y+30,64,7);
             ctx.fillStyle='#67efac';ctx.fillRect(p.x-32,p.y+30,64*p.hp/p.maxHp,7);
             ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 13px sans-serif';
@@ -360,6 +361,7 @@
         }
         paintTeamHUD();
         if(p.hiddenTicks){ctx.save();ctx.fillStyle='white';ctx.textAlign='center';ctx.fillText('Скрыт · '+Math.ceil(p.hiddenTicks/60)+' с',p.x,p.y+65);ctx.restore();}
+        if(match.mode==='gems')drawGemActors();
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(b => { ctx.fillStyle=b.special==='hostile'?'#ff8659':b.special==='poison'?"#2ecc71":b.isUlt?"#ff00ff":"white"; ctx.beginPath(); ctx.arc(b.x,b.y,b.size||5,0,7); ctx.fill(); });

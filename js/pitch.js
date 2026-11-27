@@ -31,7 +31,7 @@ function paintTeamHUD(){
  for(const a of arena.actors.filter(a=>a!==p && !a.out && inPlane(a))){
    ctx.fillStyle=BRAWLERS[a.fighter].color;ctx.strokeStyle=a.team===0?'#a0edff':'#ff9292';ctx.lineWidth=3;
    ctx.beginPath();ctx.arc(a.x,a.y,19,0,7);ctx.fill();ctx.stroke();
-   ctx.fillStyle='white';ctx.fillText(fighterNames[a.fighter],a.x,a.y+34);
+   if(match.mode!=='gems'){ctx.fillStyle='white';ctx.fillText(fighterNames[a.fighter],a.x,a.y+34);}
  }
  if(match.mode==='knockout'){
    for(const team of [0,1]){
