@@ -1,4 +1,4 @@
-    let superFx=null;
+    let superFx=null, attackFx=[];
     let enemyAI = false;
     let activePin = { type: '', timer: 0, scale: 0 };
     let enemyPin = { type: '', timer: 0, scale: 0 };
@@ -158,6 +158,7 @@
         if(match.nextRound) duelTurn();
         if(p.hiddenTicks>0) p.hiddenTicks--;
         if(superFx && ++superFx.age>=45) superFx=null;
+        attackFx=attackFx.filter(f=>++f.age<18);
         if(realm && --realm.left<=0) realm=null;
         advanceAttachment();
         tickObjective();
@@ -389,6 +390,15 @@
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(drawCombatProjectile);
         paintHammer();paintWaves();
+        for(const f of attackFx){
+            const u=f.age/18,s=f.shape;
+            ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);
+            ctx.globalAlpha=(1-u)*.65;ctx.strokeStyle=f.color;ctx.fillStyle=f.color;ctx.lineWidth=3;
+            if(s.kind==='fan'){ctx.beginPath();ctx.arc(0,0,s.range*(.25+.75*u),-s.spread,s.spread);ctx.stroke();}
+            else if(s.kind==='landing'||s.kind==='jump'){ctx.beginPath();ctx.arc(0,0,22+u*18,0,Math.PI*2);ctx.stroke();}
+            else {const reach=Math.min(s.range,75);ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(reach*(.5+.5*u),-9*(1-u));ctx.lineTo(reach*(.5+.5*u),9*(1-u));ctx.closePath();ctx.fill();}
+            ctx.restore();
+        }
         zones.forEach(z => {
             if(drawSummon(z))return;
             if(z.type==='boMine') {
