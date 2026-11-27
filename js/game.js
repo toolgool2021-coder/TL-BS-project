@@ -329,6 +329,12 @@
 
     function draw() {
         ctx.fillStyle = realm ? "#342649" : "#2e7d32"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        if(!realm && match.mode!=='ball'){
+            ctx.save();ctx.strokeStyle='rgba(255,255,255,.045)';ctx.lineWidth=1;
+            for(let x=0;x<canvas.width;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+            for(let y=0;y<canvas.height;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+            ctx.strokeStyle='#184d25';ctx.lineWidth=8;ctx.strokeRect(4,4,canvas.width-8,canvas.height-8);ctx.restore();
+        }
         if(match.mode==='ball')paintPitch();
         drawObjective();
         if(realm){ctx.save();ctx.fillStyle='#ebd9ff';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('Царство теней · '+Math.ceil(realm.left/60)+' с',canvas.width/2,100);ctx.restore();}
