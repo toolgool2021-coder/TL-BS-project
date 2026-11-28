@@ -31,7 +31,7 @@ function clearCombatTimers() {
             useUltimate(angle);
         } else if (!isUltAction && ammo >= 1) {
             ammo -= 1;
-            if(current!=='Frank') attackFx.push({x:p.x,y:p.y,angle,shape:combatShape(false),color:BRAWLERS[current].color,age:0});
+            if(current!=='Frank') attackFx.push({x:p.x,y:p.y,angle,shape:combatShape(false),color:BRAWLERS[current].color,fighter:current,age:0});
             sounds.shoot.currentTime = 0;
             sounds.shoot.play();
             const b = BRAWLERS[current];
@@ -156,9 +156,8 @@ function clearCombatTimers() {
     }
 
     function spawnNaniProjectiles(angle) {
-        const dist = 320;
-        const tx = p.x + Math.cos(angle) * dist;
-        const ty = p.y + Math.sin(angle) * dist;
+        const end=destination(angle,naniRange());
+        const tx=end.x,ty=end.y;
         [0, 45, -45].forEach(c => bullets.push({ x:p.x,y:p.y,originX:p.x,originY:p.y,tx,ty,progress: 0, curve: c, type: 'nani' }));
     }
 
