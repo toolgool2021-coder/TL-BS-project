@@ -19,7 +19,7 @@ function duelTurn() {
     clearCombatTimers();resetControls();
     bullets.length=0;zones.length=0;throws.length=0;
     p.motion=null;superFx=null;pip.active=false;p.isFlying=false;p.scale=1;p.hiddenTicks=0;p.boostTimer=0;p.speedMult=1;p.shield=0;
-    ammo=BRAWLERS[current].maxAmmo;ultCharge=0;match.cooldown=75;
+    ammo=BRAWLERS[current].maxAmmo;match.cooldown=75;
     renderAmmo();
 }
 function setupMatch() {
