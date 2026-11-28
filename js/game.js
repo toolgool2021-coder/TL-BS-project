@@ -369,7 +369,7 @@ function tlbsMiniMap(){
             if(b.special !== 'bubble' && b.special !== 'bounce') bullets.splice(i,1);
         }
         for(let i=zones.length-1;i>=0;i--){ const z=zones[i]; 
-            if(z.type==='griffPiggy'&&z.life>120){const u=(144-z.life)/24;z.x=z.sx+(z.tx-z.sx)*u;z.y=z.sy+(z.ty-z.sy)*u;}
+            if(z.type==='griffPiggy'&&z.life>120){const u=Math.max(0,Math.min(1,(144-z.life)/24));z.x=z.sx+(z.tx-z.sx)*u;z.y=z.sy+(z.ty-z.sy)*u;}
             if(z.type==='griffPiggy'&&z.life===1){
                 for(const t of combatTargets())if(Math.hypot(t.x-z.x,t.y-z.y)<z.r)hitEnemy(1000,false,t);
                 tlbsDestroyCover(z.x,z.y,z.r);
@@ -509,7 +509,7 @@ function tlbsMiniMap(){
             ctx.restore();
         }
         zones.forEach(z => {
-            if(z.type==='griffPiggy'){ctx.save();ctx.translate(z.x,z.y-(z.life>120?Math.sin(Math.PI*(144-z.life)/24)*45:0));ctx.fillStyle='#f39ab5';ctx.strokeStyle='#733d55';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,21,15,0,0,7);ctx.fill();ctx.stroke();ctx.fillRect(14,-5,12,10);ctx.fillRect(-12,10,7,9);ctx.fillRect(8,10,7,9);ctx.fillStyle='#733d55';ctx.fillRect(-7,-13,14,3);ctx.fillRect(10,-6,3,3);ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText((Math.min(120,z.life)/60).toFixed(1),0,-24);ctx.restore();return;}
+            if(z.type==='griffPiggy'){ctx.save();ctx.translate(z.x,z.y-(z.life>120?Math.sin(Math.PI*Math.max(0,Math.min(1,(144-z.life)/24)))*45:0));ctx.fillStyle='#f39ab5';ctx.strokeStyle='#733d55';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,21,15,0,0,7);ctx.fill();ctx.stroke();ctx.fillRect(14,-5,12,10);ctx.fillRect(-12,10,7,9);ctx.fillRect(8,10,7,9);ctx.fillStyle='#733d55';ctx.fillRect(-7,-13,14,3);ctx.fillRect(10,-6,3,3);ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText((Math.min(120,z.life)/60).toFixed(1),0,-24);ctx.restore();return;}
 
             if(drawSummon(z))return;
             if(z.type==='boMine') {
