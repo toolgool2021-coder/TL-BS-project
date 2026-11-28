@@ -60,9 +60,24 @@ function clearCombatTimers() {
             const b = BRAWLERS[current];
             switch(current) {
                 default: if(BRAWLERS[current].shot) rosterAttack(angle); break;
-                case 'Shelly': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.2, 12, 35); break;
+                case 'Shelly': {
+                    const spread=p.shellyFocus?.10:.2,life=p.shellyFocus?46:35;
+                    for(let i=-1;i<=1;i++){
+                        spawnBullet(angle+i*spread,12,life);
+                        bullets.at(-1).shellyClose=p.passiveChoice==='1';
+                    }
+                    p.shellyFocus=false;
+                    break;
+                }
                 case 'Bull': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
-                case 'Colt': for(let i=0; i<5; i++) scheduleCombatAction(()=>spawnBullet(angle, 15, 45), i*80); break;
+                case 'Colt': {
+                    const count=p.coltExtra?7:5;
+                    const interval=p.passiveChoice==='0'?60:80;
+                    const life=p.passiveChoice==='1'?52:45;
+                    p.coltExtra=false;
+                    for(let i=0;i<count;i++)scheduleCombatAction(()=>spawnBullet(angle,15,life),i*interval);
+                    break;
+                }
                 case 'El_Primo':
                 case 'Rosa': {
                     const damage=current==='Rosa'&&p.shield>0&&p.passiveChoice==='1'?520:400;
@@ -75,7 +90,13 @@ function clearCombatTimers() {
                     break;
                 }
                 case 'Barley': spawnBarleyBottle(angle, combatShape(false).range, 'fire'); break;
-                case 'Brock': spawnBullet(angle, 14, 60); break;
+                case 'Brock': {
+                    const fast=p.passiveChoice==='0';
+                    spawnBullet(angle,fast?17.5:14,fast?48:60,false,p.brockHeavy?9:5);
+                    if(p.brockHeavy)bullets.at(-1).damage=760;
+                    p.brockHeavy=false;
+                    break;
+                }
                 case 'Dynamike': spawnBarleyBottle(angle, combatShape(false).range, 'boom'); break;
                 case 'Tick': {
                     const shape=combatShape(false);
@@ -118,7 +139,12 @@ function clearCombatTimers() {
         superFx={x:p.x,y:p.y,fighter:current,age:0};
         if(BRAWLERS[current].shot) { rosterSuper(angle); return; }
         switch(current) {
-            case 'Shelly': for(let i=-4; i<=4; i++) spawnBullet(angle+i*0.15, 16, 40, true); break;
+            case 'Shelly':
+                for(let i=-4;i<=4;i++){
+                    spawnBullet(angle+i*.15,16,40,true);
+                    bullets.at(-1).shellySlow=p.passiveChoice==='0';
+                }
+                break;
             case 'Colt': for(let i=0; i<12; i++) scheduleCombatAction(()=>spawnBullet(angle, 20, 60, true), i*50); break;
             case 'Max': p.speedMult = 1.6; p.boostTimer=p.passiveChoice==='1'?300:240; break;
             case 'Rosa': p.shield=p.passiveChoice==='0'?240:180; break;
@@ -141,9 +167,14 @@ function clearCombatTimers() {
             case 'Rico':
                 for(let n=0;n<9;n++) scheduleCombatAction(()=>spawnBullet(angle,15,60,true,5,'bounce'),n*55);
                 break;
-            case 'Brock':
-                for(let n=0;n<7;n++) scheduleCombatAction(()=>spawnBarleyBottle(angle+Math.sin(n*2)*0.26,240+Math.cos(n)*35,'boom',true),n*90);
+            case 'Brock': {
+                const radius=combatShape(true).radius;
+                for(let n=0;n<7;n++)scheduleCombatAction(()=>{
+                    spawnBarleyBottle(angle+Math.sin(n*2)*.26,240+Math.cos(n)*35,'boom',true);
+                    throws.at(-1).blastRadius=radius;
+                },n*90);
                 break;
+            }
             case 'Crow': case 'Stu': case 'Bull': case 'Darryl': case 'El_Primo': {
                 const travel={Crow:[300,32],Stu:[200,13],Bull:[312,32],Darryl:[312,28],El_Primo:[250,30]};
                 const [distance,total]=travel[current];
@@ -183,7 +214,7 @@ function clearCombatTimers() {
             }
             if(current==='Dynamike'&&p.passiveChoice==='0'&&!p.out&&!p.motion&&(t.type==='boom'||t.type==='bigBoom')&&Math.hypot(p.x-t.tx,p.y-t.ty)<(t.type==='bigBoom'?140:80)){const a=Math.hypot(p.x-t.tx,p.y-t.ty)<5?0:Math.atan2(p.y-t.ty,p.x-t.tx);beginTravel(a,100,22,'Dynamike',0);}
             if(t.heal&&current==='Barley'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+200);
-            zones.push({x:t.tx,y:t.ty,sticky:t.sticky,damage:t.damage,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',satchel:t.satchel,isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
+            zones.push({x:t.tx,y:t.ty,sticky:t.sticky,damage:t.damage,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',satchel:t.satchel,isUlt:t.isUlt,r:t.blastRadius??(t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80),
                 life:t.type==='mine'?(t.extended?210:150):t.type==='fire'?120:14});
             throws.splice(i,1);
         }

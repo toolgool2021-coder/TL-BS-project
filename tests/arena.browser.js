@@ -675,6 +675,58 @@
     tlbsUseGadget();
     check(!p.motion&&!p.isFlying&&enemy.slow===100,'Bull brake did not stop and slow');
 
+    begin('Shelly');
+    p.passiveChoice='1';
+    enemy.x=p.x+80;
+    tlbsUseGadget();
+    check(combatShape(false).spread===.1,'Shelly focused preview did not narrow');
+    attack(0,false);
+    check(bullets.length===3&&bullets.every(b=>b.life===46)&&!p.shellyFocus,'Shelly focused shot failed');
+    frames(9);
+    check(enemy.hp===enemy.maxHp-1500,'Shelly close pellets did not deal bonus damage');
+    begin('Shelly');
+    p.passiveChoice='0';
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(p.shield===60,'Shelly shield did not activate');
+    useUltimate(0);
+    frames(12);
+    check(enemy.slow>0,'Shelly super did not slow the victim');
+
+    begin('Colt');
+    ammo=1;
+    tlbsUseGadget();
+    check(ammo===2,'Colt did not recover an ammo charge');
+    begin('Colt');
+    p.passiveChoice='0';
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(combatShape(false).count===7,'Colt extended burst preview failed');
+    attack(Math.PI,false);
+    frames(24);
+    check(bullets.length===7&&!p.coltExtra,'Colt fast extended burst failed');
+    begin('Colt');
+    p.passiveChoice='1';
+    attack(Math.PI,false);
+    frames(3);
+    check(bullets.length===1&&bullets[0].life>45,'Colt long range shot failed');
+
+    begin('Brock');
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    attack(0,false);
+    check(bullets[0].vx===17.5&&!p.brockHeavy,'Brock fast heavy rocket failed');
+    frames(12);
+    check(enemy.hp===enemy.maxHp-760,'Brock heavy rocket did not deal its stated damage');
+    begin('Brock');
+    p.passiveChoice='1';
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(p.speedMult===1.3&&p.boostTimer===120,'Brock retreat boost failed');
+    useUltimate(0);
+    frames(34);
+    check(zones.some(z=>z.r===104)&&combatShape(true).radius===104,'Brock widened blast did not match preview');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -748,7 +800,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 54 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 60 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }
