@@ -132,3 +132,5 @@ dialog {max-height:85dvh;overflow:auto}
 #room-status{color:#bdcce1;overflow-wrap:anywhere}
 #room-preview{display:none!important}
 @media(max-width:480px){.room-actions{grid-template-columns:1fr}#room-dialog h2{font-size:24px}}
+
+.match-panel label:has(#gadget-choice),.match-panel label:has(#passive-choice){display:grid;gap:7px;font-size:13px;font-weight:700;color:#dce6f5}.match-panel #gadget-choice,.match-panel #passive-choice{width:100%;min-height:44px;padding:10px 12px;border:1px solid #43516b;border-radius:10px;background:#242f46;color:#f5f7ff;font:inherit;color-scheme:dark}
