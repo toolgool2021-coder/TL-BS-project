@@ -947,6 +947,35 @@
     frames(12);
     check(ammo>normalReload,'Cordelius realm reload failed');
 
+    begin('Colt');
+    tlbsCamera={x:0,y:0};
+    const originalProjectileRenderer=drawCombatProjectile;
+    let projectileDraws=0;
+    drawCombatProjectile=projectile=>{projectileDraws++;originalProjectileRenderer(projectile);};
+    for(let i=0;i<200;i++)spawnBullet(0,10,60,false,5,'',{x:2100,y:1400});
+    spawnBullet(0,10,60,false,5,'',{x:75,y:75});
+    drawFrame();
+    check(projectileDraws===1,'Rendering did not skip 200 projectiles outside the viewport');
+    const outside=bullets[0],outsideX=outside.x;
+    tick();
+    check(outside.x===outsideX+10&&outside.life===59,'Offscreen projectile stopped simulating');
+    tlbsCamera={x:outside.x-25,y:outside.y-25};
+    projectileDraws=0;
+    drawFrame();
+    check(projectileDraws===200,'Previously culled projectiles did not become visible');
+    drawCombatProjectile=originalProjectileRenderer;
+
+    updateUI();
+    const gadgetObserver=new MutationObserver(()=>{});
+    const gadget=document.getElementById('tlbs-gadget');
+    gadgetObserver.observe(gadget,{attributes:true,childList:true,subtree:true,characterData:true});
+    updateUI();
+    check(gadgetObserver.takeRecords().length===0,'Unchanged gadget HUD mutated the DOM');
+    p.gadgetUses--;
+    updateUI();
+    check(gadgetObserver.takeRecords().length>0&&gadget.lastElementChild.textContent==='2','Gadget HUD missed a status change');
+    gadgetObserver.disconnect();
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -1020,7 +1049,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 84 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 84 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn, offscreen rendering and HUD mutations';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

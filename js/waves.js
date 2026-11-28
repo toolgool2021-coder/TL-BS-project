@@ -56,6 +56,7 @@ function paintWaves(){
  for(const w of waves){
    if(w.age>w.ticks)continue;
    const u=w.age/w.ticks,d=u*w.range,r=fanWidth(w,d);
+   if(!inViewport(w.x+Math.cos(w.angle)*d,w.y+Math.sin(w.angle)*d,r+28))continue;
    ctx.save();ctx.translate(w.x,w.y);ctx.rotate(w.angle);
    for(let j=0;j<3;j++){
      const x=d-j*8;ctx.globalAlpha=(1-j*.25)*(.9-.35*u);
@@ -65,6 +66,7 @@ function paintWaves(){
    ctx.restore();
  }
  for(const f of swipes){
+   if(!inViewport(f.x,f.y,90))continue;
    const u=f.age/15;ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);
    ctx.globalAlpha=1-u;ctx.strokeStyle=f.name==='Kit'?'#fff2bd':'#ffaa7e';ctx.lineWidth=4;
    for(let i=0;i<(f.name==='Kit'?3:1);i++){

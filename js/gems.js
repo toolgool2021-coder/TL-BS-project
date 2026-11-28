@@ -23,7 +23,7 @@ function drawGemMine(){
  ctx.beginPath();ctx.ellipse(x,y,42,22,0,0,Math.PI*2);ctx.fill();ctx.stroke();
  ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#fff';ctx.fillText('ШАХТА',x,y+5);
  ctx.strokeStyle='#f1b9ff';ctx.beginPath();ctx.arc(x,y,48,-Math.PI/2,-Math.PI/2+(arena.age%120)/120*Math.PI*2);ctx.stroke();
- for(const [i,g] of arena.drops.entries())diamond(g.x,g.y-5+2*Math.sin(arena.age*.055+i),11);
+ for(const [i,g] of arena.drops.entries())if(inViewport(g.x,g.y,30))diamond(g.x,g.y-5+2*Math.sin(arena.age*.055+i),11);
  ctx.restore();
 }
 function drawGemActors(){
