@@ -460,7 +460,7 @@ function tlbsMiniMap(){
             ctx.fillStyle='#a4ffa5'; ctx.fillRect(t.x-25,t.y-36,50*t.hp/t.maxHp,5);
         }
         for(const t of throws) {
-            const u=t.age/30, x=t.x+(t.tx-t.x)*u, y=t.y+(t.ty-t.y)*u;
+            const u=Math.max(0,Math.min(1,t.age/30)), x=t.x+(t.tx-t.x)*u, y=t.y+(t.ty-t.y)*u;
             ctx.fillStyle='#17213488';ctx.beginPath();ctx.ellipse(x,y,9,4,0,0,7);ctx.fill();
             ctx.fillStyle=t.type==='mine'?'#81dbff':'#ffbd5e';ctx.beginPath();ctx.arc(x,y-70*Math.sin(Math.PI*u),11,0,7);ctx.fill();
         }
@@ -495,7 +495,7 @@ function tlbsMiniMap(){
         tlbsPaintHits();
         paintHammer();paintWaves();
         for(const f of attackFx){
-            const u=f.age/18,s=f.shape;
+            const u=Math.max(0,Math.min(1,f.age/18)),s=f.shape;
             ctx.save();if(p.out||f.fighter!==current){ctx.restore();continue;}ctx.translate(p.x,p.y-(p.altitude||0));ctx.rotate(f.angle);
             ctx.globalAlpha=(1-u)*.65;ctx.strokeStyle=f.color;ctx.fillStyle=f.color;ctx.lineWidth=3;
             if(typeof tlbsDrawWeapon==='function'&&tlbsDrawWeapon(f,u)) {ctx.restore();continue;}
@@ -523,7 +523,7 @@ function tlbsMiniMap(){
             ctx.beginPath(); ctx.arc(z.x,z.y,z.r,0,7); ctx.fill(); 
         });
         if(superFx) {
-            const u=superFx.age/45;
+            const u=Math.max(0,Math.min(1,superFx.age/45));
             ctx.save();ctx.globalAlpha=Math.sin(Math.PI*(0.12+0.88*u));
             ctx.strokeStyle='#ffdb72';ctx.lineWidth=3;ctx.beginPath();
             ctx.arc(superFx.x,superFx.y,25+48*u,0,Math.PI*2);ctx.stroke();
