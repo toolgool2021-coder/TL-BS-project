@@ -55,7 +55,7 @@ function objectiveDeath(a){
  a.respawn=['ball','zone','gems','heist'].includes(match.mode)?150:0;
 }
 function objectiveHit(a,dmg){
- if(a.out || a.spawnShield>0 || match.finished) return;
+ if((a.altitude||0)>0 || a.out || a.spawnShield>0 || match.finished) return;
  a.hp=Math.max(0,a.hp-dmg);if(a.hp===0)objectiveDeath(a);
 }
 function kickBall(a,angle){
