@@ -44,5 +44,27 @@ function paintHammer(){
  ctx.restore();
 }
 function burstSpike(b){
- for(let k=0;k<6;k++)spawnBullet(k*Math.PI/3,9,14,false,4,'thorn',b);
+ const count=b.extraThorns?8:6;
+ for(let k=0;k<count;k++)spawnBullet(k*Math.PI*2/count,9,14,b.isUlt,4,'thorn',b);
+}
+function bounceCombatShot(b){
+ let flipX=b.x<0||b.x>tlbsWorld.width;
+ let flipY=b.y<0||b.y>tlbsWorld.height;
+ if(insideCover(b.x,b.y)){
+   const oldX=b.x-b.vx,oldY=b.y-b.vy;
+   if(insideCover(oldX,oldY))return;
+   const hitX=insideCover(b.x,oldY),hitY=insideCover(oldX,b.y);
+   flipX=hitX||!hitY;flipY=hitY||!hitX;
+   b.x=oldX;b.y=oldY;
+ }
+ if(!flipX&&!flipY)return;
+ b.x=Math.max(0,Math.min(tlbsWorld.width,b.x));
+ b.y=Math.max(0,Math.min(tlbsWorld.height,b.y));
+ if(flipX)b.vx*=-1;
+ if(flipY)b.vy*=-1;
+ if(b.ricoBoost)b.damage=560;
+ if(b.ricoRepair){
+   b.ricoRepair=false;
+   if(current==='Rico'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+600);
+ }
 }

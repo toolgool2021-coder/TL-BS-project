@@ -97,6 +97,7 @@ function rosterAttack(angle) {
         const fastBee=current==='Bea'&&p.beeCharge&&p.passiveChoice==='0';
         spawnBullet(angle+offset,fastBee?speed*1.25:speed,fastBee?Math.ceil(life/1.25):life,false,6,current);
         if(current==='Chester'&&count===4&&p.passiveChoice==='0')bullets.at(-1).damage=520;
+        if(current==='Spike')bullets.at(-1).extraThorns=p.passiveChoice==='0';
         if(current==='Emz')bullets.at(-1).emzDense=p.emzDense;
         if(current==='Gale')bullets.at(-1).galeFrost=p.galeFrost;
         if(current==='Bea'){bullets[bullets.length-1].charged=Boolean(p.beeCharge);p.beeCharge=false;}
@@ -118,7 +119,7 @@ function rosterSuper(angle) {
         case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true,isUlt:true}); beginTravel(angle,285,32,'Piper',24); break;
         case 'cloak': p.hiddenTicks=260; break;
         case 'sandstorm': zones.push({...step(160),type:'sandstorm',r:combatShape(true).radius,life:360,burn:p.passiveChoice==='0'}); break;
-        case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true}); break;
+        case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true,spikeHeal:p.passiveChoice==='1'}); break;
         case 'aura': zones.push({...p,type:'aura',r:125,life:180,drain:p.passiveChoice==='0',slow:p.passiveChoice==='1'}); break;
         case 'wind': startWave('Gale',angle);break;
         case 'griffReturn': for(let i=-2;i<=2;i++){spawnBullet(angle+i*.26,12,72,true,9,'griffNote');bullets.at(-1).turn=35;}break;

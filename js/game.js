@@ -1,5 +1,8 @@
 const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушает статические препятствия в радиусе взрыва.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Четвёртая очередь из четырёх колокольчиков наносит на 30% больше урона.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","На 3,5 секунды замедляет только противников, которых отравил Ворон."],["Отравленные цели наносят на 20% меньше урона.","Ворон наносит на 25% больше урона ослабленным целям."]]};
 Object.assign(tlbsAbilityDescriptions,{
+ Bibi:[['Восстанавливает до 750 здоровья.','Следующий пузырь замедляет цели.'],['При полном запасе атак Биби движется на 15% быстрее.','При запуске пузыря Биби получает щит на секунду.']],
+ Rico:[['Выпускает шесть отскакивающих снарядов вокруг себя.','Первый отскок следующего выстрела восстанавливает 600 здоровья.'],['Обычный снаряд наносит больше урона после отскока.','Снаряды ульты живут на 15 кадров дольше.']],
+ Spike:[['Выпускает восемь игл во все стороны.','Даёт щит на 1,5 секунды.'],['Взрыв обычного снаряда выпускает восемь осколков вместо шести.','Пребывание в зоне своей ульты восстанавливает здоровье.']],
  Darryl:[['Выпускает восемь снарядов по кругу.','Ускоряет перезарядку на 3 секунды.'],['Даёт щит на время переката.','Перекат наносит 1400 урона вместо 1000.']],
  Mortis:[['Следующий рывок атаки на 45 единиц длиннее.','Ускоряет перезарядку на 3 секунды.'],['Устранение врага восстанавливает 700 здоровья.','Ульта восстанавливает на 25% больше здоровья.']],
  Stu:[['Добавляет 35 пунктов заряда ульты.','Даёт щит на одну секунду.'],['Удлиняет рывок ульты до 255.','Завершение рывка ульты восстанавливает 500 здоровья.']],
@@ -30,9 +33,15 @@ Object.assign(tlbsAbilityDescriptions,{
  Piper:[['Стреляет по ближайшему видимому врагу, замедляет и отталкивает его.','Следующая пуля доворачивает к цели.'],['Выстрел из укрытия наносит на 25% больше урона.','Попадание возвращает 0,4 заряда атаки.']],
  Frank:[['Снимает оглушение и даёт иммунитет на 2 секунды.','Следующий удар молотом притягивает цель и наносит на 35% больше урона.'],['Устранение усиливает удары на 25% на 8 секунд.','Увеличивает запас здоровья на 15%.']]
 });
-const tlbsLoadouts={Darryl:[['Круговой залп','Быстрая подача'],['Защищённый перекат','Сильный таран']],Mortis:[['Дальний выпад','Запас сил'],['После победы','Сильнее стая']],Stu:[['Импульс заряда','Защитный буфер'],['Длинный рывок','Мягкая посадка']],Shelly:[['Плотный залп','Защитная стойка'],['Сдерживающий удар','Ближний бой']],Colt:[['Запасной магазин','Длинная очередь'],['Быстрый ритм','Дальний выстрел']],Brock:[['Тяжёлая ракета','Быстрый отход'],['Быстрая ракета','Широкий взрыв']],Edgar:[['Рывок заряда','Плотный шарф'],['Восстановление за удар','Тяжёлое приземление']],El_Primo:[['Сбить шаг','Выход на ринг'],['Широкий удар','Второй раунд']],Bull:[['Передышка','Резкое торможение'],['Последний резерв','Защита на разгоне']],Poco:[['Лечебный мотив','Чистый аккорд'],['Поддержка волной','Громкий финал']],Sandy:[['Передышка в буре','Тяжёлый песок'],['Песчаный ожог','Широкая буря']],Emz:[['Вытеснение','Плотное облако'],['Обратная подпитка','Липкая аура']],Max:[['Ускорение с места','Запас энергии'],['Бег и перезарядка','Продлённый разгон']],Rosa:[['Передышка у укрытия','Цепкие побеги'],['Долгая защита','Усиленный удар']],Leon:[['Короткое исчезновение','Тормозящий диск'],['Тихий спринт','Восстановление в тени']],Jessie:[['Ремонт на месте','Перегрузка'],['Дальний отскок','Укреплённая турель']],Nita:[['Топот','Защита медведя'],['Быстрые лапы','Взаимная поддержка']],Pam:[['Первая помощь','Частый импульс'],['Расширенная зона','Усиленное лечение']],Bo:[['Общий сигнал','Связующий залп'],['Быстрая готовность','Широкий охват']],Tick:[['Защитный корпус','Широкий разброс'],['Долгий дозор','Усиленный корпус']],Barley:[['Скорая помощь','Липкая смесь'],['Крепкая смесь','Медицинская порция']],Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
+const tlbsLoadouts={Bibi:[['Глоток перед боем','Липкий пузырь'],['Свободный шаг','Защитный замах']],Rico:[['Веер отскоков','Восстановление от стены'],['Сильный рикошет','Долгий полёт']],Spike:[['Игольчатое кольцо','Защитная оболочка'],['Частые иглы','Восстановление в зоне']],Darryl:[['Круговой залп','Быстрая подача'],['Защищённый перекат','Сильный таран']],Mortis:[['Дальний выпад','Запас сил'],['После победы','Сильнее стая']],Stu:[['Импульс заряда','Защитный буфер'],['Длинный рывок','Мягкая посадка']],Shelly:[['Плотный залп','Защитная стойка'],['Сдерживающий удар','Ближний бой']],Colt:[['Запасной магазин','Длинная очередь'],['Быстрый ритм','Дальний выстрел']],Brock:[['Тяжёлая ракета','Быстрый отход'],['Быстрая ракета','Широкий взрыв']],Edgar:[['Рывок заряда','Плотный шарф'],['Восстановление за удар','Тяжёлое приземление']],El_Primo:[['Сбить шаг','Выход на ринг'],['Широкий удар','Второй раунд']],Bull:[['Передышка','Резкое торможение'],['Последний резерв','Защита на разгоне']],Poco:[['Лечебный мотив','Чистый аккорд'],['Поддержка волной','Громкий финал']],Sandy:[['Передышка в буре','Тяжёлый песок'],['Песчаный ожог','Широкая буря']],Emz:[['Вытеснение','Плотное облако'],['Обратная подпитка','Липкая аура']],Max:[['Ускорение с места','Запас энергии'],['Бег и перезарядка','Продлённый разгон']],Rosa:[['Передышка у укрытия','Цепкие побеги'],['Долгая защита','Усиленный удар']],Leon:[['Короткое исчезновение','Тормозящий диск'],['Тихий спринт','Восстановление в тени']],Jessie:[['Ремонт на месте','Перегрузка'],['Дальний отскок','Укреплённая турель']],Nita:[['Топот','Защита медведя'],['Быстрые лапы','Взаимная поддержка']],Pam:[['Первая помощь','Частый импульс'],['Расширенная зона','Усиленное лечение']],Bo:[['Общий сигнал','Связующий залп'],['Быстрая готовность','Широкий охват']],Tick:[['Защитный корпус','Широкий разброс'],['Долгий дозор','Усиленный корпус']],Barley:[['Скорая помощь','Липкая смесь'],['Крепкая смесь','Медицинская порция']],Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}let info=document.getElementById(id+'-description');if(!info){info=document.createElement('small');info.id=id+'-description';info.style.cssText='display:block;color:#b9c8df;font-size:12px;line-height:1.5;margin:6px 0 12px';el.insertAdjacentElement('afterend',info);}const describe=()=>{info.textContent=tlbsAbilityDescriptions[current]?.[i]?.[Number(el.value)]||'Способность пока не реализована.';};describe();el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}describe();};}}
 const tlbsGadgetIcons=Object.fromEntries(Object.entries({
+ bubbleAid:'M4 8h16v12H4zM9 8V4h6v4m-6 6h6m-3-3v6',
+ tack:'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM7 10l5 5 5-5',
+ ricochet:'M3 17l9-11 9 11m-5 0h5v-5',
+ reboundAid:'M3 8h8l-5 8h14m-3-3v6m-3-3h6',
+ needles:'M12 2v20M2 12h20M5 5l14 14M5 19 19 5',
+ cactusShield:'M12 3 20 6v8l-8 7-8-7V6zM12 8v8m-4-4h8',
  radial:'M12 2v5m0 10v5M2 12h5m10 0h5M5 5l4 4m6 6 4 4M5 19l4-4m6-6 4-4',
  barrel:'M5 6q7-4 14 0v12q-7 4-14 0zM5 9h14M5 15h14',
  lunge:'M3 16h6l5-8h7m-4-4 4 4-4 4',
@@ -274,6 +283,24 @@ function tlbsUseGadget(angleOverride){if(!gameActive||p.out||match.finished||!(p
             if(ultCharge>=100)return;
             ultCharge=Math.min(100,ultCharge+35);
         }
+    }else if(current==='Bibi'){
+        if(second){if(p.bibiSticky)return;p.bibiSticky=true;}
+        else{
+            if(p.hp>=p.maxHp)return;
+            p.hp=Math.min(p.maxHp,p.hp+750);
+        }
+    }else if(current==='Rico'){
+        if(second){if(p.ricoRepair)return;p.ricoRepair=true;}
+        else for(let i=0;i<6;i++){
+            spawnBullet(i*Math.PI/3,12,17,true,5,'bounce');
+            bullets.at(-1).damage=270;
+        }
+    }else if(current==='Spike'){
+        if(second)p.shield=Math.max(p.shield,90);
+        else for(let i=0;i<8;i++){
+            spawnBullet(i*Math.PI/4,11,14,true,4,'thorn');
+            bullets.at(-1).damage=260;
+        }
     }else return;
     p.gadgetFlash=24;
     p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
@@ -505,7 +532,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost'],Bo:['signal','tether'],Tick:['shell','spread'],Barley:['remedy','sticky'],Jessie:['repair','rapid'],Nita:['stomp','bearShield'],Pam:['aid','pulse'],Max:['sprint','reserve'],Rosa:['coverHeal','roots'],Leon:['veil','disc'],Poco:['melody','cleanse'],Sandy:['dunes','sand'],Emz:['repelEmz','cloud'],Edgar:['chargeMeter','scarf'],El_Primo:['gloves','ringRush'],Bull:['bullAid','brake'],Shelly:['focusShot','coverStep'],Colt:['quickClip','extraRound'],Brock:['heavyOrb','retreat'],Darryl:['radial','barrel'],Mortis:['lunge','vigor'],Stu:['impulse','buffer']};
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost'],Bo:['signal','tether'],Tick:['shell','spread'],Barley:['remedy','sticky'],Jessie:['repair','rapid'],Nita:['stomp','bearShield'],Pam:['aid','pulse'],Max:['sprint','reserve'],Rosa:['coverHeal','roots'],Leon:['veil','disc'],Poco:['melody','cleanse'],Sandy:['dunes','sand'],Emz:['repelEmz','cloud'],Edgar:['chargeMeter','scarf'],El_Primo:['gloves','ringRush'],Bull:['bullAid','brake'],Shelly:['focusShot','coverStep'],Colt:['quickClip','extraRound'],Brock:['heavyOrb','retreat'],Darryl:['radial','barrel'],Mortis:['lunge','vigor'],Stu:['impulse','buffer'],Bibi:['bubbleAid','tack'],Rico:['ricochet','reboundAid'],Spike:['needles','cactusShield']};
         const symbolName=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
         if(gadget.dataset.symbol!==symbolName){gadget.replaceChildren();const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbolName;if(tlbsGadgetIcons[symbolName]){icon.className='tlbs-gadget-svg';icon.innerHTML=tlbsGadgetIcons[symbolName];}const count=document.createElement('span');count.className='tlbs-gadget-count';gadget.append(icon,count);gadget.dataset.symbol=symbolName;}
         const count=gadget.lastElementChild;
@@ -641,8 +668,7 @@ function tlbsMiniMap(){
                     }
                     bullets.splice(i,1); continue;
                 }
-                if(b.special==='bounce') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
-                if(b.special==='bubble') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
+                if(b.special==='bounce'||b.special==='bubble')bounceCombatShot(b);
             }
             if(b.special!=='griffNote'&&insideCover(b.x,b.y)){if(b.blast){b.x-=b.vx;b.y-=b.vy;botRocketImpact(b);}if(b.special==='Spike'||b.wallSplit){b.x-=b.vx;b.y-=b.vy;if(b.wallSplit)splitSurge(b);else burstSpike(b);}bullets.splice(i,1);continue;}
             if(b.special==='hostile' || b.special==='teamShot'){
@@ -712,6 +738,7 @@ function tlbsMiniMap(){
                 p.hp=Math.min(p.maxHp,p.hp+(p.passiveChoice==='0'?240:160));
             }
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
+            if(b.bibiSticky&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,90);
             if (b.special==='Spike')burstSpike(b);
             if (b.special === 'pull') { target.x=p.x; target.y=p.y; }
             if(b.special==='poison'&&!target.safe&&!target.spawnShield&&!target.altitude){
@@ -809,7 +836,10 @@ function tlbsMiniMap(){
                 if(target&&Math.hypot(target.x-z.x,target.y-z.y)<390&&visibleTo(z,target))
                     spawnBullet(z.angle=Math.atan2(target.y-z.y,target.x-z.x),10,40,true,5,'turret',z);
             }
-            if (z.type==='fire' && z.life%30===0) for(const target of nearby) hitEnemy(z.damage||400,!z.isUlt,target);
+            if(z.type==='fire'&&z.life%30===0){
+                for(const target of nearby)hitEnemy(z.damage||400,!z.isUlt,target);
+                if(z.spikeHeal&&current==='Spike'&&!p.out&&dist(z,p)<=z.r)p.hp=Math.min(p.maxHp,p.hp+220);
+            }
             if(z.sticky)for(const target of nearby){
                 if(!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,18);
             }

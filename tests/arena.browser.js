@@ -780,6 +780,61 @@
     frames(16);
     check(p.hp===stuHealth+500,'Stu did not heal at the end of the dash');
 
+    begin('Bibi');
+    p.passiveChoice='0';
+    const fullSpeed=playerMoveSpeed();
+    ammo--;
+    check(fullSpeed>playerMoveSpeed(),'Bibi full ammo speed failed');
+    p.hp-=1300;
+    const bibiHealth=p.hp;
+    tlbsUseGadget();
+    check(p.hp===bibiHealth+750,'Bibi heal failed');
+    begin('Bibi');
+    p.passiveChoice='1';p.gadgetChoice='1';
+    tlbsUseGadget();
+    useUltimate(0);
+    check(p.shield===60&&!p.bibiSticky,'Bibi shield or sticky consumption failed');
+    frames(16);
+    check(enemy.slow>0,'Bibi bubble did not slow');
+
+    begin('Rico');
+    tlbsUseGadget();
+    check(bullets.length===6&&bullets.every(b=>b.special==='bounce'),'Rico radial projectiles failed');
+    begin('Rico');
+    p.passiveChoice='0';p.gadgetChoice='1';
+    p.hp-=1900;
+    const ricoHealth=p.hp;
+    tlbsMapWalls.push({x:p.x+50,y:p.y-45,w:45,h:90});
+    tlbsUseGadget();
+    attack(0,false);
+    frames(8);
+    const rebound=bullets[0];
+    check(rebound?.vx<0&&rebound.damage===560&&p.hp===ricoHealth+600,'Rico cover bounce did not heal and upgrade damage');
+    begin('Rico');
+    p.passiveChoice='1';
+    useUltimate(Math.PI);
+    frames(3);
+    check(bullets.some(b=>b.life>60)&&combatShape(true).range===15*74,'Rico extended super failed');
+
+    begin('Spike');
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    check(bullets.length===8&&bullets.every(b=>b.isUlt&&b.special==='thorn'),'Spike radial gadget failed');
+    bullets.length=0;
+    attack(Math.PI,false);
+    frames(38);
+    check(bullets.filter(b=>b.special==='thorn').length===8,'Spike star power did not increase the split on a miss');
+    begin('Spike');
+    p.passiveChoice='1';p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(p.shield===90,'Spike shield failed');
+    p.hp-=850;
+    const spikeHealth=p.hp;
+    useUltimate(0);
+    p.x=zones[0].x;
+    frames(4);
+    check(p.hp===spikeHealth+220,'Spike did not heal inside the super');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -853,7 +908,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 66 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 72 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

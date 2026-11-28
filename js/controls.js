@@ -71,7 +71,8 @@ canvas.addEventListener('lostpointercapture', e => {
 });
 function playerMoveSpeed(){
     const cloakBonus=current==='Leon'&&p.passiveChoice==='0'&&p.hiddenTicks>0?1.25:1;
-    return BRAWLERS[current].speed*p.speedMult*cloakBonus*(p.slow>0?.5:1);
+    const fullAmmo=current==='Bibi'&&p.passiveChoice==='0'&&ammo>=BRAWLERS.Bibi.maxAmmo?1.15:1;
+    return BRAWLERS[current].speed*p.speedMult*cloakBonus*fullAmmo*(p.slow>0?.5:1);
 }
 function keyboardMovement(){
     const x=Number(pressedKeys.has(bindings.right))-Number(pressedKeys.has(bindings.left));

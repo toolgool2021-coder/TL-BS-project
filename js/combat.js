@@ -117,7 +117,11 @@ function clearCombatTimers() {
                     spawnBullet(angle,12,55,false,8,'energy');
                     bullets.at(-1).longBounce=p.passiveChoice==='0';
                     break;
-                case 'Rico': spawnBullet(angle, 14, 60, false, 5, 'bounce'); break;
+                case 'Rico':
+                    spawnBullet(angle,14,60,false,5,'bounce');
+                    Object.assign(bullets.at(-1),{ricoBoost:p.passiveChoice==='0',ricoRepair:p.ricoRepair});
+                    p.ricoRepair=false;
+                    break;
                 case 'Frank': startHammer(angle,false);break;
                 case 'Nani': spawnNaniProjectiles(angle); break;
                 case 'Max': for(let i=0; i<4; i++) scheduleCombatAction(()=>spawnBullet(angle, 18, 35), i*50); break;
@@ -125,7 +129,9 @@ function clearCombatTimers() {
                 case 'Tara': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.15, 13, 40); break;
                 case 'Gene': spawnBullet(angle, 11, 25, false, 10, 'gene_main'); break; 
                 case 'Bibi': for(const t of combatTargets()) if(inFan(t,angle,basicAim.Bibi)){
-                    hitEnemy(1300,true,t);if(!t.safe){t.x+=Math.cos(angle)*60;t.y+=Math.sin(angle)*60;}
+                    if(t.spawnShield||t.altitude||!visibleTo(p,t))continue;
+                    if(!t.safe&&!t.out)for(let i=0;i<6;i++)moveOnPitch(t,Math.cos(angle)*10,Math.sin(angle)*10);
+                    hitEnemy(1300,true,t);
                 }break;
                 case 'Mortis': {
                     const shape=combatShape(false);
@@ -167,14 +173,21 @@ function clearCombatTimers() {
                 break;
             case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
             case 'Gene': spawnBullet(angle, 18, 40, true, 12, 'pull'); break;
-            case 'Bibi': bullets.push({ x:p.x, y:p.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:300, special:'bubble', isUlt:true, type:'normal', size:15 }); break;
+            case 'Bibi':
+                spawnBullet(angle,10,300,true,15,'bubble');
+                bullets.at(-1).bibiSticky=p.bibiSticky;
+                p.bibiSticky=false;
+                if(p.passiveChoice==='1')p.shield=Math.max(p.shield,60);
+                break;
             case 'Mortis':
                 spawnBullet(angle,12,48,true,14,'bats');
                 bullets.at(-1).batHeal=p.passiveChoice==='1';
                 break;
-            case 'Rico':
-                for(let n=0;n<9;n++) scheduleCombatAction(()=>spawnBullet(angle,15,60,true,5,'bounce'),n*55);
+            case 'Rico': {
+                const life=p.passiveChoice==='1'?75:60;
+                for(let n=0;n<9;n++)scheduleCombatAction(()=>spawnBullet(angle,15,life,true,5,'bounce'),n*55);
                 break;
+            }
             case 'Brock': {
                 const radius=combatShape(true).radius;
                 for(let n=0;n<7;n++)scheduleCombatAction(()=>{
