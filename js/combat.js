@@ -10,7 +10,7 @@ function scheduleCombatAction(action, delay) {
 
 function clearCombatTimers() {
     for (const timer of combatTimers) clearTimeout(timer);
-    combatTimers.clear();waves=[];swipes=[];hammer=null;damageNotes=[];attackFx=[];
+    combatTimers.clear();waves=[];swipes=[];hammer=null;damageNotes=[];attackFx=[];tlbsHitEffects.length=0;
 }
 
     function attack(angle, isUltAction, power=null) {
@@ -139,6 +139,8 @@ function clearCombatTimers() {
         if(!inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
+        tlbsHitEffects.push({x:target.x,y:target.y,damage:Math.round(dmg),born:performance.now()});
+        if(tlbsHitEffects.length>40)tlbsHitEffects.shift();
         sounds.hit.currentTime = 0;
         sounds.hit.play();
         if(target.hp <= 0) {
