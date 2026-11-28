@@ -26,7 +26,7 @@ for(const [name,[color,hp,reload,speed,life,spread,count,ability]] of Object.ent
         ultChargeRate:12,maxAmmo:name==='Bea'?1:3,shot:{speed,life,spread,count}};
 }
 function rosterAttack(angle) {
-    if(current==='Griff'){for(let wave=0;wave<3;wave++){const fire=()=>{if(current==='Griff'&&!p.out)for(let i=-1;i<=1;i++)spawnBullet(angle+i*.22,14,35,false,6,'griffCoin');};if(wave===0)fire();else scheduleCombatAction(fire,wave*100);}return;}
+    if(current==='Griff'){const waves=p.griffExtra?4:3;p.griffExtra=false;for(let wave=0;wave<waves;wave++){const fire=()=>{if(current==='Griff'&&!p.out)for(let i=-1;i<=1;i++)spawnBullet(angle+i*.22,14,35,false,6,'griffCoin');};if(wave===0)fire();else scheduleCombatAction(fire,wave*(p.passiveChoice==='0'?75:100));}return;}
     if(['Poco','Nita','Sandy'].includes(current)){startWave(current,angle);return;}
     if(current==='Fang'){
         swipes.push({name:current,x:p.x,y:p.y,age:0,angle});
