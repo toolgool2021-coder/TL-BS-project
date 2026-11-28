@@ -113,7 +113,7 @@ function clearCombatTimers() {
     function spawnBarleyBottle(angle, dist, type, isUlt) { 
         let tx=p.x+Math.cos(angle)*dist, ty=p.y+Math.sin(angle)*dist;
         tx=Math.max(22,Math.min(tlbsWorld.width-22,tx));ty=Math.max(22,Math.min(tlbsWorld.height-22,ty)); 
-        throws.push({x:p.x,y:p.y,tx,ty,type,isUlt,age:0});
+        throws.push({x:p.x,y:p.y,tx,ty,type,isUlt,satchel:current==='Dynamike'&&!isUlt&&p.satchel,age:0});if(current==='Dynamike'&&!isUlt)p.satchel=false;
     }
 
     function advanceThrows() {
@@ -124,8 +124,8 @@ function clearCombatTimers() {
                 zones.push({x:t.tx,y:t.ty,r:58,type:'boMine',arm:30,fuse:0,life:Infinity});
                 throws.splice(i,1);continue;
             }
-            if(current==='Dynamike'&&p.passiveChoice!== 'reload'&&!p.out&&!p.motion&&(t.type==='boom'||t.type==='bigBoom')&&Math.hypot(p.x-t.tx,p.y-t.ty)<(t.type==='bigBoom'?140:80)){const a=Math.hypot(p.x-t.tx,p.y-t.ty)<5?0:Math.atan2(p.y-t.ty,p.x-t.tx);beginTravel(a,100,22,'Dynamike',0);}
-            zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
+            if(current==='Dynamike'&&p.passiveChoice==='0'&&!p.out&&!p.motion&&(t.type==='boom'||t.type==='bigBoom')&&Math.hypot(p.x-t.tx,p.y-t.ty)<(t.type==='bigBoom'?140:80)){const a=Math.hypot(p.x-t.tx,p.y-t.ty)<5?0:Math.atan2(p.y-t.ty,p.x-t.tx);beginTravel(a,100,22,'Dynamike',0);}
+            zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',satchel:t.satchel,isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
                 life:t.type==='mine'?150:t.type==='fire'?120:14});
             throws.splice(i,1);
         }
@@ -138,6 +138,7 @@ function clearCombatTimers() {
 
     function hitEnemy(dmg, canCharge, target=enemy) {
         if((target.altitude||0)>0 || !inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
+        if(current==='Chester'&&p.candyDamage>0)dmg*=1.25;
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
         const now=performance.now(), prior=tlbsHitEffects.find(f=>f.target===target&&now-f.born<160);
