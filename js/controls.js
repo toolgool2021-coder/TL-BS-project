@@ -75,7 +75,7 @@ function keyboardMovement(){
     const d=Math.hypot(x,y);
     if(p.attachment || p.stun>0 || p.out || !d || joyL.active) return;
     if(pip.active) pip.angle=Math.atan2(y,x);
-    else if(!p.isFlying){p.x+=x/d*BRAWLERS[current].speed*p.speedMult;p.y+=y/d*BRAWLERS[current].speed*p.speedMult;}
+    else if(!p.isFlying){const speed=BRAWLERS[current].speed*p.speedMult*(p.slow>0?.5:1);p.x+=x/d*speed;p.y+=y/d*speed;}
 }
 
 const fsButton=document.getElementById('fullscreen-toggle');

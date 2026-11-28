@@ -15,6 +15,7 @@ function duelTurn() {
     current=playerTrio[match.deaths];
     const bot=botTrio[match.kills];
     enemy.fighter=bot;
+    resetBotAbility(enemy,true);
     enemy.maxHp=practiceHp[bot];
     enemy.hp=enemy.maxHp;
     p.hp=p.maxHp=playerMaxHp();
@@ -40,6 +41,7 @@ function setupMatch() {
     enemy.fighter=match.mode==='training'?null:['Shelly','Colt','Brock'][Math.floor(Math.random()*3)];
     enemy.maxHp=match.mode==='training'?30000:practiceHp[enemy.fighter];
     enemy.hp=enemy.maxHp;
+    resetBotAbility(enemy,true);
     if(match.mode!=='training') trainingTargets=[];
     match.limit=Math.min(50,Math.max(1,Math.round(Number(document.querySelector('#kill-limit').value)||5)));
     match.difficulty=document.getElementById('bot-difficulty').value;
@@ -50,7 +52,9 @@ function setupMatch() {
     }
 }
 function combatTick() {
-    if(arena || enemy.stun || !inPlane(enemy) || match.mode==='training' || match.finished) return;
+    if(arena || !inPlane(enemy) || match.mode==='training' || match.finished) return;
+    tickBotAbility(enemy);
+    if(enemy.stun)return;
     const candidates=hostileSummons(enemy);
     if(!p.hiddenTicks)candidates.push(p);
     const target=candidates.sort((a,b)=>dist(a,enemy)-dist(b,enemy))[0];
@@ -67,7 +71,9 @@ function combatTick() {
             else tlbsBotMove(enemy,target,speed);
         }
     }
-    if(--match.cooldown<=0&&target&&dist(target,enemy)<botWeapon(enemy).range&&visibleTo(enemy,target)){
+    match.cooldown--;
+    if(botTryAbility(enemy,target,'hostile',match.cooldown)){match.cooldown=55;return;}
+    if(match.cooldown<=0&&target&&dist(target,enemy)<botWeapon(enemy).range&&visibleTo(enemy,target)){
         match.cooldown=botFire(enemy,target,'hostile');
     }
 }

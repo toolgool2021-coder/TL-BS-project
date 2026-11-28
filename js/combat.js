@@ -179,6 +179,7 @@ function clearCombatTimers() {
         if(current==='Chester'&&p.candyDamage>0)dmg*=1.25;
         if(current==='Crow'&&p.passiveChoice==='1'&&!target.safe&&target.hp<=target.maxHp/2)dmg*=1.25;
         if(current==='Frank'&&p.frankRage>0)dmg*=1.25;
+        if(!arena&&target.botShield>0)dmg=Math.round(dmg*.55);
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
         const now=performance.now(), prior=tlbsHitEffects.find(f=>f.target===target&&now-f.born<160);
@@ -194,6 +195,7 @@ function clearCombatTimers() {
             if(realm?.target===target) realm=null;
             recordElimination();
             target.hp = target.maxHp;
+            if(target===enemy)resetBotAbility(enemy);
             if(target===enemy) enemy.x = tlbsWorld.width / 2;
             if(target===enemy) enemy.y = 150;
         }

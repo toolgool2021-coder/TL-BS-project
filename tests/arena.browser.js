@@ -224,6 +224,31 @@
     check(mover.x>625&&!insideCover(mover.x,mover.y,16), 'Bot failed to route around cover at '+mover.x+','+mover.y);
     difficultySelect.value='normal';
 
+    begin('Colt','skirmish');
+    enemy.fighter='Shelly';
+    for(let i=0;i<12;i++)botDealDamage({owner:enemy,botLife:enemy.botLife,damage:260},p,800);
+    check(enemy.botCharge===100,'Bot did not earn its super through hits');
+    check(botTryAbility(enemy,p,'hostile',0),'Bot did not use its charged super');
+    check(bullets.length===5 && bullets.every(b=>b.isUlt),'Shelly bot super did not fire its spread');
+    botDealDamage(bullets[0],p,800);
+    check(enemy.botCharge===0&&p.slow===90,'Super recharged itself or failed to slow');
+    enemy.hp=Math.floor(enemy.maxHp*.35);
+    botTryAbility(enemy,p,'hostile',1);
+    check(enemy.botShield===100&&enemy.botGadgetUses===1,'Bot did not use its defensive gadget');
+    botTryAbility(enemy,p,'hostile',1);
+    check(enemy.botGadgetUses===1,'Bot ignored gadget cooldown');
+    const previousLife=enemy.botLife;
+    hitEnemy(enemy.hp*3,false,enemy);
+    check(enemy.botLife!==previousLife&&enemy.botCharge===0&&enemy.botShield===0&&enemy.botGadgetUses===1,
+      'Bot respawn leaked an effect or refilled gadget charges');
+    botDealDamage({owner:enemy,botLife:previousLife,damage:260},p,800);
+    check(enemy.botCharge===0,'A projectile from a previous life charged the bot');
+    begin('Colt','zone');
+    const protectedBot=arena.actors[1];
+    protectedBot.spawnShield=20;
+    botDealDamage({owner:arena.actors[2],damage:560},protectedBot,550);
+    check(protectedBot.hp===protectedBot.maxHp&&arena.actors[2].botCharge===0,'Blocked hit charged a bot');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -297,7 +322,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 12 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast and pathfinding';
+      modes.length + ' mode lifecycle scenarios, Canvas, 12 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

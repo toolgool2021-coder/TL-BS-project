@@ -26,14 +26,14 @@ function botLeadAngle(actor,target,weapon,difficulty){
     return Math.atan2(target.y+(target.botVy||0)*flight-actor.y,target.x+(target.botVx||0)*flight-actor.x);
 }
 
-function botFire(actor,target,special){
-    const difficulty=botDifficulty(),weapon=botWeapon(actor);
+function botFire(actor,target,special,weapon=botWeapon(actor),superMove=false){
+    const difficulty=botDifficulty(),life=actor.botLife;
     const angle=botLeadAngle(actor,target,weapon,difficulty);
     const fire=()=>{
-        if(match.finished||actor.out||actor.stun>0||!visibleTo(actor,target))return;
+        if(match.finished||actor.out||actor.botLife!==life||actor.stun>0||!visibleTo(actor,target))return;
         for(const offset of weapon.spread){
-            spawnBullet(angle+offset,weapon.speed,weapon.life,false,6,special,actor);
-            Object.assign(bullets.at(-1),{owner:actor,damage:weapon.damage,blast:weapon.blast});
+            spawnBullet(angle+offset,weapon.speed,weapon.life,superMove,superMove?8:6,special,actor);
+            Object.assign(bullets.at(-1),{owner:actor,damage:weapon.damage,blast:weapon.blast,slow:weapon.slow,botLife:life});
         }
     };
     fire();
@@ -77,12 +77,66 @@ function botDodge(actor,speed){
 function botRocketImpact(projectile){
     if(!projectile.blast)return;
     zones.push({x:projectile.x,y:projectile.y,r:projectile.blast,type:'blast',life:12});
-    const targets=arena?.actors||[p];
+    const targets=arena?[...arena.actors,...arena.safes]:[p];
     for(const target of targets){
         if(target.out||target===projectile.owner||(arena&&target.team===projectile.owner?.team))continue;
         if(inPlane(target)!==inPlane(projectile.owner)||dist(target,projectile)>projectile.blast)continue;
         if(!visibleTo(projectile,target))continue;
-        if(arena)objectiveHit(target,target===p?crowIncomingDamage(projectile.owner,projectile.damage):projectile.damage);
-        else receiveHit(projectile.owner,projectile.damage);
+        botDealDamage(projectile,target,820);
     }
+}
+
+const botSupers = {
+    Shelly: {range:200, speed:12, life:21, damage:360, spread:[-.36,-.18,0,.18,.36], slow:90},
+    Colt: {range:360, speed:14, life:33, damage:330, spread:[0], burst:6},
+    Brock: {range:380, speed:11, life:39, damage:590, spread:[-.2,0,.2], blast:70},
+    Jessie: {range:330, speed:11, life:36, damage:660, spread:[-.13,0,.13], slow:90},
+    Bull: {range:140, speed:13, life:13, damage:470, spread:[-.24,-.12,0,.12,.24], slow:75}
+};
+
+function resetBotAbility(actor,newMatch=false){
+    actor.botLife=(actor.botLife||0)+1;
+    actor.botCharge=0;
+    actor.botShield=0;
+    actor.botFlash=0;
+    actor.nav=null;
+    if(newMatch){actor.botGadgetUses=2;actor.botGadgetCooldown=0;}
+}
+
+function tickBotAbility(actor){
+    if(actor.botShield>0)actor.botShield--;
+    if(actor.botFlash>0)actor.botFlash--;
+    if(actor.botGadgetCooldown>0)actor.botGadgetCooldown--;
+}
+
+function botTryAbility(actor,target,special,cooldown){
+    if(match.difficulty==='easy'||!target||actor.out||actor.stun>0||arena?.carrier===actor||target.spawnShield||target.altitude)return false;
+    const distance=dist(actor,target);
+    const weapon=botSupers[actor.fighter];
+    if(actor.botCharge>=100&&weapon&&cooldown<=0&&distance<weapon.range&&visibleTo(actor,target)){
+        actor.botCharge=0;
+        actor.botFlash=30;
+        botFire(actor,target,special,weapon,true);
+        return true;
+    }
+    if(actor.botGadgetUses>0&&!actor.botGadgetCooldown&&actor.hp<=actor.maxHp*.38&&distance<225&&visibleTo(actor,target)){
+        actor.botGadgetUses--;
+        actor.botGadgetCooldown=360;
+        actor.botFlash=20;
+        if(actor.fighter==='Bull'||actor.fighter==='Shelly')actor.botShield=100;
+        else actor.hp=Math.min(actor.maxHp,actor.hp+Math.round(actor.maxHp*.12));
+    }
+    return false;
+}
+
+function botDealDamage(projectile,target,fallbackDamage){
+    if(target.out||target.spawnShield||target.altitude||match.finished||match.nextRound)return;
+    const source=projectile.owner||enemy;
+    const damage=projectile.damage||fallbackDamage;
+    if(projectile.botLife===source.botLife&&!projectile.isUlt&&source.botCharge!==undefined&&!source.out){
+        source.botCharge=Math.min(100,source.botCharge+Math.max(6,Math.round(damage/30)));
+    }
+    if(projectile.slow&&!target.safe)target.slow=Math.max(target.slow||0,projectile.slow);
+    if(arena)objectiveHit(target,target===p?crowIncomingDamage(source,damage):damage);
+    else receiveHit(source,damage);
 }

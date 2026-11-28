@@ -36,6 +36,7 @@ function resetField(){
  clearAttachment();realm=null;clearCombatTimers();bullets.length=0;zones.length=0;throws.length=0;
  p.motion=null;p.isFlying=false;p.scale=1;p.shield=0;p.hiddenTicks=0;pip.active=false;
  for(const a of arena.actors){
+    if(a!==p)resetBotAbility(a,a.botGadgetUses===undefined);
     a.stun=0;a.slow=0;a.spawnShield=match.mode==='gems'?90:0;
     const slot=Math.floor(a.slot/2);
     a.homeX=tlbsWorld.width*(slot+1)/4;a.homeY=a.slot%2?65:tlbsWorld.height-65;
@@ -52,12 +53,13 @@ function objectiveDeath(a){
  if(a===arena.carrier){arena.ball.x=a.x;arena.ball.y=a.y;arena.carrier=null;}
  for(let i=0;i<a.gems;i++) arena.drops.push({x:a.x+Math.sin(i)*14,y:a.y+Math.cos(i)*14});
  if(a===p){resetFighterStage();match.deaths++;}
+ else resetBotAbility(a);
  a.out=true;a.gems=0;a.hp=0;
  a.respawn=['ball','zone','gems','heist'].includes(match.mode)?150:0;
 }
 function objectiveHit(a,dmg){
  if((a.altitude||0)>0 || a.out || a.spawnShield>0 || match.finished) return;
- a.hp=Math.max(0,a.hp-dmg);if(a.hp===0)objectiveDeath(a);
+ a.hp=Math.max(0,a.hp-(a.botShield>0?Math.round(dmg*.55):dmg));if(a.hp===0)objectiveDeath(a);
 }
 function kickBall(a,angle){
  if(!arena || arena.carrier!==a) return false;
@@ -71,7 +73,9 @@ function tickObjective(){
  for(const a of A.actors) {
    if(a.spawnShield>0)a.spawnShield--;
    if(a.out){if(a.respawn && --a.respawn===0)Object.assign(a,{out:false,spawnShield:match.mode==='gems'?90:0,hp:a.maxHp,x:a.homeX,y:a.homeY});continue;}
-   if(a===p || a.stun>0)continue;
+   if(a===p)continue;
+   tickBotAbility(a);
+   if(a.stun>0)continue;
    if(window.roomControlledBot?.(a)){window.stepRoomBot(a);continue;}
    const rivals=A.actors.filter(b=>!b.out && (b!==p || !p.hiddenTicks || dist(a,p)<65 || A.carrier===p) && b.team!==a.team && inPlane(b)===inPlane(a));
    rivals.push(...hostileSummons(a));
@@ -105,7 +109,9 @@ function tickObjective(){
      if(teammate)kickBall(a,Math.atan2(teammate.y-a.y,teammate.x-a.x));
      else if(d<110)kickBall(a,goalAngle);
    }
-   if(--a.cool<=0&&dist(a,target)<weapon.range&&visibleTo(a,target)){
+   a.cool--;
+   if(botTryAbility(a,target,'teamShot',a.cool)){a.cool=55;continue;}
+   if(a.cool<=0&&dist(a,target)<weapon.range&&visibleTo(a,target)){
      a.cool=botFire(a,target,'teamShot');
    }
  }
