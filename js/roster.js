@@ -17,7 +17,7 @@ const additions = {
     Buzz:['#54cbb5',9600,1000,10,12,0.38,5,'hook'],
     Chester:['#dc8bcb',7400,1900,14,32,0.22,3,'surprise'],
     Cordelius:['#ae81e3',6400,1250,13,25,0.07,2,'isolate'],
-    Griff:['#e5a84a',6800,1500,14,35,.25,5,'swarm'],
+    Griff:['#e5a84a',6800,1500,14,35,.22,3,'griffReturn'],
     Bonnie:['#ef7790',7200,1800,16,36,0,1,'leap'],
     Kit:['#ded9b7',6000,850,10,10,0.35,3,'pounce']
 };
@@ -26,6 +26,7 @@ for(const [name,[color,hp,reload,speed,life,spread,count,ability]] of Object.ent
         ultChargeRate:12,maxAmmo:name==='Bea'?1:3,shot:{speed,life,spread,count}};
 }
 function rosterAttack(angle) {
+    if(current==='Griff'){for(let wave=0;wave<3;wave++){const fire=()=>{if(current==='Griff'&&!p.out)for(let i=-1;i<=1;i++)spawnBullet(angle+i*.22,14,35,false,6,'griffCoin');};if(wave===0)fire();else scheduleCombatAction(fire,wave*100);}return;}
     if(['Poco','Nita','Sandy'].includes(current)){startWave(current,angle);return;}
     if(current==='Fang'){
         swipes.push({name:current,x:p.x,y:p.y,age:0,angle});
@@ -79,6 +80,7 @@ function rosterSuper(angle) {
         case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true}); break;
         case 'aura': zones.push({...p,type:'aura',r:125,life:180}); break;
         case 'wind': startWave('Gale',angle);break;
+        case 'griffReturn': for(let i=-2;i<=2;i++){spawnBullet(angle+i*.26,12,72,true,9,'griffNote');bullets.at(-1).turn=35;}break;
         case 'swarm': for(let i=-3;i<=3;i++) spawnBullet(angle+i*.11,11,45,true,6,'swarm'); break;
         case 'upgrade': case 'return': case 'kick': case 'leap': case 'pounce': {
             const shape=combatShape(true);beginTravel(angle,shape.range,current==='Kit'?26:20,current,shape.radius);break;
