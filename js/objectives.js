@@ -91,7 +91,7 @@ function tickObjective(){
      const speed=BRAWLERS[a.fighter].speed*.65,dx=(goal.x-a.x)/d*speed,dy=(goal.y-a.y)/d*speed;
      const retreat=a.hp<a.maxHp*.25 && goal===target;
      const heading=Math.atan2(dy,dx)+(retreat?Math.PI:0);
-     for(const offset of [0,.65,-.65,1.3,-1.3,2,-2]){const vx=Math.cos(heading+offset)*speed,vy=Math.sin(heading+offset)*speed;if(!insideCover(a.x+vx,a.y+vy,16)){moveOnPitch(a,vx,vy);break;}}
+     tlbsBotMove(a,retreat?{x:a.x+Math.cos(heading)*120,y:a.y+Math.sin(heading)*120}:goal,speed);
    }
    if(A.carrier===a && d<110)kickBall(a,Math.atan2(goal.y-a.y,goal.x-a.x));
    if(--a.cool<=0 && dist(a,target)<(a.fighter==='Bull'?155:340) && visibleTo(a,target)){
