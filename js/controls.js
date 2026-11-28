@@ -26,6 +26,7 @@ window.addEventListener('blur', resetControls);
 window.addEventListener('touchcancel', resetControls);
 window.addEventListener('keydown', e => {
     if(!gameActive) return;
+    if(e.code==='KeyG'){e.preventDefault();if(!e.repeat)tlbsUseGadget();return;}
     if(e.code==='Escape') { exitToMenu();return; }
     if(e.code==='KeyE') { e.preventDefault();if(!e.repeat) togglePinMenu();return; }
     const digit=/^(?:Digit|Numpad)([1-5])$/.exec(e.code);
