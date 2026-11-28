@@ -23,6 +23,7 @@ function duelTurn() {
     renderAmmo();
 }
 function setupMatch() {
+    p.gadgetUses=3;p.gadgetCooldown=0;
     clearAttachment();enemy.stun=0;
     p.bells=0;p.jackpot=Math.floor(Math.random()*5);p.beeCharge=false;
     resetFighterStage();selectedFighter=current;
@@ -73,6 +74,7 @@ function combatTick() {
 }
 function receiveHit() {
     if(match.finished || match.nextRound) return;
+    ultCharge=Math.min(100,ultCharge+Math.min(p.hp,p.shield>0?240:800)/p.maxHp*35);
     p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
     if(p.hp) return;
     clearAttachment();realm=null;
