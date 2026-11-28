@@ -1,7 +1,7 @@
 const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушение стен пока не реализовано.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Пока не реализовано.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","Пока не реализовано."],["Пока не реализовано.","Пока не реализовано."]]};
 const tlbsLoadouts={Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}let info=document.getElementById(id+'-description');if(!info){info=document.createElement('small');info.id=id+'-description';info.style.cssText='display:block;color:#b9c8df;font-size:12px;line-height:1.5;margin:6px 0 12px';el.insertAdjacentElement('afterend',info);}const describe=()=>{info.textContent=tlbsAbilityDescriptions[current]?.[i]?.[Number(el.value)]||'Способность пока не реализована.';};describe();el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}describe();};}}
-function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return;const second=p.gadgetChoice==='1';if(current==='Dynamike'){if(second)p.satchel=true;else{p.speedMult=1.2;p.boostTimer=120;for(let i=0;i<12;i++)spawnBarleyBottle(i*Math.PI/6,70+i%3*45,'boom',false);}}else if(current==='Chester'){if(!second){if(ultCharge<100)return;p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else{const r=Math.floor(Math.random()*3);if(r===0){p.speedMult=1.25;p.boostTimer=300;}else if(r===1)p.candyReload=300;else p.candyDamage=300;}}else if(current==='Griff'){if(second)p.griffExtra=true;else {const a=aimPoint?Math.atan2(aimPoint.y,aimPoint.x):joyR.active?Math.atan2(joyR.cy-joyR.y,joyR.cx-joyR.x):Math.atan2(enemy.y-p.y,enemy.x-p.x);zones.push({x:p.x,y:p.y,sx:p.x,sy:p.y,tx:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(a)*180)),ty:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(a)*180)),type:'griffPiggy',r:90,life:144});};}else if(current==='Crow'&&!second){p.shield=180;}else return;p.gadgetUses--;p.gadgetCooldown=300;}
+function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return;const second=p.gadgetChoice==='1';if(current==='Dynamike'){if(second)p.satchel=true;else{p.speedMult=1.2;p.boostTimer=120;for(let i=0;i<12;i++)spawnBarleyBottle(i*Math.PI/6,70+i%3*45,'boom',false);}}else if(current==='Chester'){if(!second){if(ultCharge<100)return;p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else{const r=Math.floor(Math.random()*3);if(r===0){p.speedMult=1.25;p.boostTimer=300;}else if(r===1)p.candyReload=300;else p.candyDamage=300;}}else if(current==='Griff'){if(second)p.griffExtra=true;else {const a=aimPoint?Math.atan2(aimPoint.y,aimPoint.x):joyR.active?Math.atan2(joyR.cy-joyR.y,joyR.cx-joyR.x):Math.atan2(enemy.y-p.y,enemy.x-p.x);zones.push({x:p.x,y:p.y,sx:p.x,sy:p.y,tx:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(a)*180)),ty:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(a)*180)),type:'griffPiggy',r:90,life:144});};}else if(current==='Crow'&&!second){p.shield=180;}else return;p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
 // Chester's five existing super variants, in rosterSuper order.
 const chesterSuperIcons=[['💣','Взрыв'],['☠','Ядовитое облако'],['✦','Оглушение'],['✹','Леденцовая зона'],['✚','Лечение']];
 function tlbsSuperIcon(){return current==='Chester'&&ultCharge>=100?chesterSuperIcons[p.jackpot||0][0]:'★';}
@@ -21,6 +21,17 @@ let tlbsWorld={width:2400,height:1800},tlbsCamera={x:0,y:0},tlbsMapWalls=[];
 function tlbsConfigureMap(mode){
  const size=mode==='duel'?TLBS_MAP_SIZES.duel:['solo','duo'].includes(mode)?TLBS_MAP_SIZES.large:TLBS_MAP_SIZES.standard;
  tlbsWorld={width:size[0],height:size[1]};
+}
+function tlbsDestroyCover(x,y,r){
+ // Only break the static breakable map blocks. Objective walls remain intact.
+ if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(r))return 0;
+ const before=tlbsMapWalls.length;
+ tlbsMapWalls=tlbsMapWalls.filter(w=>{
+  const nearX=Math.max(w.x,Math.min(x,w.x+w.w));
+  const nearY=Math.max(w.y,Math.min(y,w.y+w.h));
+  return (nearX-x)**2+(nearY-y)**2>r*r;
+ });
+ return before-tlbsMapWalls.length;
 }
 function tlbsBuildMap(mode){
  const blocks=mode==='duel'?[[.24,.33,.16,25],[.61,.66,.16,25]]:mode==='ball'?[[.12,.28,.2,25],[.68,.28,.2,25],[.12,.70,.2,25],[.68,.70,.2,25]]:[[.15,.28,.18,26],[.67,.28,.18,26],[.15,.72,.18,26],[.67,.72,.18,26]];
@@ -188,7 +199,11 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow','Griff'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const icons={Griff:['🐷','🪙'],Dynamike:['🧨','💥'],Chester:['🎲','🍬'],Crow:['🛡','⌛']};gadget.textContent=(icons[current]?.[Number(p.gadgetChoice)]||'✦')+' '+(p.gadgetCooldown>0?Math.ceil(p.gadgetCooldown/60)+'с':p.gadgetUses||0);gadget.style.background=p.gadgetUses<=0?'#30343b':p.gadgetCooldown>0?'#737982':'#38ad63';gadget.style.borderColor=gadget.disabled?'#a0a5ad':'#a4ffad';gadget.title=(tlbsLoadouts[current]?.[0]?.[Number(p.gadgetChoice)]||'Гаджет')+' (G)';}
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow','Griff'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass']};
+        gadget.replaceChildren();
+        const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
+        const count=document.createElement('span');count.className='tlbs-gadget-count';count.textContent=p.gadgetCooldown>0?Math.ceil(p.gadgetCooldown/60)+'с':String(p.gadgetUses||0);
+        gadget.append(icon,count);gadget.style.background=p.gadgetUses<=0?'#30343b':p.gadgetCooldown>0?'#737982':'#38ad63';gadget.style.borderColor=gadget.disabled?'#a0a5ad':'#a4ffad';gadget.title=(tlbsLoadouts[current]?.[0]?.[Number(p.gadgetChoice)]||'Гаджет')+' (G)';gadget.setAttribute('aria-label',gadget.title+', '+count.textContent);}
         isUltReady = (ultCharge >= 100);
         const bar=document.getElementById('ult-bar');
         const revealed=current==='Chester'&&(isUltReady||p.passiveChoice==='1');
@@ -205,12 +220,26 @@ function tlbsMiniMap(){
 
     function update(now) {
         if (!gameActive) return;
-        if (!lastFrame) lastFrame = now;
-        accumulator += Math.min(100, now - lastFrame); lastFrame = now;
-        while (accumulator >= 1000 / 60) { tick(); accumulator -= 1000 / 60; }
-        if(!match.finished)window.shareMatch?.();
-        window.sendRoomPosition?.(p.x/tlbsWorld.width,p.y/tlbsWorld.height);
-        tlbsFollowCamera();updateUI(); draw();tlbsMiniMap(); frameId = requestAnimationFrame(update);
+        try {
+            if (!lastFrame) lastFrame = now;
+            accumulator += Math.max(0,Math.min(100, now - lastFrame)); lastFrame = now;
+            let steps=0;
+            while (accumulator >= 1000 / 60 && steps++<6) { tick(); accumulator -= 1000 / 60; }
+            if(!match.finished)window.shareMatch?.();
+            window.sendRoomPosition?.(p.x/tlbsWorld.width,p.y/tlbsWorld.height);
+            tlbsFollowCamera();updateUI();draw();tlbsMiniMap();
+        } catch(error) {
+            // A single malformed ability must not silently kill requestAnimationFrame.
+            console.error('[TL BS] Game frame failed:',error);
+            accumulator=0;lastFrame=now;
+            if(!window.tlbsLastFrameError || now-window.tlbsLastFrameError>3000){
+                window.tlbsLastFrameError=now;
+                const notice=document.getElementById('tlbs-error');
+                if(notice){notice.textContent='Ошибка боевого эффекта. Игровой цикл восстановлен.';notice.hidden=false;}
+            }
+        } finally {
+            if(gameActive)frameId=requestAnimationFrame(update);
+        }
     }
     function tick() {
         if(match.finished) return;
@@ -340,7 +369,7 @@ function tlbsMiniMap(){
         }
         for(let i=zones.length-1;i>=0;i--){ const z=zones[i]; 
             if(z.type==='griffPiggy'&&z.life>120){const u=(144-z.life)/24;z.x=z.sx+(z.tx-z.sx)*u;z.y=z.sy+(z.ty-z.sy)*u;}
-            if(z.type==='griffPiggy'&&z.life===1){for(const t of combatTargets())if(Math.hypot(t.x-z.x,t.y-z.y)<z.r)hitEnemy(1000,false,t);z.type='blast';z.life=15;}
+            if(z.type==='griffPiggy'&&z.life===1){for(const t of combatTargets())if(Math.hypot(t.x-z.x,t.y-z.y)<z.r)hitEnemy(1000,false,t);tlbsDestroyCover(z.x,z.y,z.r);z.type='blast';z.life=15;}
             if(summonStats[z.type]){z.age++;if(z.hitFlash)z.hitFlash--;}
             if(z.type === 'gravity') { enemy.x += (z.x - enemy.x) * 0.1; enemy.y += (z.y - enemy.y) * 0.1; if(z.life === 1) hitEnemy(2000, false); }
             if(z.type === 'stun' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) hitEnemy(10, false);
@@ -387,7 +416,7 @@ function tlbsMiniMap(){
                 z.exploded=true;
                 for(const target of nearby) {if(z.satchel)target.stun=90;hitEnemy(z.isBig?(current==='Dynamike'&&p.passiveChoice==='1'?4000:2400):1200,!z.isUlt,target);}
             }
-            if(--z.life<=0) zones.splice(i,1); 
+            if(Number.isFinite(z.life) && --z.life<=0) zones.splice(i,1); 
         }
         p.x = Math.max(22, Math.min(tlbsWorld.width-22,p.x));
         p.y = Math.max(22, Math.min(tlbsWorld.height-22,p.y));
