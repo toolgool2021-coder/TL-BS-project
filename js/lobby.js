@@ -9,6 +9,7 @@ function syncLobby() {
     document.querySelector('#active-name').textContent=name;
     document.querySelector('#crest').textContent=name.slice(0,2).toUpperCase();
     document.querySelector('#char-preview').style.setProperty('--accent',b.color);
+    tlbsLoadoutMenu();
     document.querySelector('#fighter-stats').textContent=(b.hp || practiceHp[current])+' HP  ·  '+(b.reload/1000).toLocaleString('ru')+' с / заряд';
     document.querySelector('#custom-limit').hidden=modeSelect.value!=='custom';
     const used=new Set([current]);
