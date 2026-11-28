@@ -727,6 +727,59 @@
     frames(34);
     check(zones.some(z=>z.r===104)&&combatShape(true).radius===104,'Brock widened blast did not match preview');
 
+    begin('Darryl');
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    check(bullets.length===8&&bullets.every(b=>b.damage===300),'Darryl radial fire failed');
+    useUltimate(0);
+    check(p.shield===28,'Darryl roll shield failed');
+    begin('Darryl');
+    p.gadgetChoice='1';p.passiveChoice='1';
+    tlbsUseGadget();
+    check(p.rapidLoad===180,'Darryl rapid reload did not start');
+    useUltimate(0);
+    frames(35);
+    check(enemy.hp===enemy.maxHp-1400,'Darryl upgraded roll did not hit once');
+
+    begin('Mortis','skirmish');
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    enemy.x=p.x+185;enemy.hp=100;
+    p.hp-=1600;
+    const mortisHealth=p.hp;
+    check(combatShape(false).range===175,'Mortis aim did not show the extended lunge');
+    attack(0,false);
+    frames(16);
+    check(!p.mortisReach&&p.hp===mortisHealth+700,'Mortis dash or elimination healing failed');
+    begin('Mortis');
+    p.gadgetChoice='1';p.passiveChoice='1';
+    tlbsUseGadget();
+    check(p.rapidLoad===180,'Mortis reload gadget failed');
+    p.hp-=1800;
+    const batsHealth=p.hp;
+    useUltimate(0);
+    frames(16);
+    check(p.hp>=batsHealth+1500,'Mortis upgraded bats did not heal enough');
+
+    begin('Stu');
+    p.passiveChoice='0';
+    ultCharge=30;
+    tlbsUseGadget();
+    check(ultCharge===65,'Stu charge boost failed');
+    const stuX=p.x;
+    useUltimate(0);
+    frames(15);
+    check(p.x===stuX+255,'Stu did not travel its preview range');
+    begin('Stu');
+    p.gadgetChoice='1';p.passiveChoice='1';
+    tlbsUseGadget();
+    check(p.shield===60,'Stu shield failed');
+    p.hp-=1100;
+    const stuHealth=p.hp;
+    useUltimate(0);
+    frames(16);
+    check(p.hp===stuHealth+500,'Stu did not heal at the end of the dash');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -800,7 +853,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 60 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 66 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

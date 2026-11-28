@@ -127,7 +127,12 @@ function clearCombatTimers() {
                 case 'Bibi': for(const t of combatTargets()) if(inFan(t,angle,basicAim.Bibi)){
                     hitEnemy(1300,true,t);if(!t.safe){t.x+=Math.cos(angle)*60;t.y+=Math.sin(angle)*60;}
                 }break;
-                case 'Mortis': beginTravel(angle,basicAim.Mortis.range,12,'Mortis',basicAim.Mortis.radius);break;
+                case 'Mortis': {
+                    const shape=combatShape(false);
+                    beginTravel(angle,shape.range,12,'Mortis',shape.radius);
+                    p.mortisReach=false;
+                    break;
+                }
                 case 'Stu': spawnBullet(angle, 16, 30); scheduleCombatAction(()=>spawnBullet(angle, 16, 30), 100); break;
                 case 'Darryl': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
             }
@@ -163,7 +168,10 @@ function clearCombatTimers() {
             case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
             case 'Gene': spawnBullet(angle, 18, 40, true, 12, 'pull'); break;
             case 'Bibi': bullets.push({ x:p.x, y:p.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:300, special:'bubble', isUlt:true, type:'normal', size:15 }); break;
-            case 'Mortis': spawnBullet(angle,12,48,true,14,'bats');break;
+            case 'Mortis':
+                spawnBullet(angle,12,48,true,14,'bats');
+                bullets.at(-1).batHeal=p.passiveChoice==='1';
+                break;
             case 'Rico':
                 for(let n=0;n<9;n++) scheduleCombatAction(()=>spawnBullet(angle,15,60,true,5,'bounce'),n*55);
                 break;
@@ -177,8 +185,9 @@ function clearCombatTimers() {
             }
             case 'Crow': case 'Stu': case 'Bull': case 'Darryl': case 'El_Primo': {
                 const travel={Crow:[300,32],Stu:[200,13],Bull:[312,32],Darryl:[312,28],El_Primo:[250,30]};
-                const [distance,total]=travel[current];
-                if(current==='Bull'&&p.passiveChoice==='1')p.shield=Math.max(p.shield,total);
+                const [baseDistance,total]=travel[current];
+                const distance=current==='Stu'?combatShape(true).range:baseDistance;
+                if((current==='Bull'&&p.passiveChoice==='1')||(current==='Darryl'&&p.passiveChoice==='0'))p.shield=Math.max(p.shield,total);
                 p.motion={fighter:current,x:p.x,y:p.y,dx:Math.cos(angle)*distance,dy:Math.sin(angle)*distance,total,age:0,hits:new Set(),radius:current==='El_Primo'?combatShape(true).radius:undefined};
                 p.isFlying=true;
                 if(current==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
@@ -254,6 +263,7 @@ function clearCombatTimers() {
         sounds.hit.currentTime = 0;
         sounds.hit.play();
         if(target.hp <= 0) {
+            if(current==='Mortis'&&p.passiveChoice==='0'&&!p.out&&!target.safe&&match.mode!=='training')p.hp=Math.min(p.maxHp,p.hp+700);
             if(current==='Frank'&&p.passiveChoice==='0'&&!target.safe&&match.mode!=='training')p.frankRage=480;
             tlbsCrowPoison.delete(target);target.slow=0;
             if(arena){if(!target.safe)match.kills++;objectiveDeath(target);return;}
@@ -291,10 +301,11 @@ function advanceSuperMotion(){
         const slam=m.fighter==='El_Primo' && progress===1;
         if(!slam && m.fighter!=='Bull' && m.fighter!=='Darryl') continue;
         if(!m.hits.has(target) && Math.hypot(target.x-p.x,target.y-p.y)<(slam?m.radius:50)){
-            m.hits.add(target);hitEnemy(slam?1800:1000,false,target);
+            m.hits.add(target);hitEnemy(slam?1800:m.fighter==='Darryl'&&p.passiveChoice==='1'?1400:1000,false,target);
         }
     }
     if(progress===1){
+        if(m.fighter==='Stu'&&p.passiveChoice==='1'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+500);
         if(m.fighter==='El_Primo'&&p.passiveChoice==='1'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+650);
         if(m.fighter==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
         p.motion=null;p.isFlying=false;p.scale=1;p.altitude=0;landRosterMove(m);

@@ -41,6 +41,8 @@ function combatShape(superMove){
  }
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove&&current==='Griff')return fan(420,.52);
+ if(!superMove&&current==='Mortis'&&p.mortisReach)return {...basicAim.Mortis,range:175};
+ if(superMove&&current==='Stu'&&p.passiveChoice==='0')return {...superAimData.Stu,range:255};
  if(!superMove&&current==='Shelly'&&p.shellyFocus)return ray(12,46,5,.1);
  if(!superMove&&current==='Colt')return {...ray(15,p.passiveChoice==='1'?52:45),count:p.coltExtra?7:5};
  if(!superMove&&current==='Brock'&&p.passiveChoice==='0')return ray(17.5,48);
