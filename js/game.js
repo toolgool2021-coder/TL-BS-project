@@ -1,4 +1,6 @@
-function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return; if(p.gadgetChoice==='heal'){p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.25);}else if(current==='Dynamike'){p.speedMult=1.5;p.boostTimer=180;}else if(current==='Chester'){p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else {p.shield=120;}p.gadgetUses--;p.gadgetCooldown=300;}
+const tlbsLoadouts={Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
+function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}};}}
+function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return;const second=p.gadgetChoice==='1';if(current==='Dynamike'){if(second)p.satchel=true;else{p.speedMult=1.2;p.boostTimer=120;for(let i=0;i<12;i++)spawnBarleyBottle(i*Math.PI/6,70+i%3*45,'boom',false);}}else if(current==='Chester'){if(!second){if(ultCharge<100)return;p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else{const r=Math.floor(Math.random()*3);if(r===0){p.speedMult=1.25;p.boostTimer=300;}else if(r===1)p.candyReload=300;else p.candyDamage=300;}}else if(current==='Crow'&&!second){p.shield=180;}else return;p.gadgetUses--;p.gadgetCooldown=300;}
 // Chester's five existing super variants, in rosterSuper order.
 const chesterSuperIcons=[['💣','Взрыв'],['☠','Ядовитое облако'],['✦','Оглушение'],['✹','Леденцовая зона'],['✚','Лечение']];
 function tlbsSuperIcon(){return current==='Chester'&&ultCharge>=100?chesterSuperIcons[p.jackpot||0][0]:'★';}
@@ -185,10 +187,10 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=false;gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.textContent='✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.textContent='✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
         isUltReady = (ultCharge >= 100);
         const bar=document.getElementById('ult-bar');
-        const revealed=current==='Chester'&&isUltReady;
+        const revealed=current==='Chester'&&(isUltReady||p.passiveChoice==='1');
         bar.textContent=revealed?chesterSuperIcons[p.jackpot||0].join(' '):'';
         bar.title=revealed?chesterSuperIcons[p.jackpot||0][1]:'';
         bar.style.fontSize='12px';bar.style.textAlign='center';bar.style.color='#172033';
@@ -211,7 +213,7 @@ function tlbsMiniMap(){
     }
     function tick() {
         if(match.finished) return;
-        if(p.gadgetCooldown>0)p.gadgetCooldown--;
+        if(p.gadgetCooldown>0)p.gadgetCooldown--;if(p.candyReload>0)p.candyReload--;if(p.candyDamage>0)p.candyDamage--;
         if(match.nextRound) duelTurn();
         if(p.hiddenTicks>0) p.hiddenTicks--;
         if(superFx && ++superFx.age>=45) superFx=null;
@@ -227,7 +229,7 @@ function tlbsMiniMap(){
         keyboardMovement();
         if(!p.out && !realm && (current==='Edgar'||(current==='Kit' && !p.attachment)))
             ultCharge=Math.min(100,ultCharge+100/(current==='Edgar'?1800:1200));
-        if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / (p.passiveChoice==='reload'?18.26:16.6));
+        if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / (p.candyReload>0?22:16.6));
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
@@ -377,7 +379,7 @@ function tlbsMiniMap(){
             if (z.type==='fire' && z.life%30===0) for(const target of nearby) hitEnemy(400,!z.isUlt,target);
             if (z.type==='boom' && !z.exploded) {
                 z.exploded=true;
-                for(const target of nearby) hitEnemy(z.isBig?2400:1200,!z.isUlt,target);
+                for(const target of nearby) {if(z.satchel)target.stun=90;hitEnemy(z.isBig?(current==='Dynamike'&&p.passiveChoice==='1'?4000:2400):1200,!z.isUlt,target);}
             }
             if(--z.life<=0) zones.splice(i,1); 
         }
