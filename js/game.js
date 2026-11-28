@@ -1,3 +1,13 @@
+const tlbsHitEffects=[];
+function tlbsActorHUD(a,local=false){
+ if(!a||a.out||!Number.isFinite(a.hp)||!a.maxHp)return;
+ const x=a.x,y=a.y-(a.altitude||0)-53,w=72;
+ ctx.save();ctx.fillStyle='#142033';ctx.fillRect(x-w/2,y,w,9);ctx.fillStyle=local?'#79ef9d':'#ff797d';ctx.fillRect(x-w/2+1,y+1,(w-2)*Math.max(0,Math.min(1,a.hp/a.maxHp)),7);
+ ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.strokeStyle='#142033';ctx.lineWidth=3;ctx.fillStyle='#fff';ctx.strokeText(Math.ceil(Math.max(0,a.hp)),x,y-4);ctx.fillText(Math.ceil(Math.max(0,a.hp)),x,y-4);
+ if(local){const max=BRAWLERS[current].maxAmmo||3,step=w/max;for(let i=0;i<max;i++){ctx.fillStyle='#182333';ctx.fillRect(x-w/2+i*step,y+12,step-2,7);ctx.fillStyle='#ffb75b';ctx.fillRect(x-w/2+i*step,y+12,(step-2)*Math.max(0,Math.min(1,ammo-i)),7);}if(ultCharge>0){ctx.fillStyle='#172033';ctx.fillRect(x-w/2,y+22,w,4);ctx.fillStyle=ultCharge>=100?'#ffe45e':'#71c9ff';ctx.fillRect(x-w/2,y+22,w*Math.min(1,ultCharge/100),4);if(ultCharge>=100){ctx.fillStyle='#ffe45e';ctx.fillText('★',x+w/2+12,y+25);}}}
+ ctx.restore();
+}
+function tlbsPaintHits(){const now=performance.now();for(let i=tlbsHitEffects.length-1;i>=0;i--){const f=tlbsHitEffects[i],u=(now-f.born)/650;if(u>=1){tlbsHitEffects.splice(i,1);continue;}ctx.save();ctx.globalAlpha=1-u;ctx.strokeStyle='#fff3c4';ctx.lineWidth=3;for(let j=0;j<6;j++){const a=j*Math.PI/3,r=12+u*38;ctx.beginPath();ctx.moveTo(f.x+Math.cos(a)*r,f.y+Math.sin(a)*r);ctx.lineTo(f.x+Math.cos(a)*(r+10),f.y+Math.sin(a)*(r+10));ctx.stroke();}ctx.font='bold 19px system-ui';ctx.textAlign='center';ctx.strokeStyle='#172033';ctx.lineWidth=4;ctx.fillStyle='#fff2a5';ctx.strokeText('-'+f.damage,f.x,f.y-24-u*40);ctx.fillText('-'+f.damage,f.x,f.y-24-u*40);ctx.restore();}}
 // Gameplay camera utility: preserve the arena while resizing the viewport.
 const TLBS_MAP_SIZES={duel:[1200,1200],standard:[2400,1800],large:[3200,2400]};
 let tlbsWorld={width:2400,height:1800},tlbsCamera={x:0,y:0},tlbsMapWalls=[];
@@ -387,7 +397,7 @@ function tlbsMiniMap(){
         if(match.mode!=='gems' && !enemy.out && inPlane(enemy)){
         const botName=match.mode==='duel'?botTrio[Math.min(match.kills,2)]:enemy.fighter;
         ctx.fillStyle=BRAWLERS[botName]?.color||'#d65a65'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
-        ctx.fillStyle="lime"; ctx.fillRect(enemy.x-40, enemy.y-50, (enemy.hp/enemy.maxHp)*80, 8);
+        
         if(match.mode!=='duel'){ctx.save();ctx.textAlign='center';ctx.font='bold 13px sans-serif';ctx.fillStyle='white';ctx.fillText(botName?fighterNames[botName]||botName:match.mode==='training'?'Тренировочный бот':'Бот',enemy.x,enemy.y-58);ctx.restore();}
         }
         for(const t of trainingTargets.filter(t=>match.mode!=='gems' && !t.out && !t.safe && inPlane(t))) {
@@ -398,7 +408,7 @@ function tlbsMiniMap(){
         for(const t of throws) {
             const u=t.age/30, x=t.x+(t.tx-t.x)*u, y=t.y+(t.ty-t.y)*u;
             ctx.fillStyle='#17213488';ctx.beginPath();ctx.ellipse(x,y,9,4,0,0,7);ctx.fill();
-            ctx.fillStyle=t.type==='mine'?'#81dbff':'#ffbd5e';ctx.beginPath();ctx.arc(x,y-70*Math.sin(Math.PI*u),8,0,7);ctx.fill();
+            ctx.fillStyle=t.type==='mine'?'#81dbff':'#ffbd5e';ctx.beginPath();ctx.arc(x,y-70*Math.sin(Math.PI*u),11,0,7);ctx.fill();
         }
         if(match.mode==='duel') {
             ctx.save();ctx.textAlign='center';ctx.fillStyle='white';ctx.font='bold 14px sans-serif';
@@ -411,7 +421,7 @@ function tlbsMiniMap(){
         ctx.fillStyle=BRAWLERS[current].color; ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();
         ctx.restore();
         ctx.save(); ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.lineWidth=3; ctx.strokeStyle="#17202a"; ctx.fillStyle="white";
-        const label=window.playerNickname || "Player"; if(match.mode!=='gems'){ctx.strokeText(label,p.x,p.y-35); ctx.fillText(label,p.x,p.y-35);} ctx.restore();
+        const label=window.playerNickname || "Player"; if(match.mode!=='gems'){ctx.strokeText(label,p.x,p.y-78); ctx.fillText(label,p.x,p.y-78);} ctx.restore();
         if(window.roomPreview && !realm){for(const remote of Object.values(window.remotePlayers||{})){const x=remote.x*tlbsWorld.width,y=remote.y*tlbsWorld.height;ctx.save();ctx.fillStyle="#62cfff";ctx.beginPath();ctx.arc(x,y,22,0,7);ctx.fill();ctx.fillStyle="white";ctx.font="14px Arial";ctx.textAlign="center";ctx.fillText(remote.nickname,x,y-35);ctx.restore()}}
         if(match.mode!=='training' && match.mode!=='gems') {
             ctx.save();ctx.fillStyle='#192338';ctx.fillRect(p.x-32,p.y+30,64,7);
@@ -424,9 +434,11 @@ function tlbsMiniMap(){
         paintTeamHUD();
         if(p.hiddenTicks){ctx.save();ctx.fillStyle='white';ctx.textAlign='center';ctx.fillText('Скрыт · '+Math.ceil(p.hiddenTicks/60)+' с',p.x,p.y+65);ctx.restore();}
         if(match.mode==='gems')drawGemActors();
+        for(const a of new Set([p,...(arena?.actors||[enemy,...trainingTargets])]))if(inPlane(a))tlbsActorHUD(a,a===p);
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
         bullets.forEach(drawCombatProjectile);
+        tlbsPaintHits();
         paintHammer();paintWaves();
         for(const f of attackFx){
             const u=f.age/18,s=f.shape;
