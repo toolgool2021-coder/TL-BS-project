@@ -124,6 +124,7 @@ function clearCombatTimers() {
                 zones.push({x:t.tx,y:t.ty,r:58,type:'boMine',arm:30,fuse:0,life:Infinity});
                 throws.splice(i,1);continue;
             }
+            if(current==='Dynamike'&&!p.out&&!p.motion&&(t.type==='boom'||t.type==='bigBoom')&&Math.hypot(p.x-t.tx,p.y-t.ty)<(t.type==='bigBoom'?140:80)){const a=Math.hypot(p.x-t.tx,p.y-t.ty)<5?0:Math.atan2(p.y-t.ty,p.x-t.tx);beginTravel(a,100,22,'Dynamike',0);}
             zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
                 life:t.type==='mine'?150:t.type==='fire'?120:14});
             throws.splice(i,1);
@@ -139,7 +140,8 @@ function clearCombatTimers() {
         if(!inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
-        tlbsHitEffects.push({x:target.x,y:target.y,damage:Math.round(dmg),born:performance.now()});
+        const now=performance.now(), prior=tlbsHitEffects.find(f=>f.target===target&&now-f.born<160);
+        if(prior){prior.damage+=Math.round(dmg);prior.born=now;}else tlbsHitEffects.push({target,x:target.x,y:target.y,damage:Math.round(dmg),born:now});
         if(tlbsHitEffects.length>40)tlbsHitEffects.shift();
         sounds.hit.currentTime = 0;
         sounds.hit.play();
@@ -170,7 +172,7 @@ function advanceSuperMotion(){
     p.x=Math.max(22,Math.min(tlbsWorld.width-22,m.x+m.dx*eased));
     p.y=Math.max(22,Math.min(tlbsWorld.height-22,m.y+m.dy*eased));
     if(m.fighter==='El_Primo' || m.fighter==='Crow') p.scale=1+0.65*Math.sin(progress*Math.PI);
-    if(['Kit','Edgar','Surge','Piper','Crow','El_Primo'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
+    if(['Kit','Edgar','Surge','Piper','Crow','El_Primo','Dynamike'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
     for(const target of combatTargets()) {
         if((m.fighter==='Colette' || m.fighter==='Mortis') && !m.hits.has(target) && dist(p,target)<=m.radius){
             m.hits.add(target);hitEnemy(m.fighter==='Mortis'?900:Math.round(target.maxHp*.16),m.fighter==='Mortis',target);
