@@ -24,6 +24,14 @@ tlbsFollowCamera(true);if(tlbsCamera.x<0||tlbsCamera.y<0)throw Error('Invalid ca
 `,runtime);
 const aim=read('js/aim.js'),combat=read('js/combat.js'),controls=read('js/controls.js');
 assert(aim.includes('tlbsAttackPower')&&combat.includes('tlbsAttackPower=power')&&controls.includes('Math.hypot(dx,dy)*window.tlbsSensitivity'),'Throw strength not wired');
+// Guard animation math and the previously broken projectile lifetime boundaries.
+assert(game.includes('Math.max(0,Math.min(1,t.age/30))'),'Thrown projectile rendering must clamp progress');
+assert(game.includes('Math.max(0,Math.min(1,superFx.age/45))'),'Super effect rendering must clamp progress');
+assert(game.includes('Math.max(0,Math.min(1,f.age/18))'),'Attack effect rendering must clamp progress');
+assert(game.includes("if(z.type==='griffPiggy'&&z.life<=1)"),'Griff piggy bank must detonate on expiration');
+assert(game.includes('Math.max(0,Math.min(1,(144-z.life)/24))'),'Griff flight progress must be bounded');
+assert(game.includes("else if(current==='Crow'){if(second)"),'Crow second gadget must execute in combat');
+assert(read('js/match.js').includes('enemy.slow>0?0.5:1'),'Crow slow must affect opponent movement');
 const rules=JSON.parse(read('database.rules.json'));
 assert(rules.rules['.read']===false&&rules.rules['.write']===false,'Database root must default deny');
 console.log('PASS: static asset, world geometry, throw, rules and syntax smoke tests');
