@@ -18,9 +18,9 @@ const superAimData={
  Shelly:ray(16,40,5,.6),Colt:ray(20,60),Max:ring(90),Rosa:ring(28),Jessie:landing(215,22),
  Bo:landing(200,58,[-.28,0,.28]),Frank:fan(330,.48),Nani:ring(22),Tick:ring(26),Tara:landing(250,100),
  Gene:ray(18,40,12),Bibi:ray(10,300,15),Mortis:ray(12,48,14),Rico:ray(15,60),
- Brock:landing(240,80,[-.26,0,.26]),Crow:jump(225,80),Stu:jump(200,22),Bull:jump(312,50),
+ Brock:landing(240,80,[-.26,0,.26]),Crow:jump(300,80),Stu:jump(200,22),Bull:jump(312,50),
  Darryl:jump(312,50),El_Primo:jump(250,120),Barley:landing(250,55,[-.6,-.3,0,.3,.6]),
- Dynamike:landing(250,140),Poco:fan(360,.55),Nita:landing(205,38),Piper:jump(200,24),Pam:landing(235,95),
+ Dynamike:landing(250,140),Poco:fan(360,.55),Nita:landing(205,38),Piper:jump(285,24),Pam:landing(235,95),
  Leon:ring(25),Spike:landing(220,100),Sandy:landing(160,140),Edgar:jump(260,100),Colette:jump(220,48),
  Emz:ring(125),Bea:ray(11,45,6,.33),Gale:fan(350,.5),Surge:jump(90,90),Fang:jump(190,65),
  Buzz:ray(14,23,8),Chester:landing(220,80),Cordelius:ray(14,40,10),Kit:kitJump
