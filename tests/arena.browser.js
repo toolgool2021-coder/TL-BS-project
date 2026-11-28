@@ -135,6 +135,48 @@
       }
     }
 
+    begin('Piper');
+    const piperHealth=enemy.hp;
+    tlbsUseGadget();
+    check(enemy.hp===piperHealth-420 && enemy.x>645 && enemy.slow>0, 'Piper repellent failed');
+    begin('Piper');
+    p.gadgetChoice='1';
+    p.passiveChoice='1';
+    tlbsUseGadget();
+    enemy.y=550;
+    attack(0,false);
+    check(bullets.at(-1).guide && !p.piperGuide, 'Piper guidance was not spent on the shot');
+    const ammoAfterShot=ammo;
+    frames(14);
+    check(enemy.hp<enemy.maxHp && ammo>ammoAfterShot+.4, 'Piper guided hit did not restore ammo');
+
+    begin('Frank');
+    p.stun=90;
+    tlbsUseGadget();
+    check(!p.stun && p.frankGuard===120, 'Frank guard did not clear the stun');
+    begin('Frank');
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    const frankHealth=enemy.hp;
+    attack(0,false);
+    frames(18);
+    check(enemy.x<645 && enemy.hp===frankHealth-1485 && !p.frankPull, 'Frank hammer did not pull and hit once');
+
+    begin('Chester');
+    p.passiveChoice='0';
+    p.bells=3;
+    attack(0,false);
+    check(bullets.length===4 && bullets.every(b=>b.damage===520), 'Chester fourth burst missed its damage bonus');
+
+    begin('Crow');
+    p.passiveChoice='0';
+    tlbsCrowPoison.set(enemy,{left:180,next:30});
+    check(crowIncomingDamage(enemy,800)===640 && crowIncomingDamage(trainingTargets[0],800)===800, 'Crow reduced damage from an unpoisoned opponent');
+    p.passiveChoice='1';
+    enemy.hp=10000;
+    hitEnemy(400,false,enemy);
+    check(enemy.hp===9500, 'Crow low health bonus did not apply');
+
     begin('Bea');
     attack(0,false);
     frames(14);
@@ -227,7 +269,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 8 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea and Fang regressions';
+      modes.length + ' mode lifecycle scenarios, Canvas, 12 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

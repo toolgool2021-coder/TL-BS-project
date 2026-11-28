@@ -3,6 +3,10 @@ const practiceHp = {Shelly:7400,Colt:5600,El_Primo:12000,Barley:4800,Brock:4800,
     Tick:4400,Jessie:6000,Mortis:7600,Bo:7200,Bull:10000,Frank:14000,Rosa:10000,
     Darryl:10600,Bibi:9600,Crow:4800,Gene:7200,Tara:6600,Stu:6400,Nani:4800,Max:6600,Rico:5600};
 let selectedFighter;
+function playerMaxHp(){
+    const base=BRAWLERS[current].hp||practiceHp[current]||7000;
+    return current==='Frank'&&p.passiveChoice==='1'?Math.round(base*1.15):base;
+}
 const botTrio=['Shelly','Colt','Brock'];
 let playerTrio=[];
 function duelTurn() {
@@ -13,7 +17,7 @@ function duelTurn() {
     enemy.fighter=bot;
     enemy.maxHp=practiceHp[bot];
     enemy.hp=enemy.maxHp;
-    p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current];
+    p.hp=p.maxHp=playerMaxHp();
     p.x=tlbsWorld.width/2;p.y=tlbsWorld.height-65;
     enemy.x=tlbsWorld.width/2;enemy.y=65;
     clearCombatTimers();resetControls();
@@ -31,7 +35,7 @@ function setupMatch() {
     const roster=Object.keys(BRAWLERS), start=roster.indexOf(current);
     match.order=roster.slice(start).concat(roster.slice(0,start));
     Object.assign(match,{mode:window.roomPreview?(window.roomRace?'arms':'training'):document.querySelector('#mode').value,kills:0,deaths:0,damage:0,cooldown:60,finished:false,nextRound:false});
-    p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
+    p.maxHp=playerMaxHp();
     p.hp=p.maxHp; p.hiddenTicks=0;
     enemy.fighter=match.mode==='training'?null:['Shelly','Colt','Brock'][Math.floor(Math.random()*3)];
     enemy.maxHp=match.mode==='training'?30000:practiceHp[enemy.fighter];
@@ -73,9 +77,9 @@ function combatTick() {
         spawnBullet(Math.atan2(target.y-enemy.y,target.x-enemy.x),6,74,false,7,'hostile',enemy);
     }
 }
-function receiveHit() {
+function receiveHit(source=enemy) {
     if((p.altitude||0)>0 || match.finished || match.nextRound) return;
-    p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
+    p.hp=Math.max(0,p.hp-crowIncomingDamage(source,p.shield>0?240:800));
     if(p.hp) return;
     clearAttachment();realm=null;
     resetFighterStage();match.deaths++;
@@ -93,7 +97,7 @@ function recordElimination() {
     if(match.mode==='arms' && match.kills%2===0) {
         clearCombatTimers();p.motion=null;p.isFlying=false;p.scale=1;
         resetFighterStage();current=match.order[match.kills/2];
-        p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current] || 7000;
+        p.hp=p.maxHp=playerMaxHp();
         ammo=BRAWLERS[current].maxAmmo;
         ultCharge=0;renderAmmo();
     }

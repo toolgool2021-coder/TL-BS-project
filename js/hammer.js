@@ -1,6 +1,8 @@
 let hammer=null, damageNotes=[];
 function startHammer(angle,superMove){
- hammer={angle,superMove,age:0,windup:superMove?22:14,shape:superMove?superAimData.Frank:basicAim.Frank};
+ const pull=!superMove&&p.frankPull;
+ if(pull)p.frankPull=false;
+ hammer={pull,angle,superMove,age:0,windup:superMove?22:14,shape:superMove?superAimData.Frank:basicAim.Frank};
 }
 function tickHammer(){
  damageNotes=damageNotes.filter(n=>++n.age<40);
@@ -10,8 +12,14 @@ function tickHammer(){
  if(++h.age===h.windup){
    h.x=p.x;h.y=p.y;
    for(const t of combatTargets())if(inFan(t,h.angle,h.shape)){
-     if(h.superMove && !t.safe && !t.spawnShield)t.stun=90;
-     hitEnemy(h.superMove?2000:1100,!h.superMove,t);
+     if(t.spawnShield||t.altitude)continue;
+     if(h.superMove&&!t.safe)t.stun=90;
+     if(h.pull&&!t.safe){
+       const angle=angleTo(t);
+       const distance=Math.min(85,Math.max(0,dist(p,t)-30));
+       moveOnPitch(t,-Math.cos(angle)*distance,-Math.sin(angle)*distance);
+     }
+     hitEnemy(h.superMove?2000:h.pull?1485:1100,!h.superMove,t);
    }
  }
  if(h.age>=h.windup+20)hammer=null;

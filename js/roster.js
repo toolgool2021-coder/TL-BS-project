@@ -35,6 +35,17 @@ function rosterAttack(angle) {
         else spawnBullet(angle,15,32,false,6,'shoe');
         return;
     }
+    if(current==='Piper'){
+        const {speed,life}=BRAWLERS.Piper.shot;
+        spawnBullet(angle,speed,life,false,6,'Piper');
+        Object.assign(bullets.at(-1),{
+            guide:p.piperGuide,
+            ambush:p.passiveChoice==='0'&&nearCover(p),
+            reloadBonus:p.passiveChoice==='1'
+        });
+        p.piperGuide=false;
+        return;
+    }
     if(current==='Bonnie'&&p.bonnieOnFoot){
         for(const offset of [-.18,0,.18])spawnBullet(angle+offset,14,15,false,5,'bonnieFoot');
         return;
@@ -64,6 +75,7 @@ function rosterAttack(angle) {
     for(let i=0;i<count;i++) {
         const offset=count===1?0:(current==='Chester'?chesterSpread(count):spread)*(2*i/(count-1)-1);
         spawnBullet(angle+offset,speed,life,false,6,current);
+        if(current==='Chester'&&count===4&&p.passiveChoice==='0')bullets.at(-1).damage=520;
         if(current==='Bea'){bullets[bullets.length-1].charged=Boolean(p.beeCharge);p.beeCharge=false;}
     }
 }

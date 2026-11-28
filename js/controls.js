@@ -73,7 +73,7 @@ function keyboardMovement(){
     const x=Number(pressedKeys.has(bindings.right))-Number(pressedKeys.has(bindings.left));
     const y=Number(pressedKeys.has(bindings.down))-Number(pressedKeys.has(bindings.up));
     const d=Math.hypot(x,y);
-    if(p.attachment || p.out || !d || joyL.active) return;
+    if(p.attachment || p.stun>0 || p.out || !d || joyL.active) return;
     if(pip.active) pip.angle=Math.atan2(y,x);
     else if(!p.isFlying){p.x+=x/d*BRAWLERS[current].speed*p.speedMult;p.y+=y/d*BRAWLERS[current].speed*p.speedMult;}
 }

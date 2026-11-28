@@ -41,6 +41,7 @@ function clearCombatTimers() {
         finally {window.tlbsAttackPower=null;}
     }
     function performAttack(angle,isUltAction) {
+        if(p.stun>0)return;
         if (hammer && hammer.age<hammer.windup) return;
         if (!gameActive || p.out || p.isFlying || pip.active || (realm && isUltAction)) return;
         if(p.attachment && !p.attachment.ally)return;
@@ -158,6 +159,10 @@ function clearCombatTimers() {
             y:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(angle)*mortisRange))};
     }
 
+    function crowIncomingDamage(source,damage) {
+        return current==='Crow'&&p.passiveChoice==='0'&&tlbsCrowPoison.has(source)?Math.round(damage*.8):damage;
+    }
+
     function tickCrowPoison() {
         for(const [target,effect] of tlbsCrowPoison){
             if(target.out){tlbsCrowPoison.delete(target);continue;}
@@ -172,6 +177,8 @@ function clearCombatTimers() {
     function hitEnemy(dmg, canCharge, target=enemy) {
         if((target.altitude||0)>0 || !inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
         if(current==='Chester'&&p.candyDamage>0)dmg*=1.25;
+        if(current==='Crow'&&p.passiveChoice==='1'&&!target.safe&&target.hp<=target.maxHp/2)dmg*=1.25;
+        if(current==='Frank'&&p.frankRage>0)dmg*=1.25;
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
         const now=performance.now(), prior=tlbsHitEffects.find(f=>f.target===target&&now-f.born<160);
@@ -180,6 +187,7 @@ function clearCombatTimers() {
         sounds.hit.currentTime = 0;
         sounds.hit.play();
         if(target.hp <= 0) {
+            if(current==='Frank'&&p.passiveChoice==='0'&&!target.safe&&match.mode!=='training')p.frankRage=480;
             tlbsCrowPoison.delete(target);target.slow=0;
             if(arena){if(!target.safe)match.kills++;objectiveDeath(target);return;}
             if(p.attachment?.target===target)clearAttachment();

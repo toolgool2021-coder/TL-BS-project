@@ -61,6 +61,7 @@ function paintWaves(){
  ctx.restore();
 }
 function resetFighterStage(){
+ Object.assign(p,{piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
  p.surgeLevel=1;p.beeCharge=false;p.bonnieOnFoot=false;
  if(current==='Surge')p.speedMult=1;
 }

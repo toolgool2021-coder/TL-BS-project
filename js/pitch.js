@@ -15,6 +15,7 @@ function tlbsBotMove(a,goal,speed){
 function insideCover(x,y,pad=0){
  return (arena?.walls||tlbsMapWalls)?.some(w=>x>w.x-pad && x<w.x+w.w+pad && y>w.y-pad && y<w.y+w.h+pad);
 }
+function nearCover(actor){return insideCover(actor.x,actor.y,44);}
 function moveOnPitch(a,dx,dy){
  if(!insideCover(a.x+dx,a.y,16))a.x+=dx;
  if(!insideCover(a.x,a.y+dy,16))a.y+=dy;
