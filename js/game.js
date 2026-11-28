@@ -1,10 +1,13 @@
+// Chester's five existing super variants, in rosterSuper order.
+const chesterSuperIcons=[['💣','Взрыв'],['☠','Ядовитое облако'],['✦','Оглушение'],['✹','Леденцовая зона'],['✚','Лечение']];
+function tlbsSuperIcon(){return current==='Chester'&&ultCharge>=100?chesterSuperIcons[p.jackpot||0][0]:'★';}
 const tlbsHitEffects=[];
 function tlbsActorHUD(a,local=false){
  if(!a||a.out||!Number.isFinite(a.hp)||!a.maxHp)return;
  const x=a.x,y=a.y-(a.altitude||0)-53,w=72;
  ctx.save();ctx.fillStyle='#142033';ctx.fillRect(x-w/2,y,w,9);ctx.fillStyle=local?'#79ef9d':'#ff797d';ctx.fillRect(x-w/2+1,y+1,(w-2)*Math.max(0,Math.min(1,a.hp/a.maxHp)),7);
  ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.strokeStyle='#142033';ctx.lineWidth=3;ctx.fillStyle='#fff';ctx.strokeText(Math.ceil(Math.max(0,a.hp)),x,y-4);ctx.fillText(Math.ceil(Math.max(0,a.hp)),x,y-4);
- if(local){const max=BRAWLERS[current].maxAmmo||3,step=w/max;for(let i=0;i<max;i++){ctx.fillStyle='#182333';ctx.fillRect(x-w/2+i*step,y+12,step-2,7);ctx.fillStyle='#ffb75b';ctx.fillRect(x-w/2+i*step,y+12,(step-2)*Math.max(0,Math.min(1,ammo-i)),7);}if(ultCharge>0){ctx.fillStyle='#172033';ctx.fillRect(x-w/2,y+22,w,4);ctx.fillStyle=ultCharge>=100?'#ffe45e':'#71c9ff';ctx.fillRect(x-w/2,y+22,w*Math.min(1,ultCharge/100),4);if(ultCharge>=100){ctx.fillStyle='#ffe45e';ctx.fillText('★',x+w/2+12,y+25);}}}
+ if(local){const max=BRAWLERS[current].maxAmmo||3,step=w/max;for(let i=0;i<max;i++){ctx.fillStyle='#182333';ctx.fillRect(x-w/2+i*step,y+12,step-2,7);ctx.fillStyle='#ffb75b';ctx.fillRect(x-w/2+i*step,y+12,(step-2)*Math.max(0,Math.min(1,ammo-i)),7);}if(ultCharge>0){ctx.fillStyle='#172033';ctx.fillRect(x-w/2,y+22,w,4);ctx.fillStyle=ultCharge>=100?'#ffe45e':'#71c9ff';ctx.fillRect(x-w/2,y+22,w*Math.min(1,ultCharge/100),4);if(ultCharge>=100){ctx.fillStyle='#ffe45e';ctx.fillText(tlbsSuperIcon(),x+w/2+12,y+25);}}}
  ctx.restore();
 }
 function tlbsPaintHits(){const now=performance.now();for(let i=tlbsHitEffects.length-1;i>=0;i--){const f=tlbsHitEffects[i],u=(now-f.born)/650;if(u>=1){tlbsHitEffects.splice(i,1);continue;}ctx.save();ctx.globalAlpha=1-u;ctx.strokeStyle='#fff3c4';ctx.lineWidth=3;for(let j=0;j<6;j++){const a=j*Math.PI/3,r=12+u*38;ctx.beginPath();ctx.moveTo(f.x+Math.cos(a)*r,f.y+Math.sin(a)*r);ctx.lineTo(f.x+Math.cos(a)*(r+10),f.y+Math.sin(a)*(r+10));ctx.stroke();}ctx.font='bold 19px system-ui';ctx.textAlign='center';ctx.strokeStyle='#172033';ctx.lineWidth=4;ctx.fillStyle='#fff2a5';ctx.strokeText('-'+f.damage,f.x,f.y-24-u*40);ctx.fillText('-'+f.damage,f.x,f.y-24-u*40);ctx.restore();}}
@@ -182,6 +185,11 @@ function tlbsMiniMap(){
     function updateUI() {
         gemHUD();
         isUltReady = (ultCharge >= 100);
+        const bar=document.getElementById('ult-bar');
+        const revealed=current==='Chester'&&isUltReady;
+        bar.textContent=revealed?chesterSuperIcons[p.jackpot||0].join(' '):'';
+        bar.title=revealed?chesterSuperIcons[p.jackpot||0][1]:'';
+        bar.style.fontSize='12px';bar.style.textAlign='center';bar.style.color='#172033';
         document.getElementById('ult-bar').style.width = Math.min(ultCharge, 100) + '%';
         document.getElementById('ult-bar').style.background = isUltReady ? '#ff00ff' : '#ffff00';
         for(let i=0; i<BRAWLERS[current].maxAmmo; i++) {
@@ -494,7 +502,7 @@ function tlbsMiniMap(){
             ctx.beginPath();ctx.arc(j.x,j.y,r,0,Math.PI*2);ctx.fill();ctx.stroke();
             ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(j.x+dx*k,j.y+dy*k,17*window.tlbsControlScale,0,Math.PI*2);ctx.fill();
         }
-        if(isUltReady&&!joyU.active){const h=superHome();ctx.fillStyle='#ffcf55aa';ctx.beginPath();ctx.arc(h.x,h.y,30,0,Math.PI*2);ctx.fill();ctx.fillStyle='#352100';ctx.font='bold 22px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',h.x,h.y);}
+        if(isUltReady&&!joyU.active){const h=superHome();ctx.fillStyle='#ffcf55aa';ctx.beginPath();ctx.arc(h.x,h.y,30,0,Math.PI*2);ctx.fill();ctx.fillStyle='#352100';ctx.font='bold 22px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(tlbsSuperIcon(),h.x,h.y);}
         ctx.restore();
         ctx.globalAlpha = 1;
     }
