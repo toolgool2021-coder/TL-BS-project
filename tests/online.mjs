@@ -22,6 +22,7 @@ await runInNewContext(read('online.js') + `
 })();
 `,scope);
 
+const deadlines=new Map();let joinTimer=0;
 await runInNewContext(read('online.js') + `
 (async()=>{
  const listeners={};
@@ -60,8 +61,16 @@ await runInNewContext(read('online.js') + `
  assert.deepEqual(states,[true,false,true]);
  await leaveRoom();
  assert.equal(Object.keys(listeners).length,0);
+ const stalled=joinRoom('ABC123','Player',()=>{});
+ const rejection=assert.rejects(stalled,/Сервер комнаты не ответил/);
+ for(let i=0;i<8;i++)await Promise.resolve();
+ assert.equal(deadlines.size,1);
+ for(const run of deadlines.values())run();
+ await rejection;
+ assert.equal(deadlines.size,0);
+ assert.equal(Object.keys(listeners).length,0);
 })();
-`,{assert,performance:{now:()=>0}});
+`,{assert,performance:{now:()=>0},deadlines,setTimeout:fn=>{deadlines.set(++joinTimer,fn);return joinTimer;},clearTimeout:id=>deadlines.delete(id)});
 
 const modal={open:false,showModal(){this.open=true;},close(){this.open=false;}};
 const elements={'#guest-game':modal,'#guest-canvas':{},'#room-dialog':{...modal},'#guest-leave':{}};

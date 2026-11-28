@@ -1,4 +1,4 @@
-import {writeMatchField} from './online.js?v=20261128-release19';
+import {writeMatchField} from './online.js?v=20261128-release20';
 const spectator=document.querySelector('#guest-game'), surface=document.querySelector('#guest-canvas');
 let host=null, guest=null, latest=null, lastSent=0, pointer=null, command=null;
 let guestSequence=0, hostSequence=0, frameSequence=0;

@@ -1,5 +1,6 @@
 import {connect} from './firebase.js';
 let session=null;
+const roomJoinTimeout=12000;
 export async function leaveRoom(){
  const old=session;session=null;
  if(!old)return;
@@ -7,7 +8,7 @@ export async function leaveRoom(){
  old.watchConnection?.();
  old.rejectJoin?.(Error('Подключение отменено'));
  const removal=old.sdk.remove(old.member);
- if(!old.online){removal.catch(()=>{});return;}
+ if(!old.online||!old.readyToWrite){removal.catch(()=>{});return;}
  await removal;
  await old.disconnect.cancel();
 }
@@ -54,8 +55,10 @@ export async function joinRoom(code,name,onPlayers,onConnection=()=>{}){
    if(session===room&&room.epoch===epoch){room.rejectJoin?.(error);onConnection(false);}
   });
  });
+ const deadline=setTimeout(()=>room.rejectJoin?.(Error('Сервер комнаты не ответил. Попробуй подключиться снова.')),roomJoinTimeout);
  try{await joined;}
  catch(error){if(session===room)await leaveRoom().catch(()=>{});throw error;}
+ finally{clearTimeout(deadline);}
  room.unsubscribe=sdk.onValue(members,s=>{
   if(session!==room)return;
   room.members=s.val()||{};
