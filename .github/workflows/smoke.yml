@@ -12,7 +12,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node tests/smoke.mjs
+      - run: node tests/smoke.mjs && node tests/online.mjs
       - name: Run arena scenarios in Chrome
         env:
           TLBS_CHROMIUM: google-chrome

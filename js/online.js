@@ -18,7 +18,7 @@ export async function joinRoom(code,name,onPlayers){
  await disconnect.remove();
  try{await sdk.set(member,{nickname:name.slice(0,24)||'Player',ready:false,x:0,y:0,updatedAt:sdk.serverTimestamp()});}
  catch(e){await disconnect.cancel();throw e}
- session={uid,sdk,member,disconnect,code,last:0};
+ session={uid,sdk,member,disconnect,code,last:0,x:0,y:0};
  session.unsubscribe=sdk.onValue(members,s=>onPlayers(s.val()||{}));
  return {code,uid};
 }
@@ -32,8 +32,11 @@ export async function setReady(ready){
 }
 export function publishPosition(x,y){
  if(!session||!Number.isFinite(x)||!Number.isFinite(y))return;
- const now=performance.now();if(now-session.last<100)return;session.last=now;
- session.sdk.update(session.member,{x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y)),updatedAt:session.sdk.serverTimestamp()}).catch(()=>{});
+ const now=performance.now(),elapsed=now-session.last;
+ x=Math.max(0,Math.min(1,x));y=Math.max(0,Math.min(1,y));
+ if(elapsed<100||(elapsed<3000&&Math.hypot(x-session.x,y-session.y)<.001))return;
+ Object.assign(session,{last:now,x,y});
+ session.sdk.update(session.member,{x,y,updatedAt:session.sdk.serverTimestamp()}).catch(()=>{});
 }
 export async function publishRaceScore(kills){
  if(session) await session.sdk.update(session.member,{raceKills:kills,updatedAt:session.sdk.serverTimestamp()});

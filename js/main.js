@@ -1,4 +1,4 @@
-import {hostGame,updateSharedGame} from './room-match.js';
+import {hostGame,updateSharedGame} from './room-match.js?v=20261128-release3';
 import {nickname,saveNickname,loadProfile} from './profile.js';
 const input=document.querySelector('#nickname'), status=document.querySelector('#profile-status'), dialog=document.querySelector('#profile-dialog');
 window.playerNickname=nickname();
@@ -17,7 +17,7 @@ document.querySelector('#profile-sync').onclick=async()=>{
  try{const p=await loadProfile();if(p.nickname){window.playerNickname=p.nickname;input.value=p.nickname;localStorage.setItem('tlbs.nickname',p.nickname)}status.textContent='UID: '+p.uid}catch(e){status.textContent='Не удалось подключиться к Firebase'}
 };
 
-import {createRoom,joinRoom,leaveRoom,setReady,publishPosition,publishRaceScore} from './online.js';
+import {createRoom,joinRoom,leaveRoom,setReady,publishPosition,publishRaceScore} from './online.js?v=20261128-release3';
 const room=document.querySelector('#room-dialog'), code=document.querySelector('#room-code'), roomStatus=document.querySelector('#room-status'), members=document.querySelector('#room-members');
 let roomSession=null, ready=false, players={};
 window.remotePlayers={};
