@@ -68,8 +68,21 @@ function clearCombatTimers() {
                 case 'Barley': spawnBarleyBottle(angle, combatShape(false).range, 'fire'); break;
                 case 'Brock': spawnBullet(angle, 14, 60); break;
                 case 'Dynamike': spawnBarleyBottle(angle, combatShape(false).range, 'boom'); break;
-                case 'Tick': for(let i=-1; i<=1; i++) spawnBarleyBottle(angle+i*0.2, combatShape(false).range, 'mine'); break;
-                case 'Bo': for(let i=-1; i<=1; i++) scheduleCombatAction(()=>spawnBullet(angle+i*0.1, 13, 45), i*100+100); break;
+                case 'Tick': {
+                    const shape=combatShape(false);
+                    for(const offset of shape.offsets)spawnBarleyBottle(angle+offset,shape.range,'mine');
+                    p.tickSpread=false;
+                    break;
+                }
+                case 'Bo': {
+                    const bind=p.boBind;
+                    p.boBind=false;
+                    for(let i=-1;i<=1;i++)scheduleCombatAction(()=>{
+                        spawnBullet(angle+i*.1,13,45);
+                        bullets.at(-1).boBind=bind;
+                    },i*100+100);
+                    break;
+                }
                 case 'Jessie': spawnBullet(angle, 12, 55, false, 8, 'energy'); break;
                 case 'Rico': spawnBullet(angle, 14, 60, false, 5, 'bounce'); break;
                 case 'Frank': startHammer(angle,false);break;
@@ -105,7 +118,10 @@ function clearCombatTimers() {
                 break;
             case 'Frank': startHammer(angle,true);break;
             case 'Nani': pip.active = true; pip.x = p.x; pip.y = p.y; pip.angle = angle; pip.life = 600; break;
-            case 'Tick': summon('head',{x:p.x,y:p.y});break;
+            case 'Tick':
+                summon('head',{x:p.x,y:p.y});
+                if(p.passiveChoice==='1'){zones.at(-1).maxHp+=800;zones.at(-1).hp+=800;}
+                break;
             case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
             case 'Gene': spawnBullet(angle, 18, 40, true, 12, 'pull'); break;
             case 'Bibi': bullets.push({ x:p.x, y:p.y, vx:Math.cos(angle)*10, vy:Math.sin(angle)*10, life:300, special:'bubble', isUlt:true, type:'normal', size:15 }); break;
@@ -136,7 +152,12 @@ function clearCombatTimers() {
     function spawnBarleyBottle(angle, dist, type, isUlt) { 
         let tx=p.x+Math.cos(angle)*dist, ty=p.y+Math.sin(angle)*dist;
         tx=Math.max(22,Math.min(tlbsWorld.width-22,tx));ty=Math.max(22,Math.min(tlbsWorld.height-22,ty)); 
-        throws.push({x:p.x,y:p.y,tx,ty,type,isUlt,satchel:current==='Dynamike'&&!isUlt&&p.satchel,age:0});if(current==='Dynamike'&&!isUlt)p.satchel=false;
+        const barleyNormal=current==='Barley'&&type==='fire'&&!isUlt;
+        const sticky=barleyNormal&&p.barleySticky;
+        if(sticky)p.barleySticky=false;
+        throws.push({x:p.x,y:p.y,tx,ty,type,isUlt,sticky,damage:barleyNormal&&p.passiveChoice==='0'?500:undefined,
+            heal:barleyNormal&&p.passiveChoice==='1',extended:current==='Tick'&&type==='mine'&&p.passiveChoice==='0',
+            trapRadius:type==='boMine'?combatShape(true).radius:undefined,quickTrap:type==='boMine'&&p.passiveChoice==='0',satchel:current==='Dynamike'&&!isUlt&&p.satchel,age:0});if(current==='Dynamike'&&!isUlt)p.satchel=false;
     }
 
     function advanceThrows() {
@@ -144,12 +165,13 @@ function clearCombatTimers() {
             const t=throws[i];
             if(++t.age<30) continue;
             if(t.type==='boMine') {
-                zones.push({x:t.tx,y:t.ty,r:58,type:'boMine',arm:30,fuse:0,life:Infinity});
+                zones.push({x:t.tx,y:t.ty,r:t.trapRadius,type:'boMine',arm:t.quickTrap?15:30,fuse:0,life:Infinity});
                 throws.splice(i,1);continue;
             }
             if(current==='Dynamike'&&p.passiveChoice==='0'&&!p.out&&!p.motion&&(t.type==='boom'||t.type==='bigBoom')&&Math.hypot(p.x-t.tx,p.y-t.ty)<(t.type==='bigBoom'?140:80)){const a=Math.hypot(p.x-t.tx,p.y-t.ty)<5?0:Math.atan2(p.y-t.ty,p.x-t.tx);beginTravel(a,100,22,'Dynamike',0);}
-            zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',satchel:t.satchel,isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
-                life:t.type==='mine'?150:t.type==='fire'?120:14});
+            if(t.heal&&current==='Barley'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+200);
+            zones.push({x:t.tx,y:t.ty,sticky:t.sticky,damage:t.damage,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',satchel:t.satchel,isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
+                life:t.type==='mine'?(t.extended?210:150):t.type==='fire'?120:14});
             throws.splice(i,1);
         }
     }

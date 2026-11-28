@@ -1,5 +1,8 @@
 const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушает статические препятствия в радиусе взрыва.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Четвёртая очередь из четырёх колокольчиков наносит на 30% больше урона.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","На 3,5 секунды замедляет только противников, которых отравил Ворон."],["Отравленные цели наносят на 20% меньше урона.","Ворон наносит на 25% больше урона ослабленным целям."]]};
 Object.assign(tlbsAbilityDescriptions,{
+ Bo:[['Запускает короткий отсчёт у уже установленных ловушек.','Следующий залп замедляет цели на секунду.'],['Ловушки активируются через четверть секунды после установки.','Увеличивает радиус ловушек ульты до 75.']],
+ Tick:[['Даёт щит на 1,5 секунды.','Следующая атака разбрасывает пять зарядов.'],['Обычные заряды остаются на поле на секунду дольше.','У призыва ульты на 800 больше здоровья.']],
+ Barley:[['Создаёт лечебное поле для себя и союзников.','Следующая обычная лужа замедляет противников.'],['Обычная лужа наносит на 100 больше урона за импульс.','После приземления обычного броска восстанавливает 200 здоровья.']],
  Fang:[['Следующий удар или бросок кроссовка оглушает на секунду.','Даёт короткий щит перед сближением.'],['Следующее звено ульты ищет цель в радиусе 210.','Ближний удар восстанавливает 180 здоровья при попадании.']],
  Kit:[['Маскируется на две секунды вне сцепки. Атака раскрывает позицию.','В сцепке с союзником лечит его на 900.'],['Лечение союзника в сцепке усиливается до 525 за импульс.','Первый удар при приземлении на врага наносит 1250.']],
  Gale:[['Выпускает короткий порыв, который отталкивает ближайших врагов.','Следующий залп замедляет цели на 1,5 секунды.'],['Враги, которых ульта прижала к стене, оглушаются на секунду.','Ульта действует на более широкой полосе.']],
@@ -9,9 +12,15 @@ Object.assign(tlbsAbilityDescriptions,{
  Piper:[['Стреляет по ближайшему видимому врагу, замедляет и отталкивает его.','Следующая пуля доворачивает к цели.'],['Выстрел из укрытия наносит на 25% больше урона.','Попадание возвращает 0,4 заряда атаки.']],
  Frank:[['Снимает оглушение и даёт иммунитет на 2 секунды.','Следующий удар молотом притягивает цель и наносит на 35% больше урона.'],['Устранение усиливает удары на 25% на 8 секунд.','Увеличивает запас здоровья на 15%.']]
 });
-const tlbsLoadouts={Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
+const tlbsLoadouts={Bo:[['Общий сигнал','Связующий залп'],['Быстрая готовность','Широкий охват']],Tick:[['Защитный корпус','Широкий разброс'],['Долгий дозор','Усиленный корпус']],Barley:[['Скорая помощь','Липкая смесь'],['Крепкая смесь','Медицинская порция']],Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}let info=document.getElementById(id+'-description');if(!info){info=document.createElement('small');info.id=id+'-description';info.style.cssText='display:block;color:#b9c8df;font-size:12px;line-height:1.5;margin:6px 0 12px';el.insertAdjacentElement('afterend',info);}const describe=()=>{info.textContent=tlbsAbilityDescriptions[current]?.[i]?.[Number(el.value)]||'Способность пока не реализована.';};describe();el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}describe();};}}
 const tlbsGadgetIcons=Object.fromEntries(Object.entries({
+ signal:'M4 17h16M8 13l4-9 4 9zM12 7v3',
+ tether:'M4 20 20 4M8 5h11v11M3 11l4-4m6 14 4-4',
+ shell:'M4 8 12 4l8 4v7l-8 5-8-5zM8 10h8',
+ spread:'M12 20V4m0 16L4 8m8 12 8-12',
+ remedy:'M8 3h8v5l3 4v8H5v-8l3-4zM9 14h6m-3-3v6',
+ sticky:'M12 3c-3 5-7 8-7 12a7 7 0 0 0 14 0c0-4-4-7-7-12zM8 15l3 2',
  kickStun:'m3 15 6-2 3-8 4 2-2 7 7 2v3H3z',
  stance:'M4 17h16M6 14l3-8 3 6 3-6 3 8',
  paw:'M4 13a2 2 0 1 0 0-4m5 1a2 2 0 1 0 0-4m6 4a2 2 0 1 0 0-4m5 7a2 2 0 1 0 0-4M7 19c0-7 10-7 10 0z',
@@ -84,6 +93,19 @@ function tlbsUseGadget(angleOverride){if(!gameActive||p.out||match.finished||!(p
             t.x=Math.max(22,Math.min(tlbsWorld.width-22,t.x));
             t.y=Math.max(22,Math.min(tlbsWorld.height-22,t.y));
         }
+    }else if(current==='Bo'){
+        if(second){if(p.boBind)return;p.boBind=true;}
+        else {
+            const traps=zones.filter(z=>z.type==='boMine');
+            if(!traps.length)return;
+            for(const trap of traps){trap.arm=0;trap.fuse=Math.min(trap.fuse||6,6);}
+        }
+    }else if(current==='Tick'){
+        if(second){if(p.tickSpread)return;p.tickSpread=true;}
+        else p.shield=Math.max(p.shield,90);
+    }else if(current==='Barley'){
+        if(second){if(p.barleySticky)return;p.barleySticky=true;}
+        else zones.push({x:p.x,y:p.y,r:105,type:'barleyAid',life:180});
     }else return;
     p.gadgetFlash=24;
     p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
@@ -315,7 +337,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost']};
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost'],Bo:['signal','tether'],Tick:['shell','spread'],Barley:['remedy','sticky']};
         const symbolName=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
         if(gadget.dataset.symbol!==symbolName){gadget.replaceChildren();const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbolName;if(tlbsGadgetIcons[symbolName]){icon.className='tlbs-gadget-svg';icon.innerHTML=tlbsGadgetIcons[symbolName];}const count=document.createElement('span');count.className='tlbs-gadget-count';gadget.append(icon,count);gadget.dataset.symbol=symbolName;}
         const count=gadget.lastElementChild;
@@ -506,6 +528,7 @@ function tlbsMiniMap(){
                 p.hp=Math.min(p.maxHp,p.hp+90);
             }
             if(b.galeFrost&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,90);
+            if(b.boBind&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,60);
             if (b.special==='Edgar') p.hp=Math.min(p.maxHp,p.hp+160);
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
             if (b.special==='Spike')burstSpike(b);
@@ -557,6 +580,11 @@ function tlbsMiniMap(){
             if(z.type==='station' && z.age%45===0){
                 for(const a of arena?.actors||[p])if(!a.out && (a===p||a.team===p.team) && dist(a,z)<=z.r)a.hp=Math.min(a.maxHp,a.hp+600);
             }
+            if(z.type==='barleyAid'&&z.life%30===0){
+                for(const ally of arena?.actors||[p]){
+                    if(!ally.out&&(ally===p||ally.team===p.team)&&dist(ally,z)<=z.r)ally.hp=Math.min(ally.maxHp,ally.hp+180);
+                }
+            }
             if(z.type==='beeField'){
                 for(const target of nearby)if(!target.safe&&!target.spawnShield&&!target.altitude&&visibleTo(z,target))target.slow=Math.max(target.slow||0,12);
             }
@@ -580,7 +608,10 @@ function tlbsMiniMap(){
                 if(target && Math.hypot(target.x-z.x,target.y-z.y)<390)
                     spawnBullet(z.angle=Math.atan2(target.y-z.y,target.x-z.x),10,40,true,5,'turret',z);
             }
-            if (z.type==='fire' && z.life%30===0) for(const target of nearby) hitEnemy(400,!z.isUlt,target);
+            if (z.type==='fire' && z.life%30===0) for(const target of nearby) hitEnemy(z.damage||400,!z.isUlt,target);
+            if(z.sticky)for(const target of nearby){
+                if(!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,18);
+            }
             if (z.type==='boom' && !z.exploded) {
                 z.exploded=true;
                 for(const target of nearby) {if(z.satchel)target.stun=90;hitEnemy(z.isBig?(current==='Dynamike'&&p.passiveChoice==='1'?4000:2400):1200,!z.isUlt,target);}
@@ -690,8 +721,8 @@ function tlbsMiniMap(){
             ctx.restore();
         }
         zones.forEach(z => {
-            if(z.type==='beeField'){
-                ctx.save();ctx.strokeStyle='#ffe28e';ctx.lineWidth=2;
+            if(z.type==='beeField'||z.type==='barleyAid'){
+                ctx.save();ctx.strokeStyle=z.type==='barleyAid'?'#9fffc4':'#ffe28e';ctx.lineWidth=2;
                 for(let i=0;i<6;i++){
                     const angle=i*Math.PI/3;
                     ctx.beginPath();ctx.arc(z.x,z.y,z.r,angle,angle+.46);ctx.stroke();

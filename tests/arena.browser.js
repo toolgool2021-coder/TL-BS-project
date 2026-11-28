@@ -366,6 +366,62 @@
     p.passiveChoice='1';
     check(combatShape(true).width===88,'Gale wide super did not update the aim preview');
 
+    begin('Bo');
+    p.passiveChoice='1';
+    useUltimate(0);
+    frames(32);
+    check(zones.filter(z=>z.type==='boMine'&&z.r===75).length===3,'Bo trap radius did not match its preview');
+    tlbsUseGadget();
+    frames(8);
+    check(!zones.some(z=>z.type==='boMine'),'Bo remote trigger did not detonate the traps');
+    begin('Bo');
+    p.gadgetChoice='1';
+    p.passiveChoice='0';
+    useUltimate(Math.PI);
+    frames(32);
+    check(zones.some(z=>z.type==='boMine'&&z.arm>0&&z.arm<=15),'Bo quick traps failed');
+    tlbsUseGadget();
+    attack(0,false);
+    frames(24);
+    check(enemy.slow>0&&!p.boBind,'Bo binding volley did not slow the target');
+
+    begin('Tick');
+    tlbsUseGadget();
+    check(p.shield===90,'Tick shield did not activate');
+    begin('Tick');
+    p.gadgetChoice='1';
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    attack(Math.PI,false,42);
+    check(throws.length===5&&!p.tickSpread,'Tick expanded spread failed');
+    frames(33);
+    check(zones.filter(z=>z.type==='mine'&&z.life>190).length===5,'Tick extended lifetime failed');
+    p.passiveChoice='1';
+    useUltimate(0);
+    check(zones.some(z=>z.type==='head'&&z.hp===3200&&z.maxHp===3200),'Tick upgraded summon health failed');
+
+    begin('Barley');
+    p.hp-=1000;
+    const barleyHealth=p.hp;
+    tlbsUseGadget();
+    frames(3);
+    check(p.hp===barleyHealth+180,'Barley aid field did not heal');
+    begin('Barley');
+    enemy.x=p.x+200;
+    p.gadgetChoice='1';
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    attack(0,false,42);
+    frames(33);
+    check(enemy.slow>0&&enemy.hp===enemy.maxHp-500,'Barley sticky damage field failed');
+    begin('Barley');
+    p.passiveChoice='1';
+    p.hp-=1000;
+    const beforeThrow=p.hp;
+    attack(Math.PI,false,42);
+    frames(33);
+    check(p.hp===beforeThrow+200,'Barley recovery on landing failed');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -439,7 +495,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 24 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 30 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

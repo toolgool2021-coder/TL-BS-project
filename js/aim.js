@@ -36,10 +36,12 @@ function combatShape(superMove){
    const j=superMove?joyU:joyR;
    const stick=Number.isFinite(window.tlbsAttackPower)?window.tlbsAttackPower:j.active?Math.hypot(j.cx-j.x,j.cy-j.y)*window.tlbsSensitivity:aimPoint?Math.hypot(aimPoint.x,aimPoint.y)*window.tlbsSensitivity:60;
    const shape=current==='Kit'?kitJump:superMove?superAimData[current]:basicAim[current];
-   return {...shape,range:shape.range*Math.min(1,stick/42)};
+   const offsets=current==='Tick'&&p.tickSpread?[-.38,-.19,0,.19,.38]:shape.offsets;
+   return {...shape,offsets,range:shape.range*Math.min(1,stick/42)};
  }
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove&&current==='Griff')return fan(420,.52);
+ if(superMove&&current==='Bo'&&p.passiveChoice==='1')return {...superAimData.Bo,radius:75};
  if(superMove&&current==='Bonnie')return p.bonnieOnFoot?ring(24):jump(p.passiveChoice==='0'?375:300,75);
  if(!superMove&&current==='Bonnie'&&p.bonnieOnFoot)return ray(14,15,6,.18);
  if(superMove)return superAimData[current]||ray(12,35,8);

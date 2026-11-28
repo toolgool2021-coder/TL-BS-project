@@ -71,7 +71,7 @@ function paintWaves(){
  ctx.restore();
 }
 function resetFighterStage(){
- Object.assign(p,{slow:0,fangStun:false,galeFrost:false,bonnieReload:0,surgeOverdrive:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
+ Object.assign(p,{slow:0,boBind:false,tickSpread:false,barleySticky:false,fangStun:false,galeFrost:false,bonnieReload:0,surgeOverdrive:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
  p.surgeLevel=1;p.beeCharge=false;p.bonnieOnFoot=false;
  if(current==='Surge')p.speedMult=1;
 }
