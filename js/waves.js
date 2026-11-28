@@ -61,15 +61,16 @@ function paintWaves(){
  ctx.restore();
 }
 function resetFighterStage(){
- Object.assign(p,{slow:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
+ Object.assign(p,{slow:0,bonnieReload:0,surgeOverdrive:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
  p.surgeLevel=1;p.beeCharge=false;p.bonnieOnFoot=false;
  if(current==='Surge')p.speedMult=1;
 }
-function surgeLife(){return (p.surgeLevel||1)>=3?44:33;}
+function surgeAttackLevel(){return Math.min(4,(p.surgeLevel||1)+Number(p.surgeOverdrive>0));}
+function surgeLife(){return surgeAttackLevel()>=3?44:33;}
 function splitSurge(b,target){
  const count=b.level===4?6:2;
  for(let i=0;i<count;i++){
-   spawnBullet(b.angle+Math.PI/2+i*2*Math.PI/count,10,16,b.isUlt,4,'surgeShard',b);
-   bullets.at(-1).visited=[target];
+   spawnBullet(b.angle+Math.PI/2+i*2*Math.PI/count,10,b.longShards&&b.level===4?21:16,b.isUlt,4,'surgeShard',b);
+   if(target)bullets.at(-1).visited=[target];
  }
 }

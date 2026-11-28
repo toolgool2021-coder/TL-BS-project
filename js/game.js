@@ -1,11 +1,20 @@
 const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушает статические препятствия в радиусе взрыва.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Четвёртая очередь из четырёх колокольчиков наносит на 30% больше урона.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","На 3,5 секунды замедляет только противников, которых отравил Ворон."],["Отравленные цели наносят на 20% меньше урона.","Ворон наносит на 25% больше урона ослабленным целям."]]};
 Object.assign(tlbsAbilityDescriptions,{
+ Bea:[['Ставит на 3 секунды поле, которое замедляет врагов рядом.','Готовит усиленный выстрел, если заряд ещё не накоплен.'],['Усиленный выстрел летит на 25% быстрее.','Ульта замедляет задетых противников на 2 секунды.']],
+ Bonnie:[['Ускоряет перезарядку пушки на 3 секунды.','В пешей форме отталкивает ближайших противников.'],['Прыжок из пушки летит на 25% дальше.','Попадание пешей атакой восстанавливает 90 здоровья.']],
+ Surge:[['На 5 секунд повышает уровень атак на одну ступень.','Расходует один заряд атаки и на 2 секунды включает щит.'],['Снаряд распадается на осколки при попадании в стену.','На максимальном уровне осколки летят на 30% дальше.']],
  Piper:[['Стреляет по ближайшему видимому врагу, замедляет и отталкивает его.','Следующая пуля доворачивает к цели.'],['Выстрел из укрытия наносит на 25% больше урона.','Попадание возвращает 0,4 заряда атаки.']],
  Frank:[['Снимает оглушение и даёт иммунитет на 2 секунды.','Следующий удар молотом притягивает цель и наносит на 35% больше урона.'],['Устранение усиливает удары на 25% на 8 секунд.','Увеличивает запас здоровья на 15%.']]
 });
-const tlbsLoadouts={Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
+const tlbsLoadouts={Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}let info=document.getElementById(id+'-description');if(!info){info=document.createElement('small');info.id=id+'-description';info.style.cssText='display:block;color:#b9c8df;font-size:12px;line-height:1.5;margin:6px 0 12px';el.insertAdjacentElement('afterend',info);}const describe=()=>{info.textContent=tlbsAbilityDescriptions[current]?.[i]?.[Number(el.value)]||'Способность пока не реализована.';};describe();el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}describe();};}}
 const tlbsGadgetIcons=Object.fromEntries(Object.entries({
+ hive:'M12 2 21 7v10l-9 5-9-5V7zM8 10h8m-8 4h8',
+ beeCharge:'M13 2 5 13h6l-1 9 9-12h-7z',
+ reload:'M4 10a8 8 0 1 1 1 8m-1-8V4m0 6h6M12 8v4l3 2',
+ push:'M12 12H3m3-3-3 3 3 3m6-3h9m-3-3 3 3-3 3M12 5v14',
+ overdrive:'M4 18l5-6 4 3 7-9m-5 0h5v5',
+ capacitor:'M7 4v16m10-16v16M3 12h4m10 0h4M10 8h4m-4 8h4',
  repel:'M4 12h15m-5-5 5 5-5 5M4 5v14',
  guide:'M3 19c10 0 6-14 16-14m-5-2h7v7',
  guard:'m12 3 7 3v6c0 4-4 7-7 9-3-2-7-5-7-9V6zM9 12h6',
@@ -27,6 +36,24 @@ function tlbsUseGadget(angleOverride){if(!gameActive||p.out||match.finished||!(p
     }else if(current==='Frank'){
         if(second)p.frankPull=true;
         else {p.stun=0;p.frankGuard=120;}
+    }else if(current==='Bea'){
+        if(second){if(p.beeCharge)return;p.beeCharge=true;}
+        else zones.push({x:p.x,y:p.y,r:110,type:'beeField',life:180});
+    }else if(current==='Bonnie'){
+        if(second){
+            if(!p.bonnieOnFoot)return;
+            for(const target of combatTargets()){
+                if(target.safe||target.spawnShield||target.altitude||dist(p,target)>120||!visibleTo(p,target))continue;
+                const angle=angleTo(target);
+                moveOnPitch(target,Math.cos(angle)*55,Math.sin(angle)*55);
+            }
+        }else{
+            if(p.bonnieOnFoot)return;
+            p.bonnieReload=180;
+        }
+    }else if(current==='Surge'){
+        if(second){if(ammo<1)return;ammo--;p.shield=Math.max(p.shield,120);}
+        else {if(surgeAttackLevel()>=4)return;p.surgeOverdrive=300;}
     }else return;
     p.gadgetFlash=24;
     p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
@@ -258,7 +285,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull']};
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor']};
         const symbolName=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
         if(gadget.dataset.symbol!==symbolName){gadget.replaceChildren();const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbolName;if(tlbsGadgetIcons[symbolName]){icon.className='tlbs-gadget-svg';icon.innerHTML=tlbsGadgetIcons[symbolName];}const count=document.createElement('span');count.className='tlbs-gadget-count';gadget.append(icon,count);gadget.dataset.symbol=symbolName;}
         const count=gadget.lastElementChild;
@@ -303,7 +330,7 @@ function tlbsMiniMap(){
     }
     function tick() {
         if(match.finished) return;
-        for(const key of ['frankGuard','frankRage','gadgetFlash'])if(p[key]>0)p[key]--;
+        for(const key of ['frankGuard','frankRage','gadgetFlash','bonnieReload','surgeOverdrive'])if(p[key]>0)p[key]--;
         tickCrowPoison();
         for(const t of [enemy,...trainingTargets])if(t.slow>0)t.slow--;
         if(p.gadgetCooldown>0)p.gadgetCooldown--;if(p.candyReload>0)p.candyReload--;if(p.candyDamage>0)p.candyDamage--;
@@ -324,7 +351,11 @@ function tlbsMiniMap(){
         keyboardMovement();
         if(!p.out && !realm && (current==='Edgar'||(current==='Kit' && !p.attachment)))
             ultCharge=Math.min(100,ultCharge+100/(current==='Edgar'?1800:1200));
-        if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / (p.candyReload>0?22:16.6));
+        const maxAmmo=BRAWLERS[current].maxAmmo;
+        if(ammo<maxAmmo){
+            const reloadRate=p.candyReload>0||p.bonnieReload>0&&!p.bonnieOnFoot?22:16.6;
+            ammo=Math.min(maxAmmo,ammo+reloadRate/BRAWLERS[current].reload);
+        }
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;if(current==='Griff'&&p.passiveChoice==='1'&&!p.out){p.griffHeal=(p.griffHeal||0)+1;if(p.griffHeal>=120){p.griffHeal=0;p.hp=Math.min(p.maxHp,p.hp+(p.maxHp-p.hp)*.15);}}
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
@@ -385,7 +416,7 @@ function tlbsMiniMap(){
                 if(b.special==='bounce') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
                 if(b.special==='bubble') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
             }
-            if(b.special!=='griffNote'&&insideCover(b.x,b.y)){if(b.blast){b.x-=b.vx;b.y-=b.vy;botRocketImpact(b);}if(b.special==='Spike'){b.x-=b.vx;b.y-=b.vy;burstSpike(b);}bullets.splice(i,1);continue;}
+            if(b.special!=='griffNote'&&insideCover(b.x,b.y)){if(b.blast){b.x-=b.vx;b.y-=b.vy;botRocketImpact(b);}if(b.special==='Spike'||b.wallSplit){b.x-=b.vx;b.y-=b.vy;if(b.wallSplit)splitSurge(b);else burstSpike(b);}bullets.splice(i,1);continue;}
             if(b.special==='hostile' || b.special==='teamShot'){
                 const unit=hostileSummons(b.owner||enemy).find(z=>dist(z,b)<20);
                 if(unit){strikeSummon(unit,b.damage||(b.special==='hostile'?800:550));botRocketImpact(b);bullets.splice(i,1);continue;}
@@ -439,6 +470,10 @@ function tlbsMiniMap(){
                 hitEnemy(b.special==='shoe'?360:b.special==='Surge'?850:340,true,target);
                 bullets.splice(i,1);continue;
             }
+            if(b.special==='swarm'&&b.beeSlow&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,120);
+            if(b.special==='bonnieFoot'&&b.repair&&!p.out&&!target.safe&&!target.spawnShield&&!target.altitude){
+                p.hp=Math.min(p.maxHp,p.hp+90);
+            }
             if (b.special==='Edgar') p.hp=Math.min(p.maxHp,p.hp+160);
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
             if (b.special==='Spike')burstSpike(b);
@@ -489,6 +524,9 @@ function tlbsMiniMap(){
             if(z.type==='poprocks' && z.life%20===0)for(const t of nearby)hitEnemy(240,false,t);
             if(z.type==='station' && z.age%45===0){
                 for(const a of arena?.actors||[p])if(!a.out && (a===p||a.team===p.team) && dist(a,z)<=z.r)a.hp=Math.min(a.maxHp,a.hp+600);
+            }
+            if(z.type==='beeField'){
+                for(const target of nearby)if(!target.safe&&!target.spawnShield&&!target.altitude&&visibleTo(z,target))target.slow=Math.max(target.slow||0,12);
             }
             if(z.type==='sandstorm' && Math.hypot(p.x-z.x,p.y-z.y)<z.r) p.hiddenTicks=2;
             if(z.type==='boMine') {
@@ -620,6 +658,14 @@ function tlbsMiniMap(){
             ctx.restore();
         }
         zones.forEach(z => {
+            if(z.type==='beeField'){
+                ctx.save();ctx.strokeStyle='#ffe28e';ctx.lineWidth=2;
+                for(let i=0;i<6;i++){
+                    const angle=i*Math.PI/3;
+                    ctx.beginPath();ctx.arc(z.x,z.y,z.r,angle,angle+.46);ctx.stroke();
+                }
+                ctx.restore();return;
+            }
             if(z.type==='griffPiggy'){ctx.save();ctx.translate(z.x,z.y-(z.life>120?Math.sin(Math.PI*Math.max(0,Math.min(1,(144-z.life)/24)))*45:0));ctx.fillStyle='#f39ab5';ctx.strokeStyle='#733d55';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,21,15,0,0,7);ctx.fill();ctx.stroke();ctx.fillRect(14,-5,12,10);ctx.fillRect(-12,10,7,9);ctx.fillRect(8,10,7,9);ctx.fillStyle='#733d55';ctx.fillRect(-7,-13,14,3);ctx.fillRect(10,-6,3,3);ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText((Math.min(120,z.life)/60).toFixed(1),0,-24);ctx.restore();return;}
 
             if(drawSummon(z))return;

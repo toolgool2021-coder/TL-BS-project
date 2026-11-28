@@ -59,7 +59,8 @@ function objectiveDeath(a){
 }
 function objectiveHit(a,dmg){
  if((a.altitude||0)>0 || a.out || a.spawnShield>0 || match.finished) return;
- a.hp=Math.max(0,a.hp-(a.botShield>0?Math.round(dmg*.55):dmg));if(a.hp===0)objectiveDeath(a);
+ const reduction=a===p&&p.shield>0?.3:a.botShield>0?.55:1;
+ a.hp=Math.max(0,a.hp-Math.round(dmg*reduction));if(a.hp===0)objectiveDeath(a);
 }
 function kickBall(a,angle){
  if(!arena || arena.carrier!==a) return false;

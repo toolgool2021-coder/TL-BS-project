@@ -249,6 +249,63 @@
     botDealDamage({owner:arena.actors[2],damage:560},protectedBot,550);
     check(protectedBot.hp===protectedBot.maxHp&&arena.actors[2].botCharge===0,'Blocked hit charged a bot');
 
+    begin('Bea');
+    enemy.x=p.x+80;
+    tlbsUseGadget();
+    frames(4);
+    check(enemy.slow>0&&p.gadgetUses===2,'Bea field did not slow its target');
+    begin('Bea');
+    p.gadgetChoice='1';
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    attack(0,false);
+    check(bullets.at(-1).charged&&bullets.at(-1).vx===20,'Bea charged shot did not accelerate');
+    begin('Bea');
+    p.passiveChoice='1';
+    useUltimate(0);
+    frames(20);
+    check(enemy.slow>0,'Bea super did not slow with its star power');
+
+    begin('Bonnie');
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    check(p.bonnieReload===180&&combatShape(true).range===375,'Bonnie cannon settings failed');
+    begin('Bonnie');
+    p.passiveChoice='1';
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(p.gadgetUses===3,'Bonnie used the push from her cannon');
+    p.bonnieOnFoot=true;
+    enemy.x=p.x+50;
+    tlbsUseGadget();
+    check(enemy.x===p.x+105&&p.gadgetUses===2,'Bonnie push did not move the opponent');
+    const bonnieHealth=p.hp-=500;
+    attack(0,false);
+    frames(12);
+    check(p.hp>bonnieHealth,'Bonnie foot shot did not repair health');
+
+    begin('Surge');
+    p.surgeLevel=2;
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    check(surgeAttackLevel()===3&&p.surgeLevel===2,'Surge temporary level became permanent');
+    tlbsMapWalls.push({x:p.x+60,y:p.y-40,w:20,h:80});
+    attack(0,false);
+    frames(7);
+    check(bullets.some(b=>b.special==='surgeShard'),'Surge did not split at a wall');
+    begin('Surge','zone');
+    p.gadgetChoice='1';
+    const surgeAmmo=ammo;
+    tlbsUseGadget();
+    const surgeHealth=p.hp;
+    objectiveHit(p,1000);
+    check(ammo===surgeAmmo-1&&p.hp===surgeHealth-300,'Surge shield or ammo cost failed in team play');
+    p.passiveChoice='1';
+    p.surgeLevel=4;
+    attack(0,false);
+    splitSurge(bullets.at(-1),enemy);
+    check(bullets.filter(b=>b.special==='surgeShard'&&b.life===21).length===6,'Surge extended shards failed');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -322,7 +379,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 12 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 18 gadget activations and Bea, Bonnie and Surge star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

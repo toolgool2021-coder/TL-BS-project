@@ -47,11 +47,16 @@ function rosterAttack(angle) {
         return;
     }
     if(current==='Bonnie'&&p.bonnieOnFoot){
-        for(const offset of [-.18,0,.18])spawnBullet(angle+offset,14,15,false,5,'bonnieFoot');
+        for(const offset of [-.18,0,.18]){
+            spawnBullet(angle+offset,14,15,false,5,'bonnieFoot');
+            bullets.at(-1).repair=p.passiveChoice==='1';
+        }
         return;
     }
     if(current==='Surge'){
-        spawnBullet(angle,13,surgeLife(),false,7,'Surge');bullets.at(-1).level=p.surgeLevel||1;return;
+        spawnBullet(angle,13,surgeLife(),false,7,'Surge');
+        Object.assign(bullets.at(-1),{level:surgeAttackLevel(),wallSplit:p.passiveChoice==='0',longShards:p.passiveChoice==='1'});
+        return;
     }
     if(current==='Kit'){
         if(p.attachment?.ally)spawnBarleyBottle(angle,kitYarn.range,'yarn',false);
@@ -74,7 +79,8 @@ function rosterAttack(angle) {
     }
     for(let i=0;i<count;i++) {
         const offset=count===1?0:(current==='Chester'?chesterSpread(count):spread)*(2*i/(count-1)-1);
-        spawnBullet(angle+offset,speed,life,false,6,current);
+        const fastBee=current==='Bea'&&p.beeCharge&&p.passiveChoice==='0';
+        spawnBullet(angle+offset,fastBee?speed*1.25:speed,fastBee?Math.ceil(life/1.25):life,false,6,current);
         if(current==='Chester'&&count===4&&p.passiveChoice==='0')bullets.at(-1).damage=520;
         if(current==='Bea'){bullets[bullets.length-1].charged=Boolean(p.beeCharge);p.beeCharge=false;}
     }
@@ -96,7 +102,12 @@ function rosterSuper(angle) {
         case 'aura': zones.push({...p,type:'aura',r:125,life:180}); break;
         case 'wind': startWave('Gale',angle);break;
         case 'griffReturn': for(let i=-2;i<=2;i++){spawnBullet(angle+i*.26,12,72,true,9,'griffNote');bullets.at(-1).turn=35;}break;
-        case 'swarm': for(let i=-3;i<=3;i++) spawnBullet(angle+i*.11,11,45,true,6,'swarm'); break;
+        case 'swarm':
+            for(let i=-3;i<=3;i++){
+                spawnBullet(angle+i*.11,11,45,true,6,'swarm');
+                bullets.at(-1).beeSlow=p.passiveChoice==='1';
+            }
+            break;
         case 'bonnie':
             if(p.bonnieOnFoot)p.bonnieOnFoot=false;
             else {const shape=combatShape(true);beginTravel(angle,shape.range,24,current,shape.radius);}
