@@ -1,5 +1,8 @@
 const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушает статические препятствия в радиусе взрыва.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Четвёртая очередь из четырёх колокольчиков наносит на 30% больше урона.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","На 3,5 секунды замедляет только противников, которых отравил Ворон."],["Отравленные цели наносят на 20% меньше урона.","Ворон наносит на 25% больше урона ослабленным целям."]]};
 Object.assign(tlbsAbilityDescriptions,{
+ Jessie:[['Ремонтирует турель на 1100.','Турель стреляет чаще в течение 3 секунд.'],['Энергетический шар отскакивает к более далёким целям.','Турель получает 1000 дополнительного здоровья.']],
+ Nita:[['Медведь оглушает ближайших противников.','Медведь получает щит на 2 секунды.'],['Медведь атакует чаще.','Когда медведь наносит урон, Нита восстанавливает 160 здоровья.']],
+ Pam:[['Станция мгновенно лечит союзников в зоне на 720.','На 3 секунды ускоряет импульсы станции.'],['Увеличивает радиус станции до 122.','Импульсы станции лечат на 780 вместо 600.']],
  Bo:[['Запускает короткий отсчёт у уже установленных ловушек.','Следующий залп замедляет цели на секунду.'],['Ловушки активируются через четверть секунды после установки.','Увеличивает радиус ловушек ульты до 75.']],
  Tick:[['Даёт щит на 1,5 секунды.','Следующая атака разбрасывает пять зарядов.'],['Обычные заряды остаются на поле на секунду дольше.','У призыва ульты на 800 больше здоровья.']],
  Barley:[['Создаёт лечебное поле для себя и союзников.','Следующая обычная лужа замедляет противников.'],['Обычная лужа наносит на 100 больше урона за импульс.','После приземления обычного броска восстанавливает 200 здоровья.']],
@@ -12,9 +15,15 @@ Object.assign(tlbsAbilityDescriptions,{
  Piper:[['Стреляет по ближайшему видимому врагу, замедляет и отталкивает его.','Следующая пуля доворачивает к цели.'],['Выстрел из укрытия наносит на 25% больше урона.','Попадание возвращает 0,4 заряда атаки.']],
  Frank:[['Снимает оглушение и даёт иммунитет на 2 секунды.','Следующий удар молотом притягивает цель и наносит на 35% больше урона.'],['Устранение усиливает удары на 25% на 8 секунд.','Увеличивает запас здоровья на 15%.']]
 });
-const tlbsLoadouts={Bo:[['Общий сигнал','Связующий залп'],['Быстрая готовность','Широкий охват']],Tick:[['Защитный корпус','Широкий разброс'],['Долгий дозор','Усиленный корпус']],Barley:[['Скорая помощь','Липкая смесь'],['Крепкая смесь','Медицинская порция']],Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
+const tlbsLoadouts={Jessie:[['Ремонт на месте','Перегрузка'],['Дальний отскок','Укреплённая турель']],Nita:[['Топот','Защита медведя'],['Быстрые лапы','Взаимная поддержка']],Pam:[['Первая помощь','Частый импульс'],['Расширенная зона','Усиленное лечение']],Bo:[['Общий сигнал','Связующий залп'],['Быстрая готовность','Широкий охват']],Tick:[['Защитный корпус','Широкий разброс'],['Долгий дозор','Усиленный корпус']],Barley:[['Скорая помощь','Липкая смесь'],['Крепкая смесь','Медицинская порция']],Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}let info=document.getElementById(id+'-description');if(!info){info=document.createElement('small');info.id=id+'-description';info.style.cssText='display:block;color:#b9c8df;font-size:12px;line-height:1.5;margin:6px 0 12px';el.insertAdjacentElement('afterend',info);}const describe=()=>{info.textContent=tlbsAbilityDescriptions[current]?.[i]?.[Number(el.value)]||'Способность пока не реализована.';};describe();el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}describe();};}}
 const tlbsGadgetIcons=Object.fromEntries(Object.entries({
+ repair:'M4 20 14 10m0 0 1-6 5-1 1 5-5 3m-5-1L4 17v3',
+ rapid:'M8 3h8l-4 7h6l-9 11 2-9H5z',
+ stomp:'M5 15h14M3 19h18M7 12l3-8 6 2 1 6',
+ bearShield:'M12 3 20 6v7l-8 8-8-8V6zM8 11h8m-4-4v8',
+ aid:'M5 7h14v13H5zM9 7V4h6v3m-6 7h6m-3-3v6',
+ pulse:'M2 12h5l3-7 4 14 3-7h5',
  signal:'M4 17h16M8 13l4-9 4 9zM12 7v3',
  tether:'M4 20 20 4M8 5h11v11M3 11l4-4m6 14 4-4',
  shell:'M4 8 12 4l8 4v7l-8 5-8-5zM8 10h8',
@@ -106,6 +115,25 @@ function tlbsUseGadget(angleOverride){if(!gameActive||p.out||match.finished||!(p
     }else if(current==='Barley'){
         if(second){if(p.barleySticky)return;p.barleySticky=true;}
         else zones.push({x:p.x,y:p.y,r:105,type:'barleyAid',life:180});
+    }else if(current==='Jessie'){
+        const turret=zones.find(z=>z.type==='turret'&&z.hp>0);
+        if(!turret)return;
+        if(second)turret.overclock=180;
+        else {if(turret.hp>=turret.maxHp)return;turret.hp=Math.min(turret.maxHp,turret.hp+1100);}
+    }else if(current==='Nita'){
+        const bear=zones.find(z=>z.type==='bear'&&z.hp>0);
+        if(!bear)return;
+        if(second)bear.guard=120;
+        else {
+            const targets=combatTargets().filter(t=>!t.safe&&!t.spawnShield&&!t.altitude&&dist(t,bear)<=95&&visibleTo(bear,t));
+            if(!targets.length)return;
+            for(const target of targets)target.stun=Math.max(target.stun||0,60);
+        }
+    }else if(current==='Pam'){
+        const station=zones.find(z=>z.type==='station'&&z.hp>0);
+        if(!station)return;
+        if(second)station.overclock=180;
+        else healAtStation(station,720);
     }else return;
     p.gadgetFlash=24;
     p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
@@ -337,7 +365,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost'],Bo:['signal','tether'],Tick:['shell','spread'],Barley:['remedy','sticky']};
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost'],Bo:['signal','tether'],Tick:['shell','spread'],Barley:['remedy','sticky'],Jessie:['repair','rapid'],Nita:['stomp','bearShield'],Pam:['aid','pulse']};
         const symbolName=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
         if(gadget.dataset.symbol!==symbolName){gadget.replaceChildren();const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbolName;if(tlbsGadgetIcons[symbolName]){icon.className='tlbs-gadget-svg';icon.innerHTML=tlbsGadgetIcons[symbolName];}const count=document.createElement('span');count.className='tlbs-gadget-count';gadget.append(icon,count);gadget.dataset.symbol=symbolName;}
         const count=gadget.lastElementChild;
@@ -541,10 +569,10 @@ function tlbsMiniMap(){
             if (b.special==='energy') {
                 (b.visited ||= []).push(target);
                 const distance = t => Math.hypot(t.x-b.x,t.y-b.y);
-                const next = targets.filter(t=>!b.visited.includes(t) && distance(t)<=250).sort((a,c)=>distance(a)-distance(c))[0];
+                const next = targets.filter(t=>!b.visited.includes(t) && distance(t)<=(b.longBounce?305:250)&&visibleTo(b,t)).sort((a,c)=>distance(a)-distance(c))[0];
                 if (next && b.visited.length<3) {
                     const angle=Math.atan2(next.y-b.y,next.x-b.x);
-                    b.vx=Math.cos(angle)*12; b.vy=Math.sin(angle)*12; b.life=23;
+                    b.vx=Math.cos(angle)*12; b.vy=Math.sin(angle)*12; b.life=b.longBounce?27:23;
                     continue;
                 }
             }
@@ -558,7 +586,7 @@ function tlbsMiniMap(){
                 tlbsDestroyCover(z.x,z.y,z.r);
                 z.type='blast';z.life=15;
             }
-            if(summonStats[z.type]){z.age++;if(z.hitFlash)z.hitFlash--;}
+            if(summonStats[z.type]){z.age++;if(z.hitFlash)z.hitFlash--;if(z.guard>0)z.guard--;}
             if(z.type === 'gravity') { enemy.x += (z.x - enemy.x) * 0.1; enemy.y += (z.y - enemy.y) * 0.1; if(z.life === 1) hitEnemy(2000, false); }
             if(z.type === 'stun' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) hitEnemy(10, false);
             const nearby = combatTargets().filter(t=>Math.hypot(t.x-z.x,t.y-z.y)<z.r);
@@ -573,13 +601,15 @@ function tlbsMiniMap(){
             if(z.type==='bear') {
                 const angle=Math.atan2(enemy.y-z.y,enemy.x-z.x);
                 if(!nearby.length) {z.x+=1.7*Math.cos(angle);z.y+=1.7*Math.sin(angle);}
-                if(z.age%40===0) for(const t of nearby) hitEnemy(700,false,t);
+                if(z.age%(z.fastClaws?27:40)===0)for(const t of nearby){
+                    if(t.spawnShield||t.altitude||!visibleTo(z,t))continue;
+                    hitEnemy(700,false,t);
+                    if(z.sharedHeal&&current==='Nita'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+160);
+                }
             }
             if(z.type==='aura') {z.x=p.x;z.y=p.y;if(z.life%30===0) for(const t of nearby) hitEnemy(500,false,t);}
             if(z.type==='poprocks' && z.life%20===0)for(const t of nearby)hitEnemy(240,false,t);
-            if(z.type==='station' && z.age%45===0){
-                for(const a of arena?.actors||[p])if(!a.out && (a===p||a.team===p.team) && dist(a,z)<=z.r)a.hp=Math.min(a.maxHp,a.hp+600);
-            }
+            if(z.type==='station'&&summonPulse(z,45,22))healAtStation(z,z.healPower||600);
             if(z.type==='barleyAid'&&z.life%30===0){
                 for(const ally of arena?.actors||[p]){
                     if(!ally.out&&(ally===p||ally.team===p.team)&&dist(ally,z)<=z.r)ally.hp=Math.min(ally.maxHp,ally.hp+180);
@@ -603,9 +633,9 @@ function tlbsMiniMap(){
                 for(const target of nearby) hitEnemy(640,true,target);
                 z.type='blast'; z.life=12;
             }
-            if (z.type==='turret' && z.age%30===0) {
+            if(z.type==='turret'&&summonPulse(z,30,15)) {
                 const target=combatTargets().sort((a,b)=>Math.hypot(a.x-z.x,a.y-z.y)-Math.hypot(b.x-z.x,b.y-z.y))[0];
-                if(target && Math.hypot(target.x-z.x,target.y-z.y)<390)
+                if(target&&Math.hypot(target.x-z.x,target.y-z.y)<390&&visibleTo(z,target))
                     spawnBullet(z.angle=Math.atan2(target.y-z.y,target.x-z.x),10,40,true,5,'turret',z);
             }
             if (z.type==='fire' && z.life%30===0) for(const target of nearby) hitEnemy(z.damage||400,!z.isUlt,target);

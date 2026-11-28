@@ -422,6 +422,63 @@
     frames(33);
     check(p.hp===beforeThrow+200,'Barley recovery on landing failed');
 
+    begin('Jessie');
+    p.passiveChoice='1';
+    useUltimate(0);
+    const turret=zones.find(z=>z.type==='turret');
+    check(turret.maxHp===5200,'Jessie turret health bonus failed');
+    strikeSummon(turret,1500);
+    tlbsUseGadget();
+    check(turret.hp===4800,'Jessie did not repair the turret');
+    begin('Jessie');
+    p.passiveChoice='0';
+    p.gadgetChoice='1';
+    useUltimate(0);
+    tlbsUseGadget();
+    const rapidTurret=zones.find(z=>z.type==='turret');
+    frames(18);
+    check(rapidTurret.overclock>0&&rapidTurret.pulseAge<8,'Jessie turret did not accelerate');
+    attack(0,false);
+    check(bullets.at(-1).longBounce,'Jessie bounce bonus did not reach the projectile');
+
+    begin('Nita');
+    p.passiveChoice='0';
+    summon('bear',{x:enemy.x,y:enemy.y});
+    const bear=zones.find(z=>z.type==='bear');
+    tlbsUseGadget();
+    check(enemy.stun===60&&bear.fastClaws,'Nita stomp or fast claw bonus failed');
+    frames(29);
+    check(enemy.hp===enemy.maxHp-700,'Nita bear did not attack ahead of its usual interval');
+    begin('Nita');
+    p.passiveChoice='1';
+    p.gadgetChoice='1';
+    summon('bear',{x:enemy.x,y:enemy.y});
+    const guarded=zones.find(z=>z.type==='bear');
+    tlbsUseGadget();
+    strikeSummon(guarded,1000);
+    check(guarded.hp===5500,'Nita bear shield did not reduce damage');
+    p.hp-=900;
+    const nitaHealth=p.hp;
+    frames(42);
+    check(p.hp===nitaHealth+160,'Nita did not recover health from the bear hit');
+
+    begin('Pam');
+    p.passiveChoice='0';
+    summon('station',{x:p.x,y:p.y});
+    p.hp-=1200;
+    const pamHealth=p.hp;
+    tlbsUseGadget();
+    check(p.hp===pamHealth+720&&zones[0].r===122,'Pam radius or instant healing failed');
+    begin('Pam');
+    p.passiveChoice='1';
+    p.gadgetChoice='1';
+    summon('station',{x:p.x,y:p.y});
+    p.hp-=1400;
+    const beforePulse=p.hp;
+    tlbsUseGadget();
+    frames(24);
+    check(p.hp===beforePulse+780,'Pam boosted pulse failed to heal on time');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -495,7 +552,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 30 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 36 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

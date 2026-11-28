@@ -5,13 +5,35 @@ const summonStats={
 function summon(type,point){
  const stats=summonStats[type];
  zones=zones.filter(z=>z.type!==type);
- zones.push({type,...point,r:stats.r,hp:stats.hp,maxHp:stats.hp,age:0,team:0,hitFlash:0,life:Infinity});
+ const unit={type,...point,r:stats.r,hp:stats.hp,maxHp:stats.hp,age:0,team:0,hitFlash:0,life:Infinity};
+ if(type==='turret'&&current==='Jessie'&&p.passiveChoice==='1')unit.hp=unit.maxHp=stats.hp+1000;
+ if(type==='bear'&&current==='Nita')Object.assign(unit,{fastClaws:p.passiveChoice==='0',sharedHeal:p.passiveChoice==='1'});
+ if(type==='station'&&current==='Pam'){
+  if(p.passiveChoice==='0')unit.r=122;
+  if(p.passiveChoice==='1')unit.healPower=780;
+ }
+ zones.push(unit);
+}
+function summonPulse(unit,normal,accelerated){
+ const interval=unit.overclock>0?accelerated:normal;
+ if(unit.overclock>0)unit.overclock--;
+ unit.pulseAge=(unit.pulseAge||0)+1;
+ if(unit.pulseAge<interval)return false;
+ unit.pulseAge=0;
+ return true;
+}
+function healAtStation(station,amount){
+ for(const ally of arena?.actors||[p]){
+  if(!ally.out&&(ally===p||ally.team===p.team)&&inPlane(ally)&&dist(ally,station)<=station.r){
+   ally.hp=Math.min(ally.maxHp,ally.hp+amount);
+  }
+ }
 }
 function hostileSummons(actor){
  return !realm && actor!==p && (!arena || actor.team!==0)?zones.filter(z=>summonStats[z.type] && z.hp>0):[];
 }
 function strikeSummon(z,damage){
- z.hp=Math.max(0,z.hp-damage);z.hitFlash=9;
+ z.hp=Math.max(0,z.hp-Math.round(damage*(z.guard>0?.5:1)));z.hitFlash=9;
  if(!z.hp){z.type='debris';z.life=12;z.r=18;}
 }
 function drawSummon(z,brush=ctx){

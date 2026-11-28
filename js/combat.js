@@ -83,7 +83,10 @@ function clearCombatTimers() {
                     },i*100+100);
                     break;
                 }
-                case 'Jessie': spawnBullet(angle, 12, 55, false, 8, 'energy'); break;
+                case 'Jessie':
+                    spawnBullet(angle,12,55,false,8,'energy');
+                    bullets.at(-1).longBounce=p.passiveChoice==='0';
+                    break;
                 case 'Rico': spawnBullet(angle, 14, 60, false, 5, 'bounce'); break;
                 case 'Frank': startHammer(angle,false);break;
                 case 'Nani': spawnNaniProjectiles(angle); break;
