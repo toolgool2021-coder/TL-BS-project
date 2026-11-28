@@ -12,7 +12,7 @@ canvas.addEventListener('touchstart',e=>{
 },{passive:false});
 canvas.addEventListener('touchmove',e=>{if(!gameActive)return;e.preventDefault();for(const t of e.changedTouches){const q=touchPoint(t);for(const j of [joyL,joyR,joyU])if(j.active&&j.id===t.identifier){j.cx=q.x;j.cy=q.y;}}},{passive:false});
 canvas.addEventListener('touchcancel',e=>{for(const t of e.changedTouches)for(const j of [joyL,joyR,joyU])if(j.id===t.identifier){j.active=false;j.id=null;}},{passive:false});
-canvas.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches){const q=touchPoint(t);for(const j of [joyL,joyR,joyU])if(j.active&&j.id===t.identifier){const dx=q.x-j.x,dy=q.y-j.y;j.cx=q.x;j.cy=q.y;const variableThrow=['Dynamike','Barley'].includes(current)||(current==='Tick'&&j===joyR);try{if(gameActive&&j!==joyL&&(variableThrow||Math.hypot(dx,dy)>10))attack(Math.atan2(dy,dx),j===joyU,Math.hypot(dx,dy)*window.tlbsSensitivity);}finally{j.active=false;j.id=null;}}}},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault();for(const t of e.changedTouches){const q=touchPoint(t);for(const j of [joyL,joyR,joyU])if(j.active&&j.id===t.identifier){const dx=q.x-j.x,dy=q.y-j.y;j.cx=q.x;j.cy=q.y;const variableThrow=variableAim(j===joyU);try{if(gameActive&&j!==joyL&&(variableThrow||Math.hypot(dx,dy)>10))attack(Math.atan2(dy,dx),j===joyU,Math.hypot(dx,dy)*window.tlbsSensitivity);}finally{j.active=false;j.id=null;}}}},{passive:false});
 const pressedKeys = new Set();
 let aimPoint = null;
 let drag = null;
@@ -49,12 +49,13 @@ canvas.addEventListener('pointerdown', e => {
     if (!gameActive || e.pointerType !== 'mouse' || e.button !== 0 || drag) return;
     touchControls=false;
     drag = {id:e.pointerId, x:e.clientX, y:e.clientY};
+    if(variableAim(pressedKeys.has(bindings.super)))aimPoint={x:0,y:0};
     canvas.setPointerCapture(e.pointerId);
 });
 function updateDrag(e) {
     if (!drag || drag.id !== e.pointerId) return;
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    const variableThrow=['Dynamike','Barley'].includes(current)||(current==='Tick'&&!pressedKeys.has(bindings.super));
+    const variableThrow=variableAim(pressedKeys.has(bindings.super));
     aimPoint = variableThrow || Math.hypot(dx,dy)>10 ? {x:dx,y:dy} : null;
 }
 canvas.addEventListener('pointermove', updateDrag);
@@ -62,7 +63,7 @@ canvas.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
     updateDrag(e);
     if (gameActive && aimPoint) attack(Math.atan2(aimPoint.y, aimPoint.x), pressedKeys.has(bindings.super),Math.hypot(aimPoint.x,aimPoint.y)*window.tlbsSensitivity);
-    else if(gameActive && ['Dynamike','Barley','Tick'].includes(current)){aimPoint={x:0,y:0};attack(0,pressedKeys.has(bindings.super),0);}
+    else if(gameActive && variableAim(pressedKeys.has(bindings.super))){aimPoint={x:0,y:0};attack(0,pressedKeys.has(bindings.super),0);}
     drag = null;
     aimPoint = null;
 });

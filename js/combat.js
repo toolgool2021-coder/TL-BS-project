@@ -211,6 +211,7 @@ function clearCombatTimers() {
                 const distance=current==='Stu'?combatShape(true).range:baseDistance;
                 if((current==='Bull'&&p.passiveChoice==='1')||(current==='Darryl'&&p.passiveChoice==='0'))p.shield=Math.max(p.shield,total);
                 p.motion={fighter:current,x:p.x,y:p.y,dx:Math.cos(angle)*distance,dy:Math.sin(angle)*distance,total,age:0,hits:new Set(),radius:current==='El_Primo'?combatShape(true).radius:undefined};
+                if(current==='Darryl')p.motion.roll={x:Math.cos(angle),y:Math.sin(angle)};
                 p.isFlying=true;
                 if(current==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
                 break;
@@ -312,8 +313,12 @@ function advanceSuperMotion(){
     if(!m) return;
     const progress=Math.min(1,++m.age/m.total);
     const eased=progress*progress*(3-2*progress);
-    p.x=Math.max(22,Math.min(tlbsWorld.width-22,m.x+m.dx*eased));
-    p.y=Math.max(22,Math.min(tlbsWorld.height-22,m.y+m.dy*eased));
+    if(m.roll){
+        rollStep(p,m.roll,rollFrameDistance(Math.hypot(m.dx,m.dy),m.age,m.total));
+    }else{
+        p.x=Math.max(22,Math.min(tlbsWorld.width-22,m.x+m.dx*eased));
+        p.y=Math.max(22,Math.min(tlbsWorld.height-22,m.y+m.dy*eased));
+    }
     if(m.fighter==='El_Primo' || m.fighter==='Crow') p.scale=1+0.65*Math.sin(progress*Math.PI);
     if(['Kit','Edgar','Surge','Piper','Crow','El_Primo','Dynamike','Bonnie'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
     for(const target of combatTargets()) {
@@ -336,7 +341,7 @@ function advanceSuperMotion(){
 
 function angleTo(target){return Math.atan2(target.y-p.y,target.x-p.x);}
 function beginTravel(angle,range,total,fighter,radius,target=null){
-    const end=destination(angle,range);
+    const end=['Edgar','Piper','Kit','Bonnie'].includes(fighter)?jumpDestination(angle,range):destination(angle,range);
     p.motion={fighter,x:p.x,y:p.y,dx:end.x-p.x,dy:end.y-p.y,total,age:0,hits:new Set(),radius,target};
     p.isFlying=true;
 }

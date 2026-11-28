@@ -1010,7 +1010,7 @@ function tlbsMiniMap(){
         }
         if(p.shield > 0) { ctx.strokeStyle = "#4caf50"; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0,0,30,0,7); ctx.stroke(); }
         if(p.boostTimer > 0) { ctx.shadowBlur = 15; ctx.shadowColor = "yellow"; ctx.strokeStyle = "yellow"; ctx.strokeRect(-22,-22,44,44); }
-        ctx.fillStyle=BRAWLERS[current].color; ctx.beginPath(); ctx.arc(0,0,22,0,7); ctx.fill(); ctx.strokeStyle="#fff"; ctx.lineWidth=3; ctx.stroke();
+        drawFighterBody(ctx,0,0,22,current,selectedFighterSkin(current));
         ctx.restore();
         ctx.save(); ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.lineWidth=3; ctx.strokeStyle="#17202a"; ctx.fillStyle="white";
         const label=window.playerNickname || "Player"; if(match.mode!=='gems'){ctx.strokeText(label,p.x,p.y-78); ctx.fillText(label,p.x,p.y-78);} ctx.restore();

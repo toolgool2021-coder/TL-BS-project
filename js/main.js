@@ -1,4 +1,4 @@
-import {hostGame,updateSharedGame} from './room-match.js?v=20261128-release20';
+import {hostGame,updateSharedGame} from './room-match.js?v=20261128-release21';
 import {nickname,saveNickname,loadProfile} from './profile.js';
 const input=document.querySelector('#nickname'), status=document.querySelector('#profile-status'), dialog=document.querySelector('#profile-dialog');
 window.playerNickname=nickname();
@@ -28,7 +28,8 @@ function drawLeaders(data) {
  if(leaders.hidden) return;
  for(const player of Object.values(data).filter(p=>Number.isInteger(p.raceKills)).sort((a,b)=>b.raceKills-a.raceKills || a.nickname.localeCompare(b.nickname)).slice(0,3)) {
     const row=document.createElement('li');
-    row.textContent=player.nickname+' · '+Math.min(40,1+Math.floor(player.raceKills/2))+'/40 · '+player.raceKills+'/80';
+    const count=Object.keys(BRAWLERS).length;
+    row.textContent=player.nickname+' · '+Math.min(count,1+Math.floor(player.raceKills/2))+'/'+count+' · '+player.raceKills+'/'+(count*2);
     leaders.append(row);
  }
 }

@@ -25,6 +25,52 @@ for(const [name,[color,hp,reload,speed,life,spread,count,ability]] of Object.ent
     BRAWLERS[name]={color,hp,reload,speed:4.2,type:spread?'spread':'line',ultType:ability,
         ultChargeRate:12,maxAmmo:name==='Bea'?1:3,shot:{speed,life,spread,count}};
 }
+const originalFighters={
+    Kestrel:{name:'Кестрел',color:'#54c8fb',hp:5200,reload:1200,speed:4.6,shot:{speed:19,life:31,spread:.11,count:2},damage:510,super:'salvo',description:'Ульта выпускает веер из семи импульсов.'},
+    Basalt:{name:'Базальт',color:'#e4966b',hp:10400,reload:1420,speed:3.7,shot:{speed:12,life:15,spread:.27,count:3},damage:460,super:'fortify',description:'Ульта даёт щит и замедляет врагов рядом.'},
+    Lumen:{name:'Люмен',color:'#e9c46d',hp:6500,reload:1250,speed:4.2,shot:{speed:13,life:29,spread:0,count:1},damage:880,super:'restore',description:'Ульта ставит лечебное поле для команды.'},
+    Vortex:{name:'Вихрь',color:'#ac91fa',hp:6100,reload:1350,speed:4.3,shot:{speed:14,life:28,spread:.20,count:3},damage:395,super:'well',description:'Ульта притягивает ближайших противников.'},
+    Ember:{name:'Искра',color:'#ff775b',hp:5800,reload:1280,speed:4.4,shot:{speed:16,life:30,spread:.15,count:2},damage:550,super:'flare',description:'Ульта оставляет зону периодического урона.'},
+    Meridian:{name:'Меридиан',color:'#72dfbf',hp:5650,reload:1530,speed:4.1,shot:{speed:21,life:33,spread:0,count:1},damage:1040,super:'pulse',description:'Ульта наносит урон в выбранной области.'}
+};
+for(const [id,fighter] of Object.entries(originalFighters)){
+    BRAWLERS[id]={...fighter,ultChargeRate:13,maxAmmo:3,ultType:'original'};
+}
+
+function originalSuper(angle){
+    const fighter=originalFighters[current];
+    const shape=combatShape(true);
+    const point=destination(angle,shape.range);
+    switch(fighter.super){
+        case 'salvo':
+            for(let i=-3;i<=3;i++){
+                spawnBullet(angle+i*.1,18,37,true,6);
+                bullets.at(-1).damage=620;
+            }
+            break;
+        case 'fortify':
+            p.shield=Math.max(p.shield,180);
+            for(const target of combatTargets()){
+                if(dist(p,target)>shape.radius||target.spawnShield||target.altitude||!visibleTo(p,target))continue;
+                if(!target.safe)target.slow=Math.max(target.slow||0,95);
+                hitEnemy(940,false,target);
+            }
+            break;
+        case 'restore':
+            zones.push({...point,r:shape.radius,type:'pocoAid',life:120});
+            break;
+        case 'well':
+            zones.push({...point,r:shape.radius,type:'gravity',damage:1850,life:50});
+            break;
+        case 'flare':
+            zones.push({...point,r:shape.radius,type:'fire',damage:510,isUlt:true,life:120});
+            break;
+        case 'pulse':
+            for(const target of combatTargets())if(dist(point,target)<=shape.radius)hitEnemy(1880,false,target);
+            zones.push({...point,r:shape.radius,type:'blast',life:16});
+            break;
+    }
+}
 function rosterAttack(angle) {
     if(current==='Griff'){const waves=p.griffExtra?4:3;p.griffExtra=false;for(let wave=0;wave<waves;wave++){const fire=()=>{if(current==='Griff'&&!p.out)for(let i=-1;i<=1;i++)spawnBullet(angle+i*.22,14,35,false,6,'griffCoin');};if(wave===0)fire();else scheduleCombatAction(fire,wave*(p.passiveChoice==='0'?75:100));}return;}
     if(['Poco','Nita','Sandy'].includes(current)){startWave(current,angle);return;}
@@ -97,6 +143,7 @@ function rosterAttack(angle) {
         const fastBee=current==='Bea'&&p.beeCharge&&p.passiveChoice==='0';
         spawnBullet(angle+offset,fastBee?speed*1.25:speed,fastBee?Math.ceil(life/1.25):life,false,6,current);
         if(current==='Chester'&&count===4&&p.passiveChoice==='0')bullets.at(-1).damage=520;
+        if(originalFighters[current])bullets.at(-1).damage=originalFighters[current].damage;
         if(current==='Colette')bullets.at(-1).coletteHeavy=p.coletteHeavy;
         if(current==='Cordelius')bullets.at(-1).cordSlow=p.cordSlow;
         if(current==='Spike')bullets.at(-1).extraThorns=p.passiveChoice==='0';
@@ -114,13 +161,14 @@ function rosterSuper(angle) {
     const targets=combatTargets();
     const step=d=>({x:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(angle)*d)),y:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(angle)*d))});
     switch(ability) {
+        case 'original': originalSuper(angle);break;
         case 'heal':
             for(const ally of playerAllies())if(ally===p||inFan(ally,angle,superAimData.Poco))ally.hp=Math.min(ally.maxHp,ally.hp+3000);
             if(p.passiveChoice==='1')for(const target of targets)if(inFan(target,angle,superAimData.Poco))hitEnemy(750,false,target);
             break;
         case 'station': summon('station',destination(angle,superAimData.Pam.range)); break;
         case 'bear': summon('bear',destination(angle,superAimData.Nita.range)); break;
-        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true,isUlt:true}); beginTravel(angle,285,32,'Piper',24); break;
+        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true,isUlt:true}); beginTravel(angle,combatShape(true).range,32,'Piper',24); break;
         case 'cloak': p.hiddenTicks=260; break;
         case 'sandstorm': zones.push({...step(160),type:'sandstorm',r:combatShape(true).radius,life:360,burn:p.passiveChoice==='0'}); break;
         case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true,spikeHeal:p.passiveChoice==='1'}); break;

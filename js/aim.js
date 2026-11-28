@@ -6,7 +6,7 @@ const landing=(range,radius,offsets=[0])=>({kind:'landing',range,radius,offsets}
 const ring=radius=>landing(0,radius);
 const jump=(range,radius)=>({...landing(range,radius),kind:'jump'});
 const fan=(range,spread)=>({kind:'fan',range,spread});
-const kitClaw=fan(86,.80),kitJump=jump(210,52),kitYarn=landing(250,72);
+const kitClaw=fan(86,.80),kitJump=jump(280,52),kitYarn=landing(250,72);
 const basicAim={
  Shelly:ray(12,35,5,.2),Bull:ray(13,25,5,.30),Darryl:ray(13,25,5,.30),Colt:ray(15,45),
  El_Primo:ray(10,8),Rosa:ray(10,8),Barley:landing(200,55),Brock:ray(14,60),Dynamike:landing(250,80),
@@ -20,11 +20,15 @@ const superAimData={
  Gene:ray(18,40,12),Bibi:ray(10,300,15),Mortis:ray(12,48,14),Rico:ray(15,60),
  Brock:landing(240,80,[-.26,0,.26]),Crow:jump(300,80),Stu:jump(200,22),Bull:jump(312,50),
  Darryl:jump(312,50),El_Primo:jump(250,120),Barley:landing(250,55,[-.6,-.3,0,.3,.6]),
- Dynamike:landing(250,140),Poco:fan(360,.55),Nita:landing(205,38),Piper:jump(285,24),Pam:landing(235,95),
- Leon:ring(25),Spike:landing(220,100),Sandy:landing(160,140),Edgar:jump(260,100),Colette:jump(220,48),
+ Dynamike:landing(250,140),Poco:fan(360,.55),Nita:landing(205,38),Piper:jump(440,24),Pam:landing(235,95),
+ Leon:ring(25),Spike:landing(220,100),Sandy:landing(160,140),Edgar:jump(360,100),Colette:jump(220,48),
  Emz:ring(125),Bea:ray(11,45,6,.33),Gale:fan(350,.5),Surge:jump(90,90),Fang:jump(190,65),
  Buzz:ray(14,23,8),Chester:landing(220,80),Cordelius:ray(14,40,10),Kit:kitJump
 };
+function variableAim(superMove){
+ return ['Dynamike','Barley'].includes(current)||(!superMove&&current==='Tick')
+   ||(superMove&&['Kit','Edgar','Piper'].includes(current));
+}
 function combatShape(superMove){
  if(arena?.carrier===p)return ray(8,50,8);
  if((!superMove && ['Poco','Nita','Sandy'].includes(current)) || (superMove && current==='Gale')){
@@ -32,7 +36,7 @@ function combatShape(superMove){
  }
  if(!superMove && current==='Nani')return {kind:'nani',range:naniRange(),radius:12};
  if(!superMove && current==='Surge')return ray(13,surgeLife(),7);
- if(['Dynamike','Barley'].includes(current) || (!superMove && current==='Tick') || (superMove && current==='Kit')){
+ if(variableAim(superMove)){
    const j=superMove?joyU:joyR;
    const stick=Number.isFinite(window.tlbsAttackPower)?window.tlbsAttackPower:j.active?Math.hypot(j.cx-j.x,j.cy-j.y)*window.tlbsSensitivity:aimPoint?Math.hypot(aimPoint.x,aimPoint.y)*window.tlbsSensitivity:60;
    const shape=current==='Kit'?kitJump:superMove?superAimData[current]:basicAim[current];
@@ -40,6 +44,17 @@ function combatShape(superMove){
    return {...shape,offsets,range:shape.range*Math.min(1,stick/42)};
  }
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
+ if(superMove&&originalFighters[current]){
+   switch(originalFighters[current].super){
+     case 'salvo':return {...ray(18,37,6,.3),count:7};
+     case 'fortify':return ring(125);
+     case 'restore':return landing(190,125);
+     case 'well':return landing(255,105);
+     case 'flare':return landing(280,85);
+     case 'pulse':return landing(335,85);
+   }
+ }
+ if(superMove&&current==='Darryl')return {...superAimData.Darryl,kind:'roll'};
  if(superMove&&current==='Griff')return fan(420,.52);
  if(superMove&&current==='Tara'&&p.passiveChoice==='0')return {...superAimData.Tara,radius:130};
  if(superMove&&current==='Buzz'&&p.passiveChoice==='0')return ray(14,29,8);
@@ -54,7 +69,7 @@ function combatShape(superMove){
  if(superMove&&current==='Sandy'&&p.passiveChoice==='1')return {...superAimData.Sandy,radius:175};
  if(superMove&&current==='Pam'&&p.passiveChoice==='0')return {...superAimData.Pam,radius:122};
  if(superMove&&current==='Bo'&&p.passiveChoice==='1')return {...superAimData.Bo,radius:75};
- if(superMove&&current==='Bonnie')return p.bonnieOnFoot?ring(24):jump(p.passiveChoice==='0'?375:300,75);
+ if(superMove&&current==='Bonnie')return p.bonnieOnFoot?ring(24):jump(p.passiveChoice==='0'?480:390,75);
  if(!superMove&&current==='Bonnie'&&p.bonnieOnFoot)return ray(14,15,6,.18);
  if(superMove)return superAimData[current]||ray(12,35,8);
  if(current==='Kit' && p.attachment?.ally)return kitYarn;
@@ -73,6 +88,14 @@ function inFan(target,angle,shape){
  const dx=target.x-p.x,dy=target.y-p.y;
  return Math.hypot(dx,dy)<=shape.range && Math.cos(Math.atan2(dy,dx)-angle)>=Math.cos(shape.spread);
 }
+function jumpDestination(angle,range){
+ let distance=range,point=destination(angle,distance);
+ while(distance>0&&insideCover(point.x,point.y,20)){
+   distance=Math.max(0,distance-4);
+   point=destination(angle,distance);
+ }
+ return point;
+}
 function drawAim(angle,superMove){
  const s=combatShape(superMove);
  ctx.save();ctx.lineWidth=3;ctx.strokeStyle=superMove?'#ffe482':'#fff';
@@ -81,13 +104,21 @@ function drawAim(angle,superMove){
    ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.arc(p.x,p.y,85,angle-.58,angle+.58);ctx.closePath();ctx.fill();ctx.stroke();
  }
  if(s.kind==='nani'){const end=destination(angle,s.range);const a=Math.atan2(end.y-p.y,end.x-p.x);for(const curve of [0,45,-45]){ctx.beginPath();for(let i=0;i<=24;i++){const u=i/24,off=Math.sin(u*Math.PI)*curve,x=p.x+(end.x-p.x)*u-Math.sin(a)*off,y=p.y+(end.y-p.y)*u+Math.cos(a)*off;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,7);ctx.fill();ctx.stroke();}
+ else if(s.kind==='roll'){
+   const end={x:p.x,y:p.y},heading={x:Math.cos(angle),y:Math.sin(angle)};
+   ctx.beginPath();ctx.moveTo(end.x,end.y);ctx.setLineDash([7,5]);
+   for(let frame=1;frame<=28;frame++){rollStep(end,heading,rollFrameDistance(s.range,frame,28));ctx.lineTo(end.x,end.y);}
+   ctx.stroke();ctx.setLineDash([]);
+   ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,Math.PI*2);ctx.fill();ctx.stroke();
+ }
  else if(s.kind==='dash'){
    const end=destination(angle,s.range);ctx.lineCap='round';ctx.lineWidth=s.radius*2;
    ctx.strokeStyle=ctx.fillStyle;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(end.x,end.y);ctx.stroke();
    ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,Math.PI*2);ctx.stroke();
  }else if(s.kind==='jump'||s.kind==='landing'){
    for(const offset of s.offsets){
-     const a=angle+offset, end=destination(a,s.range);
+     const a=angle+offset;
+     const end=s.kind==='jump'&&['Edgar','Piper','Kit','Bonnie'].includes(current)?jumpDestination(a,s.range):destination(a,s.range);
      if(s.range){
        ctx.beginPath();ctx.setLineDash([5,6]);ctx.moveTo(p.x,p.y);
        ctx.quadraticCurveTo((p.x+end.x)/2,(p.y+end.y)/2-(s.kind==='jump'?36:16),end.x,end.y);

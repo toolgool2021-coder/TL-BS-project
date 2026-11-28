@@ -269,7 +269,7 @@
     begin('Bonnie');
     p.passiveChoice='0';
     tlbsUseGadget();
-    check(p.bonnieReload===180&&combatShape(true).range===375,'Bonnie cannon settings failed');
+    check(p.bonnieReload===180&&combatShape(true).range===480,'Bonnie cannon settings failed');
     begin('Bonnie');
     p.passiveChoice='1';
     p.gadgetChoice='1';
@@ -837,6 +837,8 @@
 
     for(const fighter of Object.keys(BRAWLERS)){
       begin(fighter);
+      check(document.querySelector('#skin-choice').options.length===3,fighter+' is missing skins');
+      if(originalFighters[fighter])continue;
       check(tlbsLoadouts[fighter]?.every(choices=>choices.length===2)
         && tlbsAbilityDescriptions[fighter]?.every(choices=>choices.length===2), fighter+' is missing a loadout');
       updateUI();
@@ -976,6 +978,72 @@
     check(gadgetObserver.takeRecords().length>0&&gadget.lastElementChild.textContent==='2','Gadget HUD missed a status change');
     gadgetObserver.disconnect();
 
+    begin('Darryl');
+    tlbsMapWalls.push({x:p.x+110,y:p.y-65,w:32,h:130});
+    const startRoll=p.x;
+    const expectedRoll={x:p.x,y:p.y},heading={x:1,y:0};
+    for(let f=1;f<=28;f++)rollStep(expectedRoll,heading,rollFrameDistance(312,f,28));
+    useUltimate(0);
+    frames(32);
+    check(p.x<startRoll&&Math.abs(p.x-expectedRoll.x)<.01&&!insideCover(p.x,p.y,18),'Darryl did not bounce back from the wall');
+
+    begin('Edgar');
+    p.passiveChoice='1';
+    enemy.x=p.x+180;
+    ultCharge=100;updateUI();
+    const edgarX=p.x;
+    attack(0,true,21);
+    frames(26);
+    check(p.x===edgarX+180&&enemy.hp===enemy.maxHp-2000,'Edgar half drag did not land and damage at the selected point');
+    begin('Piper');
+    ultCharge=100;updateUI();
+    const piperX=p.x;
+    attack(0,true,42);
+    frames(35);
+    check(p.x===piperX+440,'Piper did not travel the new full range');
+
+    begin('Kestrel');
+    const skinSelect=document.querySelector('#skin-choice');
+    skinSelect.value='1';skinSelect.dispatchEvent(new Event('change'));
+    check(selectedFighterSkin('Kestrel')===1&&fighterAppearance('Kestrel').mark==='bolt','New fighter skin selection failed');
+    begin('Shelly');
+    check(skinSelect.value==='0','Skin selection leaked across fighters');
+    begin('Kestrel');
+    check(skinSelect.value==='1'&&localStorage.getItem('tlbs.skin.Kestrel')==='1','Fighter skin was not saved');
+    const kestrelHealth=enemy.hp;
+    attack(0,false);
+    frames(10);
+    check(enemy.hp<kestrelHealth,'New fighter projectiles did not deal damage');
+
+    begin('Basalt');
+    enemy.x=p.x+80;
+    useUltimate(0);
+    check(p.shield===180&&enemy.slow===95&&enemy.hp===enemy.maxHp-940,'Basalt fortification failed');
+    begin('Lumen');
+    p.hp-=1000;
+    const lumenHealth=p.hp;
+    useUltimate(0);
+    p.x=zones[0].x;
+    frames(3);
+    check(p.hp===lumenHealth+320,'Lumen field did not heal');
+    begin('Vortex');
+    enemy.x=p.x+250;
+    useUltimate(0);
+    frames(53);
+    check(enemy.hp===enemy.maxHp-1850,'Vortex gravity did not resolve');
+    begin('Ember');
+    enemy.x=p.x+280;
+    useUltimate(0);
+    frames(4);
+    check(enemy.hp===enemy.maxHp-510,'Ember burn field did not damage');
+    begin('Meridian');
+    enemy.x=p.x+335;
+    useUltimate(0);
+    check(enemy.hp===enemy.maxHp-1880,'Meridian pulse did not hit the aim point');
+    begin('Kestrel');
+    useUltimate(0);
+    check(bullets.length===7&&bullets.every(b=>b.isUlt&&b.damage===620),'Kestrel super salvo failed');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -990,7 +1058,7 @@
           break;
         case 'arms':
           for(let i=0;i<2*Object.keys(BRAWLERS).length;i++)recordElimination();
-          check(match.kills === 84, 'Arms race ended before all fighters');
+          check(match.kills === 2*Object.keys(BRAWLERS).length, 'Arms race ended before all fighters');
           break;
         case 'duel':
           ultCharge = 90;

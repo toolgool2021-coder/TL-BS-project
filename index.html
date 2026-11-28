@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TL BS</title>
-    <link rel="stylesheet" href="css/style.css?v=20261128-release18">
+    <link rel="stylesheet" href="css/style.css?v=20261128-release21">
 </head>
 <body>
 <button id="fullscreen-toggle" type="button" aria-label="Полноэкранный режим" aria-pressed="false">⛶</button>
@@ -14,8 +14,8 @@
         <header class="topbar"><h1>TL <i>BS</i></h1><nav><button id="profile-open" class="btn">Профиль</button><button id="room-open" class="btn">Онлайн</button></nav></header>
         <section class="loadout" aria-label="Выбранный боец">
             <div id="char-preview" aria-hidden="true"><span id="crest"></span></div>
-            <div class="fighter-info"><h2 id="active-name">Шелли</h2><p id="fighter-stats"></p>
-            <button class="btn" onclick="changeScreen('brawlers')">Сменить бойца</button></div>
+            <div class="fighter-info"><h2 id="active-name">Шелли</h2><p id="fighter-stats"></p><p id="fighter-super" hidden></p>
+            <label>Скин <select id="skin-choice"></select></label><button class="btn" onclick="changeScreen('brawlers')">Сменить бойца</button></div>
         </section>
         <section class="match-panel"><label>Гаджет<select id="gadget-choice"><option value="unique">Особый / щит</option><option value="heal">Восстановление здоровья</option></select></label><label>Пассивная способность<select id="passive-choice"><option value="unique">Особая (Динамайк: прыжок)</option><option value="reload">Быстрая перезарядка +10%</option></select></label><label class="mode-label">Режим матча<select id="mode">
             <option value="training">Тренировка</option><option value="skirmish">Бой с ботом</option>
@@ -59,21 +59,22 @@
 <script src="js/audio.js"></script>
 <script src="js/brawlers.js"></script>
 <dialog id="result" oncancel="event.preventDefault()"><h2 id="result-text"></h2><p id="result-total"></p><button class="btn" onclick="this.closest('dialog').close();current=selectedFighter;initGame()">Реванш</button><button class="btn" onclick="this.closest('dialog').close();exitToMenu()">В меню</button></dialog>
-<script src="js/roster.js?v=20261128-release17"></script>
+<script src="js/roster.js?v=20261128-release21"></script>
+<script src="js/skins.js"></script>
 <script src="js/gems.js?v=20261128-release18"></script>
-<script src="js/pitch.js?v=20261128-release5"></script>
+<script src="js/pitch.js?v=20261128-release21"></script>
 <script src="js/objectives.js?v=20261128-release17"></script>
 <script src="js/bots.js?v=20261128-release6"></script>
 <script src="js/match.js?v=20261128-release6"></script>
-<script src="js/aim.js?v=20261128-release17"></script>
+<script src="js/aim.js?v=20261128-release21"></script>
 <script src="js/summons.js?v=20261128-release10"></script>
 <script src="js/hammer.js?v=20261128-release16"></script>
 <script src="js/waves.js?v=20261128-release18"></script>
 <script src="js/canvas-state.js"></script>
-<script src="js/game.js?v=20261128-release18"></script>
-<script src="js/combat.js?v=20261128-release17"></script>
-<script src="js/controls.js?v=20261128-release16"></script>
-<script src="js/lobby.js?v=20261128-release2"></script>
-<script type="module" src="js/main.js?v=20261128-release20"></script>
+<script src="js/game.js?v=20261128-release21"></script>
+<script src="js/combat.js?v=20261128-release21"></script>
+<script src="js/controls.js?v=20261128-release21"></script>
+<script src="js/lobby.js?v=20261128-release21"></script>
+<script type="module" src="js/main.js?v=20261128-release21"></script>
 </body>
 </html>

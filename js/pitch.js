@@ -66,3 +66,24 @@ function paintTeamHUD(){
  }
  ctx.restore();
 }
+
+function rollStep(position,heading,distance){
+ const steps=Math.max(1,Math.ceil(distance/4));
+ const step=distance/steps;
+ const clear=(x,y)=>x>=22&&y>=22&&x<=tlbsWorld.width-22&&y<=tlbsWorld.height-22&&!insideCover(x,y,18);
+ for(let i=0;i<steps;i++){
+   const dx=heading.x*step,dy=heading.y*step;
+   const x=position.x+dx,y=position.y+dy;
+   if(clear(x,y)){position.x=x;position.y=y;continue;}
+   const blockX=!clear(x,position.y),blockY=!clear(position.x,y);
+   if(blockX||!blockY)heading.x*=-1;
+   if(blockY||!blockX)heading.y*=-1;
+   const nextX=position.x+heading.x*step,nextY=position.y+heading.y*step;
+   if(clear(nextX,nextY)){position.x=nextX;position.y=nextY;}
+ }
+}
+
+function rollFrameDistance(distance,frame,total){
+ const ease=t=>t*t*(3-2*t);
+ return distance*(ease(frame/total)-ease((frame-1)/total));
+}

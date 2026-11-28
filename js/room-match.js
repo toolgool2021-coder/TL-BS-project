@@ -92,7 +92,7 @@ window.shareMatch=(result=null)=>{
  if(!host || !arena || (!result && performance.now()-lastSent<snapshotInterval))return;
  lastSent=performance.now();
  const point=a=>({x:a.x/tlbsWorld.width,y:a.y/tlbsWorld.height});
- const actors=arena.actors.map(a=>({...point(a),hp:a.hp,maxHp:a.maxHp,slow:a.slow>0,stun:a.stun>0,out:a.out || (a===p && !visibleTo(arena.actors[1],p) && p.hiddenTicks>0),fighter:a.fighter,team:a.team}));
+ const actors=arena.actors.map(a=>({...point(a),hp:a.hp,maxHp:a.maxHp,slow:a.slow>0,stun:a.stun>0,out:a.out || (a===p && !visibleTo(arena.actors[1],p) && p.hiddenTicks>0),fighter:a.fighter,team:a.team,skin:a===p?selectedFighterSkin(current):0}));
  send('matchState',{...host,frame:++frameSequence,actors,score:arena.score,ball:point(arena.ball),carrier:arena.carrier?.slot??-1,
    walls:arena.walls.map(w=>({...point(w),w:w.w/tlbsWorld.width,h:w.h/tlbsWorld.height})),
    units:zones.filter(z=>Object.hasOwn(summonStats,z.type)).map(z=>({...point(z),type:z.type,hp:z.hp,age:z.age,angle:z.angle||0,r:z.r/tlbsWorld.width})),
@@ -127,7 +127,8 @@ function paintGuest(progress){
    const interpolate=old&&!old.out&&Math.hypot(a.x-old.x,a.y-old.y)<.16;
    const x=(interpolate?old.x+(a.x-old.x)*progress:a.x)*w;
    const y=(interpolate?old.y+(a.y-old.y)*progress:a.y)*h;
-   g.fillStyle=a.team?'#62cef5':'#fc8d85';g.beginPath();g.arc(x,y,15,0,7);g.fill();
+   if(a.skin>0)drawFighterBody(g,x,y,15,a.fighter,a.skin);
+   else {g.fillStyle=a.team?'#62cef5':'#fc8d85';g.beginPath();g.arc(x,y,15,0,7);g.fill();}
    g.fillStyle='white';g.fillText((i===1?'Ты · ':'')+fighterNames[a.fighter],x,y-22);
    if(Number.isFinite(a.hp)&&a.maxHp>0){
      g.fillStyle='#263840';g.fillRect(x-19,y-19,38,4);
