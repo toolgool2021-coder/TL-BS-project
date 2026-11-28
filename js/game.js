@@ -259,6 +259,7 @@ function tlbsMiniMap(){
                 b.x = b.originX + (b.tx - b.originX) * b.progress + offX; b.y = b.originY + (b.ty - b.originY) * b.progress + offY;
                 if(b.progress >= 1) { bullets.splice(i, 1); continue; }
             } else {
+                if(b.special==='griffNote'&&b.life<=b.turn){if(!b.returning){b.returning=true;b.visited=[];}const a=Math.atan2(p.y-b.y,p.x-b.x);b.vx=Math.cos(a)*14;b.vy=Math.sin(a)*14;if(Math.hypot(p.x-b.x,p.y-b.y)<16){bullets.splice(i,1);continue;}}
                 b.x+=b.vx; b.y+=b.vy; if(--b.life<=0) {
                     if(b.special==='Spike')burstSpike(b);
                     if(b.special === 'gene_main') {
@@ -293,6 +294,8 @@ function tlbsMiniMap(){
                 if(!target.safe) beginTravel(angleTo(target),Math.min(dist(p,target),308),18,'Buzz',65,target);
                 bullets.splice(i,1);continue;
             }
+            if(b.special==='griffCoin'){hitEnemy(280,true,target);bullets.splice(i,1);continue;}
+            if(b.special==='griffNote'){(b.visited ||= []).push(target);hitEnemy(700,true,target);continue;}
             if(b.special==='bats') {
                 (b.visited ||= []).push(target);
                 const damage=Math.min(1200,target.hp);hitEnemy(damage,false,target);
