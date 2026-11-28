@@ -10,7 +10,7 @@ const page=read('index.html');
 for(const id of ['gameCanvas','minimap','settings-dialog','control-scale','control-sensitivity','room-dialog']){
  assert(page.includes('id="'+id+'"'),'Missing required element: '+id);
 }
-for(const file of files('js/').filter(p=>!['js/firebase.js','js/online.js','js/profile.js','js/main.js','js/room-match.js'].includes(p)))assert(page.includes('src="'+file+'"'),'Missing classic script '+file);
+for(const file of files('js/').filter(p=>!['js/firebase.js','js/online.js','js/profile.js','js/main.js','js/room-match.js'].includes(p)))assert((page.includes('src="'+file+'"')||page.includes('src="'+file+'?')),'Missing classic script '+file);
 const game=read('js/game.js');
 const preamble=game.slice(0,game.indexOf('    let superFx='));
 assert(preamble.includes('function tlbsConfigureMap'),'Missing map configuration');
