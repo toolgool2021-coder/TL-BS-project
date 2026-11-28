@@ -55,7 +55,7 @@ function rosterAttack(angle) {
         return;
     }
     for(let i=0;i<count;i++) {
-        const offset=count===1?0:spread*(2*i/(count-1)-1);
+        const offset=count===1?0:(current==='Chester'?chesterSpread(count):spread)*(2*i/(count-1)-1);
         spawnBullet(angle+offset,speed,life,false,6,current);
         if(current==='Bea'){bullets[bullets.length-1].charged=Boolean(p.beeCharge);p.beeCharge=false;}
     }
