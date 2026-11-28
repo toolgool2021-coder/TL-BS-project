@@ -177,7 +177,7 @@ function clearCombatTimers() {
             if(target===enemy) enemy.x = tlbsWorld.width / 2;
             if(target===enemy) enemy.y = 150;
         }
-        if(!realm && ultCharge < 100) { ultCharge = Math.min(100,ultCharge+BRAWLERS[current].ultChargeRate); }
+        if(canCharge && !realm && ultCharge < 100) { ultCharge = Math.min(100,ultCharge+BRAWLERS[current].ultChargeRate); }
     }
 
     function spawnNaniProjectiles(angle) {
