@@ -54,9 +54,10 @@ function combatTick() {
         const bot=enemy.fighter||'Colt', preferred=bot==='Shelly'?155:285;
         const approach=d>preferred+35?1:d<preferred-45?-1:0;
         const strafe=Math.sin((performance.now()/650))*0.65;
-        const speed=2.1;
-        enemy.x=Math.max(30,Math.min(tlbsWorld.width-30,enemy.x+speed*(Math.cos(a)*approach-Math.sin(a)*strafe)));
-        enemy.y=Math.max(30,Math.min(tlbsWorld.height-30,enemy.y+speed*(Math.sin(a)*approach+Math.cos(a)*strafe)));
+        const speed=2.1*(enemy.slow>0?0.5:1);
+        const nx=Math.max(30,Math.min(tlbsWorld.width-30,enemy.x+speed*(Math.cos(a)*approach-Math.sin(a)*strafe)));
+        const ny=Math.max(30,Math.min(tlbsWorld.height-30,enemy.y+speed*(Math.sin(a)*approach+Math.cos(a)*strafe)));
+        if(!insideCover(nx,ny,22)){enemy.x=nx;enemy.y=ny;}else tlbsBotMove(enemy,target,speed);
     }
     if(target && --match.cooldown<=0 && dist(target,enemy)<440) {
         if(enemy.fighter) {
