@@ -106,7 +106,8 @@ function clearCombatTimers() {
     }
 
     function spawnBarleyBottle(angle, dist, type, isUlt) { 
-        let tx=p.x+Math.cos(angle)*dist, ty=p.y+Math.sin(angle)*dist; 
+        let tx=p.x+Math.cos(angle)*dist, ty=p.y+Math.sin(angle)*dist;
+        tx=Math.max(22,Math.min(tlbsWorld.width-22,tx));ty=Math.max(22,Math.min(tlbsWorld.height-22,ty)); 
         throws.push({x:p.x,y:p.y,tx,ty,type,isUlt,age:0});
     }
 

@@ -1,9 +1,13 @@
 // Gameplay camera utility: preserve the arena while resizing the viewport.
 const TLBS_MAP_SIZES={duel:[1200,1200],standard:[2400,1800],large:[3200,2400]};
-let tlbsWorld={width:2400,height:1800},tlbsCamera={x:0,y:0};
+let tlbsWorld={width:2400,height:1800},tlbsCamera={x:0,y:0},tlbsMapWalls=[];
 function tlbsConfigureMap(mode){
  const size=mode==='duel'?TLBS_MAP_SIZES.duel:['solo','duo'].includes(mode)?TLBS_MAP_SIZES.large:TLBS_MAP_SIZES.standard;
  tlbsWorld={width:size[0],height:size[1]};
+}
+function tlbsBuildMap(mode){
+ const blocks=mode==='duel'?[[.24,.33,.16,25],[.61,.66,.16,25]]:mode==='ball'?[[.12,.28,.2,25],[.68,.28,.2,25],[.12,.70,.2,25],[.68,.70,.2,25]]:[[.15,.28,.18,26],[.67,.28,.18,26],[.15,.72,.18,26],[.67,.72,.18,26]];
+ tlbsMapWalls=blocks.map(([x,y,w,h])=>({x:x*tlbsWorld.width,y:y*tlbsWorld.height,w:w*tlbsWorld.width,h}));
 }
 function tlbsFollowCamera(snap=false){
  const x=Math.max(0,Math.min(Math.max(0,tlbsWorld.width-canvas.width),p.x-canvas.width/2));
@@ -15,6 +19,7 @@ function tlbsMiniMap(){
  const c=document.getElementById('minimap');if(!c)return;
  const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);
  g.fillStyle='#172b3d';g.fillRect(0,0,c.width,c.height);
+ for(const r of tlbsMapWalls){g.fillStyle='#8095a0';g.fillRect(r.x/tlbsWorld.width*c.width,r.y/tlbsWorld.height*c.height,r.w/tlbsWorld.width*c.width,Math.max(2,r.h/tlbsWorld.height*c.height));}
  const actors=arena?.actors||[p,enemy];
  for(const a of actors){
   if(a.out)continue;
@@ -135,6 +140,7 @@ function tlbsMiniMap(){
         activePin.timer = enemyPin.timer = 0;
         canvas.width = canvas.clientWidth || window.innerWidth; canvas.height = canvas.clientHeight || window.innerHeight;
         tlbsConfigureMap(window.roomPreview?'training':document.querySelector('#mode').value);
+        tlbsBuildMap(document.querySelector('#mode').value);
         p.x = tlbsWorld.width/2; p.y = tlbsWorld.height - 150; 
         p.isFlying = false; p.speedMult = 1; p.boostTimer = 0; p.shield = 0;
         pip.active = false; 
@@ -217,7 +223,7 @@ function tlbsMiniMap(){
             let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y, dist=Math.hypot(dx,dy); 
             if(dist>5){ p.x+=(dx/dist)*BRAWLERS[current].speed*p.speedMult; p.y+=(dy/dist)*BRAWLERS[current].speed*p.speedMult; } 
         }
-        if(arena?.walls.length && !p.isFlying){const dx=p.x-startX,dy=p.y-startY;p.x=startX;p.y=startY;moveOnPitch(p,dx,dy);}
+        if((arena?.walls.length||tlbsMapWalls.length) && !p.isFlying){const dx=p.x-startX,dy=p.y-startY;p.x=startX;p.y=startY;moveOnPitch(p,dx,dy);}
         for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; 
             if(b.type === 'nani') {
                 b.progress += 0.035;
@@ -238,7 +244,7 @@ function tlbsMiniMap(){
                     bullets.splice(i,1); continue;
                 }
                 if(b.special==='bounce') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
-                if(b.special==='bubble') { if(b.x<0 || b.x>canvas.width) b.vx *= -1; if(b.y<0 || b.y>canvas.height) b.vy *= -1; }
+                if(b.special==='bubble') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
             }
             if(insideCover(b.x,b.y)){if(b.special==='Spike'){b.x-=b.vx;b.y-=b.vy;burstSpike(b);}bullets.splice(i,1);continue;}
             if(b.special==='hostile' || b.special==='teamShot'){
@@ -360,11 +366,12 @@ function tlbsMiniMap(){
         ctx.fillStyle = realm ? "#342649" : "#2e7d32"; ctx.fillRect(tlbsCamera.x,tlbsCamera.y,canvas.width,canvas.height);
         if(!realm && match.mode!=='ball'){
             ctx.save();ctx.strokeStyle='rgba(255,255,255,.045)';ctx.lineWidth=1;
-            for(let x=Math.floor(tlbsCamera.x/64)*64;x<tlbsCamera.x+canvas.width;x+=64){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
-            for(let y=Math.floor(tlbsCamera.y/64)*64;y<tlbsCamera.y+canvas.height;y+=64){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+            for(let x=Math.floor(tlbsCamera.x/64)*64;x<tlbsCamera.x+canvas.width;x+=64){ctx.beginPath();ctx.moveTo(x,tlbsCamera.y);ctx.lineTo(x,tlbsCamera.y+canvas.height);ctx.stroke();}
+            for(let y=Math.floor(tlbsCamera.y/64)*64;y<tlbsCamera.y+canvas.height;y+=64){ctx.beginPath();ctx.moveTo(tlbsCamera.x,y);ctx.lineTo(tlbsCamera.x+canvas.width,y);ctx.stroke();}
             ctx.strokeStyle='#184d25';ctx.lineWidth=8;ctx.strokeRect(4,4,tlbsWorld.width-8,tlbsWorld.height-8);ctx.restore();
         }
         if(match.mode==='ball')paintPitch();
+        else {ctx.save();for(const r of tlbsMapWalls){if(r.x+r.w<tlbsCamera.x||r.x>tlbsCamera.x+canvas.width||r.y+r.h<tlbsCamera.y||r.y>tlbsCamera.y+canvas.height)continue;ctx.fillStyle='#243a4b';ctx.fillRect(r.x,r.y+5,r.w,r.h);ctx.fillStyle='#678393';ctx.fillRect(r.x,r.y,r.w,r.h-5);}ctx.restore();}
         drawObjective();
         if(realm){ctx.save();ctx.fillStyle='#ebd9ff';ctx.font='bold 16px sans-serif';ctx.textAlign='center';ctx.fillText('Царство теней · '+Math.ceil(realm.left/60)+' с',tlbsCamera.x+canvas.width/2,tlbsCamera.y+100);ctx.restore();}
         if((joyR.active || joyU.active || aimPoint) && !pip.active) {

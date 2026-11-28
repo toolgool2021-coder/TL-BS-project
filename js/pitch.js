@@ -1,5 +1,5 @@
 function insideCover(x,y,pad=0){
- return arena?.walls?.some(w=>x>w.x-pad && x<w.x+w.w+pad && y>w.y-pad && y<w.y+w.h+pad);
+ return (arena?.walls||tlbsMapWalls)?.some(w=>x>w.x-pad && x<w.x+w.w+pad && y>w.y-pad && y<w.y+w.h+pad);
 }
 function moveOnPitch(a,dx,dy){
  if(!insideCover(a.x+dx,a.y,16))a.x+=dx;

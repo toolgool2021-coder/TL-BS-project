@@ -24,7 +24,7 @@ function initObjective(){
  const teams=solo?[0,1,2,3,4,5]:duo?[0,1,0,1,2,2]:[0,1,0,1,0,1];
  const actors=[p,enemy,...Array.from({length:4},()=>({maxHp:5500}))];
  arena={actors,score:[0,0],age:0,drops:[],hold:0,leader:-1,ball:{},carrier:null,safes:[]};
- arena.walls=match.mode==='ball'?[.29,.68].flatMap(y=>[.13,.67].map(x=>({x:x*tlbsWorld.width,y:y*tlbsWorld.height,w:.2*tlbsWorld.width,h:18}))):[];
+ arena.walls=tlbsMapWalls;
  const lineup=[current,'Shelly','Colt','Brock','Jessie','Bull'];
  actors.forEach((a,i)=>{a.team=teams[i];a.slot=i;a.fighter=lineup[i];if(i)a.maxHp=practiceHp[a.fighter];});
  resetField();
