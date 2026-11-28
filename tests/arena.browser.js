@@ -605,6 +605,76 @@
     frames(24);
     check(enemy.hp<=emzTargetHealth-580&&!p.emzDense,'Emz dense shot did not deal bonus damage');
 
+    begin('Edgar');
+    ultCharge=80;
+    tlbsUseGadget();
+    check(ultCharge===100&&p.gadgetUses===2,'Edgar charge gadget failed');
+    p.passiveChoice='1';
+    enemy.x=p.x+260;
+    useUltimate(0);
+    frames(28);
+    check(enemy.hp===enemy.maxHp-2000,'Edgar strengthened landing failed');
+    begin('Edgar');
+    p.gadgetChoice='1';
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    check(p.shield===90,'Edgar shield gadget failed');
+    p.hp-=1200;
+    const edgarHealth=p.hp;
+    enemy.x=p.x+40;
+    attack(0,false);
+    frames(15);
+    check(p.hp>=edgarHealth+240,'Edgar enhanced healing failed');
+
+    begin('El_Primo');
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    enemy.x=p.x+50;
+    attack(0,false);
+    frames(14);
+    check(enemy.slow>0&&!p.primoSnare,'Primo slowing combo failed');
+    enemy.x=p.x+380;
+    useUltimate(0);
+    check(p.motion.radius===145,'Primo Super and aim radius disagree');
+    const primoTargetHp=enemy.hp;
+    frames(33);
+    check(enemy.hp===primoTargetHp-1800,'Primo expanded landing missed');
+    begin('El_Primo');
+    p.gadgetChoice='1';
+    p.passiveChoice='1';
+    p.hp-=1300;
+    const primoHealth=p.hp;
+    tlbsUseGadget();
+    check(p.boostTimer===120&&p.speedMult===1.3,'Primo movement boost failed');
+    useUltimate(Math.PI);
+    frames(33);
+    check(p.hp===primoHealth+650,'Primo landing did not heal');
+
+    begin('Bull');
+    p.passiveChoice='0';
+    p.hp=Math.floor(p.maxHp*.35);
+    ammo=0;
+    frames(10);
+    const woundedAmmo=ammo;
+    p.hp=p.maxHp;
+    ammo=0;
+    frames(9);
+    check(woundedAmmo>ammo,'Bull wound reload did not accelerate');
+    p.hp-=1500;
+    const bullHealth=p.hp;
+    tlbsUseGadget();
+    check(p.hp===bullHealth+850,'Bull healing gadget failed');
+    begin('Bull');
+    p.passiveChoice='1';
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(p.gadgetUses===3,'Bull spent brake without a dash');
+    useUltimate(0);
+    check(p.shield===32,'Bull dash shield failed');
+    enemy.x=p.x+75;
+    tlbsUseGadget();
+    check(!p.motion&&!p.isFlying&&enemy.slow===100,'Bull brake did not stop and slow');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -678,7 +748,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 48 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 54 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

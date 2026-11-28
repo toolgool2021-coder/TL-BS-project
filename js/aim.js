@@ -41,6 +41,7 @@ function combatShape(superMove){
  }
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove&&current==='Griff')return fan(420,.52);
+ if(superMove&&current==='El_Primo'&&p.passiveChoice==='0')return {...superAimData.El_Primo,radius:145};
  if(superMove&&current==='Sandy'&&p.passiveChoice==='1')return {...superAimData.Sandy,radius:175};
  if(superMove&&current==='Pam'&&p.passiveChoice==='0')return {...superAimData.Pam,radius:122};
  if(superMove&&current==='Bo'&&p.passiveChoice==='1')return {...superAimData.Bo,radius:75};

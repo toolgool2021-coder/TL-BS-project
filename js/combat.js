@@ -63,12 +63,14 @@ function clearCombatTimers() {
                 case 'Shelly': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.2, 12, 35); break;
                 case 'Bull': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
                 case 'Colt': for(let i=0; i<5; i++) scheduleCombatAction(()=>spawnBullet(angle, 15, 45), i*80); break;
-                case 'El_Primo': 
+                case 'El_Primo':
                 case 'Rosa': {
-                    const damage=p.shield>0&&p.passiveChoice==='1'?520:400;
+                    const damage=current==='Rosa'&&p.shield>0&&p.passiveChoice==='1'?520:400;
+                    const primoSnare=current==='El_Primo'&&p.primoSnare;
+                    if(primoSnare)p.primoSnare=false;
                     for(let i=0;i<3;i++)scheduleCombatAction(()=>{
                         spawnBullet(angle,10,8);
-                        bullets.at(-1).damage=damage;
+                        Object.assign(bullets.at(-1),{damage,primoSnare});
                     },i*80);
                     break;
                 }
@@ -145,7 +147,8 @@ function clearCombatTimers() {
             case 'Crow': case 'Stu': case 'Bull': case 'Darryl': case 'El_Primo': {
                 const travel={Crow:[300,32],Stu:[200,13],Bull:[312,32],Darryl:[312,28],El_Primo:[250,30]};
                 const [distance,total]=travel[current];
-                p.motion={fighter:current,x:p.x,y:p.y,dx:Math.cos(angle)*distance,dy:Math.sin(angle)*distance,total,age:0,hits:new Set()};
+                if(current==='Bull'&&p.passiveChoice==='1')p.shield=Math.max(p.shield,total);
+                p.motion={fighter:current,x:p.x,y:p.y,dx:Math.cos(angle)*distance,dy:Math.sin(angle)*distance,total,age:0,hits:new Set(),radius:current==='El_Primo'?combatShape(true).radius:undefined};
                 p.isFlying=true;
                 if(current==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
                 break;
@@ -256,11 +259,12 @@ function advanceSuperMotion(){
         }
         const slam=m.fighter==='El_Primo' && progress===1;
         if(!slam && m.fighter!=='Bull' && m.fighter!=='Darryl') continue;
-        if(!m.hits.has(target) && Math.hypot(target.x-p.x,target.y-p.y)<(slam?120:50)){
+        if(!m.hits.has(target) && Math.hypot(target.x-p.x,target.y-p.y)<(slam?m.radius:50)){
             m.hits.add(target);hitEnemy(slam?1800:1000,false,target);
         }
     }
     if(progress===1){
+        if(m.fighter==='El_Primo'&&p.passiveChoice==='1'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+650);
         if(m.fighter==='Crow') for(let n=0;n<12;n++) spawnBullet(n*Math.PI/6,10,22,true,4,'poison');
         p.motion=null;p.isFlying=false;p.scale=1;p.altitude=0;landRosterMove(m);
     }
@@ -323,7 +327,7 @@ function landRosterMove(m){
     }else if(['Edgar','Surge','Buzz'].includes(m.fighter)){
         for(const t of targets) if(dist(t,p)<=m.radius){
             if(m.fighter==='Buzz' && !t.safe)t.stun=70;
-            hitEnemy(1600,false,t);
+            hitEnemy(m.fighter==='Edgar'&&p.passiveChoice==='1'?2000:1600,false,t);
         }
         if(m.fighter==='Surge'){
             p.surgeLevel=Math.min(4,(p.surgeLevel||1)+1);p.speedMult=1.25;p.boostTimer=0;
