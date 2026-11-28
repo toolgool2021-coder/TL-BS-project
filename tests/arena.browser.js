@@ -543,6 +543,68 @@
     frames(32);
     check(p.hp===leonHealth+150,'Leon did not heal under his cloak');
 
+    begin('Poco','zone');
+    const pocoAlly=arena.actors[2];
+    Object.assign(pocoAlly,{x:p.x+85,y:p.y,hp:pocoAlly.maxHp-1800});
+    const allyHealth=pocoAlly.hp;
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    attack(0,false);
+    frames(11);
+    check(pocoAlly.hp===allyHealth+740,'Poco field and healing wave failed');
+    begin('Poco');
+    p.gadgetChoice='1';
+    p.stun=75;p.slow=100;
+    tlbsUseGadget();
+    check(!p.stun&&!p.slow&&p.gadgetUses===2,'Poco cleanse failed');
+    p.passiveChoice='1';
+    useUltimate(0);
+    check(enemy.hp===enemy.maxHp-750,'Poco super did not damage the enemy');
+
+    begin('Sandy');
+    p.passiveChoice='0';
+    useUltimate(0);
+    frames(3);
+    check(enemy.hp===enemy.maxHp-360,'Sandy storm did not damage the enemy');
+    p.x=zones[0].x;
+    p.hp-=1500;
+    const sandyHealth=p.hp;
+    tlbsUseGadget();
+    check(p.hp===sandyHealth+900,'Sandy storm recovery failed');
+    begin('Sandy');
+    p.passiveChoice='1';
+    p.gadgetChoice='1';
+    useUltimate(0);
+    check(zones[0].r===175&&combatShape(true).radius===175,'Sandy storm and preview disagree');
+    tlbsUseGadget();
+    attack(0,false);
+    frames(14);
+    check(enemy.slow>0&&!p.sandySlow,'Sandy wave failed to slow');
+
+    begin('Emz');
+    enemy.x=p.x+65;
+    tlbsUseGadget();
+    check(enemy.x>p.x+100,'Emz repel failed');
+    p.passiveChoice='0';
+    p.hp-=900;
+    const emzHealth=p.hp;
+    useUltimate(0);
+    frames(4);
+    check(p.hp===emzHealth+120,'Emz aura failed to restore health');
+    begin('Emz');
+    p.passiveChoice='1';
+    enemy.x=p.x+84;
+    useUltimate(0);
+    frames(4);
+    check(enemy.slow>0,'Emz aura failed to slow');
+    enemy.x=p.x+180;
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    const emzTargetHealth=enemy.hp;
+    attack(0,false);
+    frames(24);
+    check(enemy.hp<=emzTargetHealth-580&&!p.emzDense,'Emz dense shot did not deal bonus damage');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -616,7 +678,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 42 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 48 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

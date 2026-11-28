@@ -8,6 +8,8 @@ const fronts={
 let waves=[],swipes=[];
 function startWave(name,angle){
  const wave={name,angle,x:p.x,y:p.y,age:0,hits:new Set(),push:new Map(),...fronts[name]};
+ if(name==='Poco'&&p.passiveChoice==='0'){wave.heal=420;wave.healed=new Set();}
+ if(name==='Sandy'){wave.slow=p.sandySlow;p.sandySlow=false;}
  if(name==='Gale'){
    wave.width=galeWindWidth();
    wave.wallStun=p.passiveChoice==='0';
@@ -24,8 +26,15 @@ function tickWaves(){
      const dx=t.x-w.x,dy=t.y-w.y,along=dx*c+dy*s,across=dy*c-dx*s;
      if(w.hits.has(t)||Math.abs(across)>fanWidth(w,along)+12 || along<front-step-14 || along>front+14)continue;
      if(!visibleTo({x:w.x,y:w.y},t))continue;
+     if(w.slow&&!t.safe&&!t.spawnShield&&!t.altitude)t.slow=Math.max(t.slow||0,90);
      w.hits.add(t);hitEnemy(w.damage,w.name!=='Gale',t);
      if(w.name==='Gale' && !t.safe && !t.out && !t.spawnShield && !t.altitude)w.push.set(t,12);
+   }
+   if(w.heal&&w.age<=w.ticks)for(const ally of playerAllies()){
+     const dx=ally.x-w.x,dy=ally.y-w.y,along=dx*c+dy*s,across=dy*c-dx*s;
+     if(ally===p||w.healed.has(ally)||along<front-step-14||along>front+14||Math.abs(across)>fanWidth(w,along)+12)continue;
+     if(!visibleTo(w,ally))continue;
+     w.healed.add(ally);ally.hp=Math.min(ally.maxHp,ally.hp+w.heal);
    }
    for(const [t,left] of w.push){
      if(t.out){w.push.delete(t);continue;}
@@ -71,7 +80,7 @@ function paintWaves(){
  ctx.restore();
 }
 function resetFighterStage(){
- Object.assign(p,{slow:0,leonSnare:false,leonHealTicks:0,boBind:false,tickSpread:false,barleySticky:false,fangStun:false,galeFrost:false,bonnieReload:0,surgeOverdrive:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
+ Object.assign(p,{slow:0,sandySlow:false,emzDense:false,leonSnare:false,leonHealTicks:0,boBind:false,tickSpread:false,barleySticky:false,fangStun:false,galeFrost:false,bonnieReload:0,surgeOverdrive:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
  p.surgeLevel=1;p.beeCharge=false;p.bonnieOnFoot=false;
  if(current==='Surge')p.speedMult=1;
 }

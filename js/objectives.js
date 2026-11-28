@@ -10,6 +10,7 @@ const objectives={
 };
 let arena=null, realm=null;
 function inPlane(actor){return !realm || actor===p || actor===realm.target;}
+function playerAllies(){return (arena?.actors||[p]).filter(a=>!a.out&&(a===p||a.team===p.team)&&inPlane(a));}
 function combatTargets(){return [enemy,...trainingTargets].filter(t=>!t.out && inPlane(t));}
 function startRealm(target){
  if(target.safe) return;
