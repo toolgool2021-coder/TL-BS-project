@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TL BS</title>
-    <link rel="stylesheet" href="css/style.css?v=20261128-1041">
+    <link rel="stylesheet" href="css/style.css?v=20261128-1109">
 </head>
 <body>
 <button id="fullscreen-toggle" type="button" aria-label="Полноэкранный режим" aria-pressed="false">⛶</button>
@@ -33,7 +33,7 @@
     <button class="btn confirm" onclick="changeScreen('menu')">Готово</button>
 </div>
 
-<div id="hud"><canvas id="minimap" width="156" height="114" aria-label="Мини-карта"></canvas>
+<div id="hud"><p id="tlbs-error" hidden role="status"></p><canvas id="minimap" width="156" height="114" aria-label="Мини-карта"></canvas>
     <button class="exit-btn" onclick="exitToMenu()">ВЫЙТИ</button>
     <div class="ult-container"><div id="ult-bar"></div></div><button id="tlbs-gadget" hidden type="button" onclick="tlbsUseGadget()" style="pointer-events:auto;position:fixed;right:24px;bottom:155px;background:#38ad63;color:white;border:2px solid #a4ffad;border-radius:50%;min-width:56px;min-height:56px;font-weight:bold;z-index:1000" title="Гаджет (G)" aria-label="Гаджет (G)">✦ 3</button>
     <ol id="race-leaders" hidden aria-label="Лидеры гонки"></ol>
