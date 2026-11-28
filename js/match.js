@@ -23,7 +23,7 @@ function duelTurn() {
     renderAmmo();
 }
 function setupMatch() {
-    p.gadgetUses=3;p.gadgetCooldown=0;p.gadgetChoice=document.getElementById('gadget-choice')?.value||'unique';p.passiveChoice=document.getElementById('passive-choice')?.value||'unique';
+    p.satchel=false;p.candyReload=0;p.candyDamage=0;p.gadgetUses=3;p.gadgetCooldown=0;p.gadgetChoice=document.getElementById('gadget-choice')?.value||'0';p.passiveChoice=document.getElementById('passive-choice')?.value||'0';
     clearAttachment();enemy.stun=0;
     p.bells=0;p.jackpot=Math.floor(Math.random()*5);p.beeCharge=false;
     resetFighterStage();selectedFighter=current;
