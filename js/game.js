@@ -339,6 +339,7 @@ function tlbsMiniMap(){
             if(dist>5){ p.x+=(dx/dist)*BRAWLERS[current].speed*p.speedMult; p.y+=(dy/dist)*BRAWLERS[current].speed*p.speedMult; } 
         }
         if((arena?.walls.length||tlbsMapWalls.length) && !p.isFlying){const dx=p.x-startX,dy=p.y-startY;p.x=startX;p.y=startY;moveOnPitch(p,dx,dy);}
+        p.botVx=p.x-startX;p.botVy=p.y-startY;
         for(let i=bullets.length-1;i>=0;i--){ const b=bullets[i]; 
             if(b.guide){
                 const target=combatTargets().filter(t=>!t.safe&&!t.spawnShield&&dist(t,b)<210&&(t.x-b.x)*b.vx+(t.y-b.y)*b.vy>0)
@@ -362,6 +363,7 @@ function tlbsMiniMap(){
             } else {
                 if(b.special==='griffNote'&&b.life<=b.turn){if(!b.returning){b.returning=true;b.visited=[];}const a=Math.atan2(p.y-b.y,p.x-b.x);b.vx=Math.cos(a)*14;b.vy=Math.sin(a)*14;if(Math.hypot(p.x-b.x,p.y-b.y)<16){bullets.splice(i,1);continue;}}
                 b.x+=b.vx; b.y+=b.vy; if(--b.life<=0) {
+                    botRocketImpact(b);
                     if(b.special==='Spike')burstSpike(b);
                     if(b.special === 'gene_main') {
                         for(let j=-1; j<=1; j++) {
@@ -374,17 +376,21 @@ function tlbsMiniMap(){
                 if(b.special==='bounce') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
                 if(b.special==='bubble') { if(b.x<0 || b.x>tlbsWorld.width) b.vx *= -1; if(b.y<0 || b.y>tlbsWorld.height) b.vy *= -1; }
             }
-            if(b.special!=='griffNote'&&insideCover(b.x,b.y)){if(b.special==='Spike'){b.x-=b.vx;b.y-=b.vy;burstSpike(b);}bullets.splice(i,1);continue;}
+            if(b.special!=='griffNote'&&insideCover(b.x,b.y)){if(b.blast){b.x-=b.vx;b.y-=b.vy;botRocketImpact(b);}if(b.special==='Spike'){b.x-=b.vx;b.y-=b.vy;burstSpike(b);}bullets.splice(i,1);continue;}
             if(b.special==='hostile' || b.special==='teamShot'){
                 const unit=hostileSummons(b.owner||enemy).find(z=>dist(z,b)<20);
-                if(unit){strikeSummon(unit,b.special==='hostile'?800:550);bullets.splice(i,1);continue;}
+                if(unit){strikeSummon(unit,b.damage||(b.special==='hostile'?800:550));botRocketImpact(b);bullets.splice(i,1);continue;}
             }
             if(b.special==='teamShot'){
                 const t=[...arena.actors,...arena.safes].find(t=>!t.out && t.team!==b.owner.team && inPlane(t)===inPlane(b.owner) && dist(t,b)<23);
-                if(t){objectiveHit(t,t===p?crowIncomingDamage(b.owner,550):550);bullets.splice(i,1);}continue;
+                if(t){
+                    if(b.blast)botRocketImpact(b);
+                    else {const damage=b.damage||550;objectiveHit(t,t===p?crowIncomingDamage(b.owner,damage):damage);}
+                    bullets.splice(i,1);
+                }continue;
             }
             if(b.special==='hostile') {
-                if(Math.hypot(b.x-p.x,b.y-p.y)<27) { bullets.splice(i,1); receiveHit(b.owner); }
+                if(Math.hypot(b.x-p.x,b.y-p.y)<27) { bullets.splice(i,1);if(b.blast)botRocketImpact(b);else receiveHit(b.owner,b.damage); }
                 continue;
             }
             const targets = combatTargets();

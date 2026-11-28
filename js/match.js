@@ -42,6 +42,7 @@ function setupMatch() {
     enemy.hp=enemy.maxHp;
     if(match.mode!=='training') trainingTargets=[];
     match.limit=Math.min(50,Math.max(1,Math.round(Number(document.querySelector('#kill-limit').value)||5)));
+    match.difficulty=document.getElementById('bot-difficulty').value;
     initObjective();
     if(match.mode==='duel') {
         playerTrio=[current,...reserves.map(select=>select.value)];
@@ -55,31 +56,24 @@ function combatTick() {
     const target=candidates.sort((a,b)=>dist(a,enemy)-dist(b,enemy))[0];
     if(target){
         const d=dist(target,enemy), a=Math.atan2(target.y-enemy.y,target.x-enemy.x);
-        const bot=enemy.fighter||'Colt', preferred=bot==='Shelly'?155:285;
+        const {preferred}=botWeapon(enemy);
         const approach=d>preferred+35?1:d<preferred-45?-1:0;
         const strafe=Math.sin((performance.now()/650))*0.65;
-        const speed=2.1*(enemy.slow>0?0.5:1);
+        const speed=2.1*botDifficulty().pace*(enemy.slow>0?0.5:1);
         const nx=Math.max(30,Math.min(tlbsWorld.width-30,enemy.x+speed*(Math.cos(a)*approach-Math.sin(a)*strafe)));
         const ny=Math.max(30,Math.min(tlbsWorld.height-30,enemy.y+speed*(Math.sin(a)*approach+Math.cos(a)*strafe)));
-        if(!insideCover(nx,ny,22)){enemy.x=nx;enemy.y=ny;}else tlbsBotMove(enemy,target,speed);
-    }
-    if(target && --match.cooldown<=0 && dist(target,enemy)<440) {
-        if(enemy.fighter) {
-            const bot=enemy.fighter,angle=Math.atan2(target.y-enemy.y,target.x-enemy.x);
-            match.cooldown=Math.round(BRAWLERS[bot].reload*0.06);
-            const fire=offset=>spawnBullet(angle+offset,bot==='Brock'?8:6,74,false,7,'hostile',enemy);
-            if(bot==='Shelly') [-0.2,0,0.2].forEach(fire);
-            else if(bot==='Colt') for(let n=0;n<4;n++) scheduleCombatAction(()=>fire(0),n*90);
-            else fire(0);
-            return;
+        if(!botDodge(enemy,speed)){
+            if(!insideCover(nx,ny,22)){enemy.x=nx;enemy.y=ny;}
+            else tlbsBotMove(enemy,target,speed);
         }
-        match.cooldown=65;
-        spawnBullet(Math.atan2(target.y-enemy.y,target.x-enemy.x),6,74,false,7,'hostile',enemy);
+    }
+    if(--match.cooldown<=0&&target&&dist(target,enemy)<botWeapon(enemy).range&&visibleTo(enemy,target)){
+        match.cooldown=botFire(enemy,target,'hostile');
     }
 }
-function receiveHit(source=enemy) {
+function receiveHit(source=enemy,damage=800) {
     if((p.altitude||0)>0 || match.finished || match.nextRound) return;
-    p.hp=Math.max(0,p.hp-crowIncomingDamage(source,p.shield>0?240:800));
+    p.hp=Math.max(0,p.hp-crowIncomingDamage(source,p.shield>0?Math.round(damage*.3):damage));
     if(p.hp) return;
     clearAttachment();realm=null;
     resetFighterStage();match.deaths++;

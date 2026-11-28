@@ -76,3 +76,12 @@ function applyFps(){
 }
 showFps.onchange=applyFps;
 applyFps();
+
+const botDifficultyControl=document.getElementById('bot-difficulty');
+try{
+ const saved=localStorage.getItem('tlbs.bots.difficulty');
+ if(Object.hasOwn(botDifficulties,saved))botDifficultyControl.value=saved;
+}catch{}
+botDifficultyControl.onchange=()=>{
+ try{localStorage.setItem('tlbs.bots.difficulty',botDifficultyControl.value);}catch{}
+};

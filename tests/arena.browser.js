@@ -196,6 +196,34 @@
     check(fangTargets.slice(0,4).every(t=>t.hp===28400) && fangTargets[4].hp===30000,
       'Fang did not hit exactly four different opponents once');
 
+    const difficultySelect=document.querySelector('#bot-difficulty');
+    difficultySelect.value='easy';
+    begin('Colt','skirmish');
+    enemy.x=600;
+    spawnBullet(0,12,40,false);
+    check(!botDodge(enemy,3), 'Easy bot dodged a shot');
+    difficultySelect.value='hard';
+    begin('Colt','skirmish');
+    enemy.x=600;
+    spawnBullet(0,12,40,false);
+    const beforeDodge=enemy.y;
+    check(botDodge(enemy,3) && enemy.y!==beforeDodge, 'Hard bot did not sidestep an incoming shot');
+    bullets.length=0;
+    enemy.fighter='Brock';
+    botFire(enemy,p,'hostile');
+    check(bullets[0].blast===55 && bullets[0].owner===enemy, 'Brock bot did not launch its rocket');
+    const rocket=bullets[0];
+    Object.assign(rocket,{x:p.x,y:p.y});
+    const beforeRocket=p.hp;
+    botRocketImpact(rocket);
+    check(p.hp===beforeRocket-820, 'Bot rocket did not apply its blast damage');
+    bullets.length=0;
+    const mover={x:500,y:500};
+    tlbsMapWalls.push({x:530,y:450,w:50,h:115});
+    for(let i=0;i<120;i++)tlbsBotMove(mover,{x:650,y:500},3);
+    check(mover.x>625&&!insideCover(mover.x,mover.y,16), 'Bot failed to route around cover at '+mover.x+','+mover.y);
+    difficultySelect.value='normal';
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -269,7 +297,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 12 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions';
+      modes.length + ' mode lifecycle scenarios, Canvas, 12 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast and pathfinding';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

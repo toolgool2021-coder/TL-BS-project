@@ -76,11 +76,13 @@ function tickObjective(){
    const rivals=A.actors.filter(b=>!b.out && (b!==p || !p.hiddenTicks || dist(a,p)<65 || A.carrier===p) && b.team!==a.team && inPlane(b)===inPlane(a));
    rivals.push(...hostileSummons(a));
    const safe=A.safes[1-a.team];if(safe && (!realm || !inPlane(a)))rivals.push(safe);
-   const priority=b=>dist(a,b)-(mode==='gems'?Math.min(5,b.gems||0)*18:0);
+   const priority=b=>dist(a,b)-(mode==='gems'?Math.min(5,b.gems||0)*18:0)
+       -(b===A.carrier?70:0)-(b.hp<b.maxHp*.25?28:0);
    rivals.sort((b,d)=>priority(b)-priority(d));const target=rivals[0];if(!target)continue;
-   let goal=target,stop=110;
+   const weapon=botWeapon(a);
+   let goal=target,stop=weapon.preferred;
    if(!realm || !inPlane(a)){
-     if(mode==='zone'){goal=c;stop=30;}
+     if(mode==='zone'){goal={x:c.x+(Math.floor(a.slot/2)-1)*38,y:c.y+(a.team?18:-18)};stop=18;}
      if(mode==='gems'){goal=gemBotGoal(a,target,c);stop=5;}
      if(mode==='ball'){const owner=A.carrier,side=a.slot<3?-1:1;
        goal=owner===a?{x:c.x,y:a.team?tlbsWorld.height:0}:owner?.team===a.team?{x:c.x+side*tlbsWorld.width*.21,y:owner.y+(a.team?50:-50)}:A.ball;stop=12;}
@@ -88,20 +90,23 @@ function tickObjective(){
      if((mode==='solo'||mode==='duo') && dist(a,c)>safeRadius()-20){goal=c;stop=5;}
    }
    const d=dist(a,goal);
-   if(d>stop){
-     const speed=BRAWLERS[a.fighter].speed*.65*(a.slow>0?.5:1),dx=(goal.x-a.x)/d*speed,dy=(goal.y-a.y)/d*speed;
+   const speed=BRAWLERS[a.fighter].speed*.65*botDifficulty().pace*(a.slow>0?.5:1);
+   if(!botDodge(a,speed)&&d>stop){
+     const dx=(goal.x-a.x)/d*speed,dy=(goal.y-a.y)/d*speed;
      const retreat=a.hp<a.maxHp*.25 && goal===target;
      const heading=Math.atan2(dy,dx)+(retreat?Math.PI:0);
      tlbsBotMove(a,retreat?{x:a.x+Math.cos(heading)*120,y:a.y+Math.sin(heading)*120}:goal,speed);
    }
-   if(A.carrier===a && d<110)kickBall(a,Math.atan2(goal.y-a.y,goal.x-a.x));
-   if(--a.cool<=0 && dist(a,target)<(a.fighter==='Bull'?155:340) && visibleTo(a,target)){
-     a.cool=Math.round(BRAWLERS[a.fighter].reload*.05);
-     const angle=Math.atan2(target.y-a.y,target.x-a.x);
-     for(const offset of ['Bull','Shelly'].includes(a.fighter)?[-.16,0,.16]:[0]){
-       spawnBullet(angle+offset,8,45,false,5,'teamShot',a);
-       bullets[bullets.length-1].owner=a;
-     }
+   if(A.carrier===a){
+     const goalAngle=Math.atan2(goal.y-a.y,goal.x-a.x);
+     const blocked=rivals.some(r=>!r.safe&&dist(a,r)<85&&inFanBetween(a,r,goalAngle));
+     const teammate=blocked&&A.actors.find(t=>t!==a&&!t.out&&t.team===a.team&&dist(a,t)<240
+       && (a.team?t.y>a.y:t.y<a.y)&&visibleTo(a,t));
+     if(teammate)kickBall(a,Math.atan2(teammate.y-a.y,teammate.x-a.x));
+     else if(d<110)kickBall(a,goalAngle);
+   }
+   if(--a.cool<=0&&dist(a,target)<weapon.range&&visibleTo(a,target)){
+     a.cool=botFire(a,target,'teamShot');
    }
  }
  if(match.finished)return;
@@ -132,6 +137,10 @@ function tickObjective(){
       const team=Number(b.y>c.y);if(++A.score[team]===2)finishMatch(team===0);else resetField();
    }else {b.x=Math.max(10,Math.min(tlbsWorld.width-10,b.x));b.y=Math.max(10,Math.min(tlbsWorld.height-10,b.y));}
  }
+}
+function inFanBetween(actor,target,angle){
+ const dx=target.x-actor.x,dy=target.y-actor.y;
+ return dx*Math.cos(angle)+dy*Math.sin(angle)>dist(actor,target)*.8;
 }
 function safeRadius(){return Math.max(52,Math.hypot(tlbsWorld.width,tlbsWorld.height)/2-arena.age*.10);}
 function drawObjective(){
