@@ -42,7 +42,7 @@ function resetField(){
     Object.assign(a,{x:a.homeX,y:a.homeY,hp:a.maxHp,out:false,respawn:0,gems:0,cool:45+a.slot*7});
  }
  arena.ball={x:tlbsWorld.width/2,y:tlbsWorld.height/2,vx:0,vy:0,lock:0};arena.carrier=null;
- ammo=BRAWLERS[current].maxAmmo;ultCharge=0;
+ ammo=BRAWLERS[current].maxAmmo;
 }
 function objectiveDeath(a){
  if(a.out || match.finished) return;
@@ -89,8 +89,9 @@ function tickObjective(){
    const d=dist(a,goal);
    if(d>stop){
      const speed=BRAWLERS[a.fighter].speed*.65,dx=(goal.x-a.x)/d*speed,dy=(goal.y-a.y)/d*speed;
-     if(insideCover(a.x+dx,a.y+dy,16))moveOnPitch(a,a.x<c.x?speed:-speed,0);
-     else moveOnPitch(a,dx,dy);
+     const retreat=a.hp<a.maxHp*.25 && goal===target;
+     const heading=Math.atan2(dy,dx)+(retreat?Math.PI:0);
+     for(const offset of [0,.65,-.65,1.3,-1.3,2,-2]){const vx=Math.cos(heading+offset)*speed,vy=Math.sin(heading+offset)*speed;if(!insideCover(a.x+vx,a.y+vy,16)){moveOnPitch(a,vx,vy);break;}}
    }
    if(A.carrier===a && d<110)kickBall(a,Math.atan2(goal.y-a.y,goal.x-a.x));
    if(--a.cool<=0 && dist(a,target)<(a.fighter==='Bull'?155:340) && visibleTo(a,target)){
