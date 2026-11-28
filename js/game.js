@@ -370,7 +370,7 @@ function tlbsMiniMap(){
         }
         for(let i=zones.length-1;i>=0;i--){ const z=zones[i]; 
             if(z.type==='griffPiggy'&&z.life>120){const u=Math.max(0,Math.min(1,(144-z.life)/24));z.x=z.sx+(z.tx-z.sx)*u;z.y=z.sy+(z.ty-z.sy)*u;}
-            if(z.type==='griffPiggy'&&z.life===1){
+            if(z.type==='griffPiggy'&&z.life<=1){
                 for(const t of combatTargets())if(Math.hypot(t.x-z.x,t.y-z.y)<z.r)hitEnemy(1000,false,t);
                 tlbsDestroyCover(z.x,z.y,z.r);
                 z.type='blast';z.life=15;
