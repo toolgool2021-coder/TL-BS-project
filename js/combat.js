@@ -94,7 +94,7 @@ function clearCombatTimers() {
                 for(let n=0;n<7;n++) scheduleCombatAction(()=>spawnBarleyBottle(angle+Math.sin(n*2)*0.26,240+Math.cos(n)*35,'boom',true),n*90);
                 break;
             case 'Crow': case 'Stu': case 'Bull': case 'Darryl': case 'El_Primo': {
-                const travel={Crow:[225,26],Stu:[200,13],Bull:[312,32],Darryl:[312,28],El_Primo:[250,30]};
+                const travel={Crow:[300,32],Stu:[200,13],Bull:[312,32],Darryl:[312,28],El_Primo:[250,30]};
                 const [distance,total]=travel[current];
                 p.motion={fighter:current,x:p.x,y:p.y,dx:Math.cos(angle)*distance,dy:Math.sin(angle)*distance,total,age:0,hits:new Set()};
                 p.isFlying=true;
@@ -124,7 +124,7 @@ function clearCombatTimers() {
                 zones.push({x:t.tx,y:t.ty,r:58,type:'boMine',arm:30,fuse:0,life:Infinity});
                 throws.splice(i,1);continue;
             }
-            if(current==='Dynamike'&&!p.out&&!p.motion&&(t.type==='boom'||t.type==='bigBoom')&&Math.hypot(p.x-t.tx,p.y-t.ty)<(t.type==='bigBoom'?140:80)){const a=Math.hypot(p.x-t.tx,p.y-t.ty)<5?0:Math.atan2(p.y-t.ty,p.x-t.tx);beginTravel(a,100,22,'Dynamike',0);}
+            if(current==='Dynamike'&&p.passiveChoice!== 'reload'&&!p.out&&!p.motion&&(t.type==='boom'||t.type==='bigBoom')&&Math.hypot(p.x-t.tx,p.y-t.ty)<(t.type==='bigBoom'?140:80)){const a=Math.hypot(p.x-t.tx,p.y-t.ty)<5?0:Math.atan2(p.y-t.ty,p.x-t.tx);beginTravel(a,100,22,'Dynamike',0);}
             zones.push({x:t.tx,y:t.ty,type:t.type==='bigBoom'||t.type==='yarn'?'boom':t.type,isBig:t.type==='bigBoom',isUlt:t.isUlt,r:t.type==='yarn'?kitYarn.radius:t.type==='bigBoom'?140:t.type==='fire'?55:80,
                 life:t.type==='mine'?150:t.type==='fire'?120:14});
             throws.splice(i,1);
@@ -137,7 +137,7 @@ function clearCombatTimers() {
     }
 
     function hitEnemy(dmg, canCharge, target=enemy) {
-        if(!inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
+        if((target.altitude||0)>0 || !inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
         match.damage+=Math.min(target.hp,dmg);
         target.hp -= dmg;
         const now=performance.now(), prior=tlbsHitEffects.find(f=>f.target===target&&now-f.born<160);
