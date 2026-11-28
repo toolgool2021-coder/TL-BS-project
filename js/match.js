@@ -14,8 +14,8 @@ function duelTurn() {
     enemy.maxHp=practiceHp[bot];
     enemy.hp=enemy.maxHp;
     p.hp=p.maxHp=BRAWLERS[current].hp || practiceHp[current];
-    p.x=canvas.width/2;p.y=canvas.height-65;
-    enemy.x=canvas.width/2;enemy.y=65;
+    p.x=tlbsWorld.width/2;p.y=tlbsWorld.height-65;
+    enemy.x=tlbsWorld.width/2;enemy.y=65;
     clearCombatTimers();resetControls();
     bullets.length=0;zones.length=0;throws.length=0;
     p.motion=null;superFx=null;pip.active=false;p.isFlying=false;p.scale=1;p.hiddenTicks=0;p.boostTimer=0;p.speedMult=1;p.shield=0;
@@ -54,8 +54,8 @@ function combatTick() {
         const approach=d>preferred+35?1:d<preferred-45?-1:0;
         const strafe=Math.sin((performance.now()/650))*0.65;
         const speed=2.1;
-        enemy.x=Math.max(30,Math.min(canvas.width-30,enemy.x+speed*(Math.cos(a)*approach-Math.sin(a)*strafe)));
-        enemy.y=Math.max(30,Math.min(canvas.height-30,enemy.y+speed*(Math.sin(a)*approach+Math.cos(a)*strafe)));
+        enemy.x=Math.max(30,Math.min(tlbsWorld.width-30,enemy.x+speed*(Math.cos(a)*approach-Math.sin(a)*strafe)));
+        enemy.y=Math.max(30,Math.min(tlbsWorld.height-30,enemy.y+speed*(Math.sin(a)*approach+Math.cos(a)*strafe)));
     }
     if(target && --match.cooldown<=0 && dist(target,enemy)<440) {
         if(enemy.fighter) {
@@ -78,7 +78,7 @@ function receiveHit() {
     clearAttachment();realm=null;
     resetFighterStage();match.deaths++;
     p.hp=p.maxHp;
-    p.x=canvas.width/2; p.y=canvas.height-65;
+    p.x=tlbsWorld.width/2; p.y=tlbsWorld.height-65;
     if(match.mode!=='arms' && match.deaths===(match.mode==='custom'?match.limit:3)) finishMatch(false);
     else if(match.mode==='duel') match.nextRound=true;
 }

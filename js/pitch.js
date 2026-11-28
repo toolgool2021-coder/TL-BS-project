@@ -12,7 +12,7 @@ function visibleTo(from,to){
  return true;
 }
 function paintPitch(){
- const w=canvas.width,h=canvas.height,c=w/2;
+ const w=tlbsWorld.width,h=tlbsWorld.height,c=w/2;
  ctx.save();
  for(let i=0;i<8;i++){ctx.fillStyle=i%2?'#287743':'#307f48';ctx.fillRect(0,i*h/8,w,h/8);}
  ctx.strokeStyle='#d1f2cf88';ctx.lineWidth=2;

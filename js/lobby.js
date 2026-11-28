@@ -22,6 +22,7 @@ function syncLobby() {
     document.querySelector('#mode-help').textContent=hints[modeSelect.value];
     document.querySelector('#reserves').hidden=modeSelect.value!=='duel';
     document.querySelector('#ai-toggle').hidden=modeSelect.value!=='training';
+    document.querySelector('#map-size').textContent=modeSelect.value==='duel'?'1200 × 1200':['solo','duo'].includes(modeSelect.value)?'3200 × 2400':'2400 × 1800';
 }
 modeSelect.addEventListener('change',syncLobby);
 reserves[0].addEventListener('change',syncLobby);

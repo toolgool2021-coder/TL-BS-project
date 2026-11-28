@@ -20,7 +20,7 @@
         <section class="match-panel"><label class="mode-label">Режим матча<select id="mode">
             <option value="training">Тренировка</option><option value="skirmish">Бой с ботом</option>
             <option value="arms">Гонка вооружений</option><option value="duel">Дуэль · три бойца</option>
-        </select></label><p id="mode-help"></p>
+        </select></label><p id="mode-help"></p><p class="map-size-label">Размер карты: <b id="map-size">2400 × 1800</b></p>
         <label id="custom-limit" hidden>Устранений для победы <input type="number" id="kill-limit" value="5" min="1" max="50"></label>
         <div id="reserves" hidden><label>Второй боец<select id="reserve-two"></select></label><label>Третий боец<select id="reserve-three"></select></label></div>
         <button id="ai-toggle" class="btn" onclick="toggleAI()">Бот: выкл</button>
@@ -33,7 +33,7 @@
     <button class="btn confirm" onclick="changeScreen('menu')">Готово</button>
 </div>
 
-<div id="hud">
+<div id="hud"><canvas id="minimap" width="156" height="114" aria-label="Мини-карта"></canvas>
     <button class="exit-btn" onclick="exitToMenu()">ВЫЙТИ</button>
     <div class="ult-container"><div id="ult-bar"></div></div>
     <ol id="race-leaders" hidden aria-label="Лидеры гонки"></ol>

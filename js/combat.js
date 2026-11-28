@@ -125,8 +125,8 @@ function clearCombatTimers() {
     }
 
     function dashEnd(angle) {
-        return {x:Math.max(22,Math.min(canvas.width-22,p.x+Math.cos(angle)*mortisRange)),
-            y:Math.max(22,Math.min(canvas.height-22,p.y+Math.sin(angle)*mortisRange))};
+        return {x:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(angle)*mortisRange)),
+            y:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(angle)*mortisRange))};
     }
 
     function hitEnemy(dmg, canCharge, target=enemy) {
@@ -141,7 +141,7 @@ function clearCombatTimers() {
             if(realm?.target===target) realm=null;
             recordElimination();
             target.hp = target.maxHp;
-            if(target===enemy) enemy.x = canvas.width / 2;
+            if(target===enemy) enemy.x = tlbsWorld.width / 2;
             if(target===enemy) enemy.y = 150;
         }
         if(!realm && canCharge && ultCharge < 100) { ultCharge += BRAWLERS[current].ultChargeRate; }
@@ -160,8 +160,8 @@ function advanceSuperMotion(){
     if(!m) return;
     const progress=Math.min(1,++m.age/m.total);
     const eased=progress*progress*(3-2*progress);
-    p.x=Math.max(22,Math.min(canvas.width-22,m.x+m.dx*eased));
-    p.y=Math.max(22,Math.min(canvas.height-22,m.y+m.dy*eased));
+    p.x=Math.max(22,Math.min(tlbsWorld.width-22,m.x+m.dx*eased));
+    p.y=Math.max(22,Math.min(tlbsWorld.height-22,m.y+m.dy*eased));
     if(m.fighter==='El_Primo' || m.fighter==='Crow') p.scale=1+0.65*Math.sin(progress*Math.PI);
     if(['Kit','Edgar','Surge','Piper','Crow','El_Primo'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
     for(const target of combatTargets()) {

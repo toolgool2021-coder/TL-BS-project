@@ -43,8 +43,8 @@ function combatShape(superMove){
  return ray(shot.speed,shot.life,6,shot.spread);
 }
 function destination(angle,range){
- return {x:Math.max(22,Math.min(canvas.width-22,p.x+Math.cos(angle)*range)),
-         y:Math.max(22,Math.min(canvas.height-22,p.y+Math.sin(angle)*range))};
+ return {x:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(angle)*range)),
+         y:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(angle)*range))};
 }
 function inFan(target,angle,shape){
  const dx=target.x-p.x,dy=target.y-p.y;

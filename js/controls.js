@@ -72,5 +72,5 @@ function keyboardMovement(){
 const fsButton=document.getElementById('fullscreen-toggle');
 fsButton.addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else throw Error();}catch{alert('Полноэкранный режим недоступен в этом браузере. Откройте игру в обычном браузере.');}});
 document.addEventListener('fullscreenchange',()=>{fsButton.textContent=document.fullscreenElement?'⛶ Выйти':'⛶';fsButton.setAttribute('aria-pressed',String(!!document.fullscreenElement));});
-function fitGame(){if(!gameActive)return;const w=canvas.clientWidth,h=canvas.clientHeight;if(w>0&&h>0&&(canvas.width!==w||canvas.height!==h)){resetControls();canvas.width=w;canvas.height=h;p.x=Math.max(22,Math.min(w-22,p.x));p.y=Math.max(22,Math.min(h-22,p.y));}}
+function fitGame(){if(!gameActive)return;const w=canvas.clientWidth,h=canvas.clientHeight;if(w>0&&h>0&&(canvas.width!==w||canvas.height!==h)){resetControls();canvas.width=w;canvas.height=h;p.x=Math.max(22,Math.min(tlbsWorld.width-22,p.x));p.y=Math.max(22,Math.min(tlbsWorld.height-22,p.y));tlbsFollowCamera(true);}}
 window.addEventListener('resize',fitGame);document.addEventListener('fullscreenchange',fitGame);

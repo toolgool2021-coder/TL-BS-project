@@ -24,11 +24,11 @@ function initObjective(){
  const teams=solo?[0,1,2,3,4,5]:duo?[0,1,0,1,2,2]:[0,1,0,1,0,1];
  const actors=[p,enemy,...Array.from({length:4},()=>({maxHp:5500}))];
  arena={actors,score:[0,0],age:0,drops:[],hold:0,leader:-1,ball:{},carrier:null,safes:[]};
- arena.walls=match.mode==='ball'?[.29,.68].flatMap(y=>[.13,.67].map(x=>({x:x*canvas.width,y:y*canvas.height,w:.2*canvas.width,h:18}))):[];
+ arena.walls=match.mode==='ball'?[.29,.68].flatMap(y=>[.13,.67].map(x=>({x:x*tlbsWorld.width,y:y*tlbsWorld.height,w:.2*tlbsWorld.width,h:18}))):[];
  const lineup=[current,'Shelly','Colt','Brock','Jessie','Bull'];
  actors.forEach((a,i)=>{a.team=teams[i];a.slot=i;a.fighter=lineup[i];if(i)a.maxHp=practiceHp[a.fighter];});
  resetField();
- if(match.mode==='heist') arena.safes=[0,1].map(team=>({team,safe:true,x:canvas.width/2,y:team?40:canvas.height-40,hp:32000,maxHp:32000}));
+ if(match.mode==='heist') arena.safes=[0,1].map(team=>({team,safe:true,x:tlbsWorld.width/2,y:team?40:tlbsWorld.height-40,hp:32000,maxHp:32000}));
  trainingTargets=actors.filter(a=>a!==enemy && a.team!==0).concat(arena.safes.filter(a=>a.team===1));
 }
 function resetField(){
@@ -38,10 +38,10 @@ function resetField(){
  for(const a of arena.actors){
     a.stun=0;a.spawnShield=match.mode==='gems'?90:0;
     const slot=Math.floor(a.slot/2);
-    a.homeX=canvas.width*(slot+1)/4;a.homeY=a.slot%2?65:canvas.height-65;
+    a.homeX=tlbsWorld.width*(slot+1)/4;a.homeY=a.slot%2?65:tlbsWorld.height-65;
     Object.assign(a,{x:a.homeX,y:a.homeY,hp:a.maxHp,out:false,respawn:0,gems:0,cool:45+a.slot*7});
  }
- arena.ball={x:canvas.width/2,y:canvas.height/2,vx:0,vy:0,lock:0};arena.carrier=null;
+ arena.ball={x:tlbsWorld.width/2,y:tlbsWorld.height/2,vx:0,vy:0,lock:0};arena.carrier=null;
  ammo=BRAWLERS[current].maxAmmo;ultCharge=0;
 }
 function objectiveDeath(a){
@@ -65,7 +65,7 @@ function kickBall(a,angle){
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function tickObjective(){
  if(!arena || match.finished)return;
- const A=arena,mode=match.mode,c={x:canvas.width/2,y:canvas.height/2};
+ const A=arena,mode=match.mode,c={x:tlbsWorld.width/2,y:tlbsWorld.height/2};
  A.age++;
  for(const a of A.actors) {
    if(a.spawnShield>0)a.spawnShield--;
@@ -82,7 +82,7 @@ function tickObjective(){
      if(mode==='zone'){goal=c;stop=30;}
      if(mode==='gems'){goal=gemBotGoal(a,target,c);stop=5;}
      if(mode==='ball'){const owner=A.carrier,side=a.slot<3?-1:1;
-       goal=owner===a?{x:c.x,y:a.team?canvas.height:0}:owner?.team===a.team?{x:c.x+side*canvas.width*.21,y:owner.y+(a.team?50:-50)}:A.ball;stop=12;}
+       goal=owner===a?{x:c.x,y:a.team?tlbsWorld.height:0}:owner?.team===a.team?{x:c.x+side*tlbsWorld.width*.21,y:owner.y+(a.team?50:-50)}:A.ball;stop=12;}
      if(mode==='heist' && safe){goal=safe;stop=95;}
      if((mode==='solo'||mode==='duo') && dist(a,c)>safeRadius()-20){goal=c;stop=5;}
    }
@@ -126,15 +126,15 @@ function tickObjective(){
    else {if(insideCover(b.x+b.vx,b.y,7))b.vx*=-.65;
       if(insideCover(b.x,b.y+b.vy,7))b.vy*=-.65;
       b.x+=b.vx;b.y+=b.vy;b.vx*=.98;b.vy*=.98;if(b.lock)b.lock--;else A.carrier=field.find(a=>dist(a,b)<22);}
-   if(Math.abs(b.x-c.x)<65 && (b.y<=24 || b.y>=canvas.height-24)){
+   if(Math.abs(b.x-c.x)<65 && (b.y<=24 || b.y>=tlbsWorld.height-24)){
       const team=Number(b.y>c.y);if(++A.score[team]===2)finishMatch(team===0);else resetField();
-   }else {b.x=Math.max(10,Math.min(canvas.width-10,b.x));b.y=Math.max(10,Math.min(canvas.height-10,b.y));}
+   }else {b.x=Math.max(10,Math.min(tlbsWorld.width-10,b.x));b.y=Math.max(10,Math.min(tlbsWorld.height-10,b.y));}
  }
 }
-function safeRadius(){return Math.max(52,Math.hypot(canvas.width,canvas.height)/2-arena.age*.10);}
+function safeRadius(){return Math.max(52,Math.hypot(tlbsWorld.width,tlbsWorld.height)/2-arena.age*.10);}
 function drawObjective(){
  if(!arena || realm)return;
- const A=arena,cx=canvas.width/2,cy=canvas.height/2;
+ const A=arena,cx=tlbsWorld.width/2,cy=tlbsWorld.height/2;
  ctx.save();ctx.font='bold 14px sans-serif';ctx.textAlign='center';
  for(const a of A.actors.filter(a=>a.team===0 && a!==p && !a.out)){
    ctx.fillStyle='#4fcbed';ctx.beginPath();ctx.arc(a.x,a.y,20,0,7);ctx.fill();

@@ -37,7 +37,7 @@ export function updateSharedGame(players,uid){
 window.roomControlledBot=a=>Boolean(host && a.slot===1);
 window.stepRoomBot=a=>{
  if(!command || command.id!==host?.id)return;
- const x=Math.max(0,Math.min(1,command.x))*canvas.width,y=Math.max(0,Math.min(1,command.y))*canvas.height;
+ const x=Math.max(0,Math.min(1,command.x))*tlbsWorld.width,y=Math.max(0,Math.min(1,command.y))*tlbsWorld.height;
  const dx=x-a.x,dy=y-a.y,d=Math.hypot(dx,dy),step=Math.min(d,BRAWLERS[a.fighter].speed);
  if(d>2)moveOnPitch(a,dx/d*step,dy/d*step);
  if(command.seq>sequence && Number.isFinite(command.angle)){
@@ -53,12 +53,12 @@ window.stepRoomBot=a=>{
 window.shareMatch=(result=null)=>{
  if(!host || !arena || (!result && performance.now()-lastSent<120))return;
  lastSent=performance.now();
- const point=a=>({x:a.x/canvas.width,y:a.y/canvas.height});
+ const point=a=>({x:a.x/tlbsWorld.width,y:a.y/tlbsWorld.height});
  const actors=arena.actors.map(a=>({...point(a),hp:a.hp,maxHp:a.maxHp,out:a.out || (a===p && !visibleTo(arena.actors[1],p) && p.hiddenTicks>0),fighter:a.fighter,team:a.team}));
  send('matchState',{...host,actors,score:arena.score,ball:point(arena.ball),carrier:arena.carrier?.slot??-1,
-   walls:arena.walls.map(w=>({...point(w),w:w.w/canvas.width,h:w.h/canvas.height})),
-   units:zones.filter(z=>Object.hasOwn(summonStats,z.type)).map(z=>({...point(z),type:z.type,hp:z.hp,age:z.age,angle:z.angle||0,r:z.r/canvas.width})),
-   shots:bullets.slice(-30).map(point),aspect:canvas.width/canvas.height,result});
+   walls:arena.walls.map(w=>({...point(w),w:w.w/tlbsWorld.width,h:w.h/tlbsWorld.height})),
+   units:zones.filter(z=>Object.hasOwn(summonStats,z.type)).map(z=>({...point(z),type:z.type,hp:z.hp,age:z.age,angle:z.angle||0,r:z.r/tlbsWorld.width})),
+   shots:bullets.slice(-30).map(point),aspect:tlbsWorld.width/tlbsWorld.height,result});
 };
 window.closeSharedHost=()=>{if(host){host=null;command=null;send('matchState',null);}};
 function paintGuest(){
