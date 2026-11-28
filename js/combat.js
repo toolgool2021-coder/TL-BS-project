@@ -195,7 +195,7 @@ function advanceSuperMotion(){
     p.x=Math.max(22,Math.min(tlbsWorld.width-22,m.x+m.dx*eased));
     p.y=Math.max(22,Math.min(tlbsWorld.height-22,m.y+m.dy*eased));
     if(m.fighter==='El_Primo' || m.fighter==='Crow') p.scale=1+0.65*Math.sin(progress*Math.PI);
-    if(['Kit','Edgar','Surge','Piper','Crow','El_Primo','Dynamike'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
+    if(['Kit','Edgar','Surge','Piper','Crow','El_Primo','Dynamike','Bonnie'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
     for(const target of combatTargets()) {
         if((m.fighter==='Colette' || m.fighter==='Mortis') && !m.hits.has(target) && dist(p,target)<=m.radius){
             m.hits.add(target);hitEnemy(m.fighter==='Mortis'?900:Math.round(target.maxHp*.16),m.fighter==='Mortis',target);
