@@ -235,7 +235,7 @@ function tlbsMiniMap(){
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
         if(!arena && !enemy.stun && (!p.hiddenTicks || dist(p,enemy)<65) && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
             let d = Math.hypot(p.x - enemy.x, p.y - enemy.y);
-            if(d > 160) { let a = Math.atan2(p.y-enemy.y, p.x-enemy.x); enemy.x += Math.cos(a)*1.5; enemy.y += Math.sin(a)*1.5; }
+            if(d > 160) { let a = Math.atan2(p.y-enemy.y, p.x-enemy.x); tlbsBotMove(enemy,p,1.5); }
         }
         if(pip.active) {
             if(joyL.active) { let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y; pip.angle = Math.atan2(dy, dx); }
@@ -457,6 +457,7 @@ function tlbsMiniMap(){
             const u=f.age/18,s=f.shape;
             ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);
             ctx.globalAlpha=(1-u)*.65;ctx.strokeStyle=f.color;ctx.fillStyle=f.color;ctx.lineWidth=3;
+            if(tlbsDrawWeapon(f,u)) {ctx.restore();continue;}
             if(['Barley','Dynamike','Tick'].includes(f.fighter)){ctx.save();ctx.rotate(-.8+u*1.6);ctx.fillStyle=f.color;ctx.fillRect(12,-7,25,14);ctx.strokeStyle='#fff';ctx.strokeRect(12,-7,25,14);ctx.restore();}
             else if(['El_Primo','Rosa','Edgar','Kit'].includes(f.fighter)){for(const side of [-1,1]){ctx.beginPath();ctx.arc(18+u*30,side*13,9*(1-u)+4,0,7);ctx.fill();}}
             else if(['Mortis','Bibi','Fang'].includes(f.fighter)){ctx.beginPath();ctx.arc(0,0,24+u*42,-.8+u,.5+u);ctx.stroke();}
