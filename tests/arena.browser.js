@@ -810,7 +810,17 @@
     attack(0,false);
     frames(8);
     const rebound=bullets[0];
-    check(rebound?.vx<0&&rebound.damage===560&&p.hp===ricoHealth+600,'Rico cover bounce did not heal and upgrade damage');
+    check(rebound?.vx<0&&rebound.damage===140&&p.hp===ricoHealth+600,'Rico cover bounce did not heal and upgrade damage');
+    frames(23);
+    check(bullets.length===5&&bullets.every(b=>b.vx<0&&b.damage===140),'Rico did not fire five ricocheting projectiles');
+    check(p.hp===ricoHealth+600,'Rico healed more than once from one burst');
+    begin('Rico');
+    p.passiveChoice='1';
+    const ricoAmmo=ammo;
+    attack(0,false);
+    check(ammo===ricoAmmo-1&&combatShape(false).count===5,'Rico burst did not spend exactly one ammo');
+    frames(30);
+    check(enemy.hp===enemy.maxHp-500&&Math.abs(ultCharge-BRAWLERS.Rico.ultChargeRate)<.001,'Rico burst damage or super charge failed');
     begin('Rico');
     p.passiveChoice='1';
     useUltimate(Math.PI);

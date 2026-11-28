@@ -10,7 +10,7 @@ const kitClaw=fan(86,.80),kitJump=jump(280,52),kitYarn=landing(250,72);
 const basicAim={
  Shelly:ray(12,35,5,.2),Bull:ray(13,25,5,.30),Darryl:ray(13,25,5,.30),Colt:ray(15,45),
  El_Primo:ray(10,8),Rosa:ray(10,8),Barley:landing(200,55),Brock:ray(14,60),Dynamike:landing(250,80),
- Tick:landing(220,80,[-.2,0,.2]),Bo:ray(13,45,5,.1),Jessie:ray(12,55,8),Rico:ray(14,60),
+ Tick:landing(220,80,[-.2,0,.2]),Bo:ray(13,45,5,.1),Jessie:ray(12,55,8),Rico:{...ray(14,60,5,.05),count:5},
  Frank:fan(190,.42),Nani:landing(320,12),Max:ray(18,35),Crow:ray(14,40,4,.3),Tara:ray(13,40,5,.15),
  Gene:ray(11,25,10),Bibi:fan(130,.6),Mortis:{kind:'dash',range:130,radius:60},Stu:ray(16,30),Kit:kitClaw
 };

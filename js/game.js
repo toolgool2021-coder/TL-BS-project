@@ -831,7 +831,7 @@ function tlbsMiniMap(){
             if(b.shellySlow&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,105);
             if(b.shellyClose&&Math.hypot(b.x-b.originX,b.y-b.originY)<=95)b.damage=500;
             if(b.emzDense&&Math.hypot(b.x-b.originX,b.y-b.originY)>=115)b.damage=580;
-            hitEnemy(b.special==='Colette'?Math.max(300,Math.round(target.hp*(b.coletteHeavy?.28:.2))):b.special==='energy' ? Math.round(1200*0.75**(b.visited?.length || 0)) : b.damage||400,!b.isUlt,target);
+            hitEnemy(b.special==='Colette'?Math.max(300,Math.round(target.hp*(b.coletteHeavy?.28:.2))):b.special==='energy' ? Math.round(1200*0.75**(b.visited?.length || 0)) : b.damage||400,!b.isUlt,target,b.chargeScale);
             if (b.special==='energy') {
                 (b.visited ||= []).push(target);
                 const distance = t => Math.hypot(t.x-b.x,t.y-b.y);

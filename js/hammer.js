@@ -62,9 +62,9 @@ function bounceCombatShot(b){
  b.y=Math.max(0,Math.min(tlbsWorld.height,b.y));
  if(flipX)b.vx*=-1;
  if(flipY)b.vy*=-1;
- if(b.ricoBoost)b.damage=560;
- if(b.ricoRepair){
-   b.ricoRepair=false;
+ if(b.ricoBoost)b.damage=140;
+ if(b.ricoRepair&&!b.ricoRepair.used){
+   b.ricoRepair.used=true;
    if(current==='Rico'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+600);
  }
 }

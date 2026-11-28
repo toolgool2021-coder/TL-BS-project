@@ -117,11 +117,22 @@ function clearCombatTimers() {
                     spawnBullet(angle,12,55,false,8,'energy');
                     bullets.at(-1).longBounce=p.passiveChoice==='0';
                     break;
-                case 'Rico':
-                    spawnBullet(angle,14,60,false,5,'bounce');
-                    Object.assign(bullets.at(-1),{ricoBoost:p.passiveChoice==='0',ricoRepair:p.ricoRepair});
+                case 'Rico': {
+                    const shape=combatShape(false);
+                    const boosted=p.passiveChoice==='0';
+                    const repair=p.ricoRepair?{used:false}:null;
                     p.ricoRepair=false;
+                    for(let i=0;i<shape.count;i++){
+                        const fire=()=>{
+                            if(current!=='Rico'||p.out||match.finished||match.nextRound)return;
+                            const offset=(2*i/(shape.count-1)-1)*shape.spread;
+                            spawnBullet(angle+offset,14,60,false,5,'bounce');
+                            Object.assign(bullets.at(-1),{damage:100,ricoBoost:boosted,ricoRepair:repair,chargeScale:1/shape.count});
+                        };
+                        if(i===0)fire();else scheduleCombatAction(fire,i*65);
+                    }
                     break;
+                }
                 case 'Frank': startHammer(angle,false);break;
                 case 'Nani': spawnNaniProjectiles(angle); break;
                 case 'Max': for(let i=0; i<4; i++) scheduleCombatAction(()=>spawnBullet(angle, 18, 35), i*50); break;
@@ -272,7 +283,7 @@ function clearCombatTimers() {
         }
     }
 
-    function hitEnemy(dmg, canCharge, target=enemy) {
+    function hitEnemy(dmg, canCharge, target=enemy, chargeScale=1) {
         if((target.altitude||0)>0 || !inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
         if(current==='Chester'&&p.candyDamage>0)dmg*=1.25;
         if(current==='Crow'&&p.passiveChoice==='1'&&!target.safe&&target.hp<=target.maxHp/2)dmg*=1.25;
@@ -298,7 +309,7 @@ function clearCombatTimers() {
             if(target===enemy) enemy.x = tlbsWorld.width / 2;
             if(target===enemy) enemy.y = 150;
         }
-        if(canCharge && !realm && ultCharge < 100) { ultCharge = Math.min(100,ultCharge+BRAWLERS[current].ultChargeRate); }
+        if(canCharge && !realm && ultCharge < 100) { ultCharge = Math.min(100,ultCharge+BRAWLERS[current].ultChargeRate*chargeScale); }
     }
 
     function spawnNaniProjectiles(angle) {
