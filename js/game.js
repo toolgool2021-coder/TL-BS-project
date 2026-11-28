@@ -187,7 +187,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow','Griff'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.textContent='✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow','Griff'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';gadget.textContent='G · ✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
         isUltReady = (ultCharge >= 100);
         const bar=document.getElementById('ult-bar');
         const revealed=current==='Chester'&&(isUltReady||p.passiveChoice==='1');
