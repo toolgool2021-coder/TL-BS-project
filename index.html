@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TL BS</title>
-    <link rel="stylesheet" href="css/style.css?v=20261128-release3">
+    <link rel="stylesheet" href="css/style.css?v=20261128-release4">
 </head>
 <body>
 <button id="fullscreen-toggle" type="button" aria-label="Полноэкранный режим" aria-pressed="false">⛶</button>
@@ -35,13 +35,12 @@
 
 <div id="hud"><p id="tlbs-error" hidden role="status"></p><canvas id="minimap" width="156" height="114" aria-label="Мини-карта"></canvas>
     <button class="exit-btn" onclick="exitToMenu()">ВЫЙТИ</button>
-    <div class="ult-container"><div id="ult-bar"></div></div><button id="tlbs-gadget" hidden type="button" onclick="tlbsUseGadget()" style="pointer-events:auto;position:fixed;right:24px;bottom:155px;background:#38ad63;color:white;border:2px solid #a4ffad;border-radius:50%;min-width:56px;min-height:56px;font-weight:bold;z-index:1000" title="Гаджет (G)" aria-label="Гаджет (G)">✦ 3</button>
+    <div class="combat-readout" aria-label="Состояние бойца"><div class="ult-container"><div id="ult-bar"></div></div><div id="ammo-container" class="ammo-wrap"></div><output id="battle-fps" hidden></output></div><button id="tlbs-gadget" hidden type="button" onclick="tlbsUseGadget()" style="pointer-events:auto;position:fixed;right:24px;bottom:155px;background:#38ad63;color:white;border:2px solid #a4ffad;border-radius:50%;min-width:56px;min-height:56px;font-weight:bold;z-index:1000" title="Гаджет (G)" aria-label="Гаджет (G)">✦ 3</button>
     <ol id="race-leaders" hidden aria-label="Лидеры гонки"></ol>
     <section id="gem-panel" hidden aria-label="Захват кристаллов">
         <div class="gem-scores"><span>Мы <b id="gem-us">0</b></span><span>Соперники <b id="gem-them">0</b></span></div>
         <div id="gem-clock"></div><div id="gem-life"></div>
     </section>
-    <div id="ammo-container" class="ammo-wrap"></div>
 
     <div class="pin-system">
         <div id="pin-menu" class="pin-menu">
@@ -55,25 +54,25 @@
     </div>
 </div>
 
-<dialog id="settings-dialog" aria-label="Настройки игры"><h2>Настройки</h2><label>Размер джойстика <input id="control-scale" type="range" min=".75" max="1.6" step=".05" value="1"></label><label>Чувствительность <input id="control-sensitivity" type="range" min=".5" max="2" step=".1" value="1"></label><label>Музыка <input id="music-volume" type="range" min="0" max="100" value="35"></label><label>Эффекты <input id="effects-volume" type="range" min="0" max="100" value="60"></label><button id="settings-close" class="btn" type="button">Готово</button></dialog><dialog id="profile-dialog" style="max-width:85vw;border:0;border-radius:16px;padding:20px;color:white;background:#18243c"><h2>Профиль</h2><label>Ник <input id="nickname" maxlength="24" autocomplete="off"></label><p id="profile-status" role="status" style="overflow-wrap:anywhere"></p><button id="profile-save" class="btn">Сохранить</button><button id="profile-sync" class="btn">Синхронизировать</button><button id="profile-close" class="btn">Закрыть</button></dialog><dialog id="room-dialog" style="max-width:85vw;background:#18243c;color:white;border:0;border-radius:16px"><h2>Онлайн-лобби</h2><input id="room-code" maxlength="6" placeholder="Код комнаты"><div class="room-actions"><button class="btn" id="room-create">Создать комнату</button><button class="btn" id="room-join">Подключиться</button></div><p id="room-status" role="status"></p><div id="room-members"></div><button class="btn" id="room-ready">Готов к матчу</button><select id="shared-mode" aria-label="Режим комнаты"><option value="ball">Броулбол 3×3</option><option value="knockout">Нокаут 3×3</option></select><div class="room-actions"><button class="btn" id="shared-play">Играть против участника</button><button class="btn" id="room-race">Гонка с ботами · общий топ</button><button class="btn" id="room-preview">Тест синхронизации</button><button class="btn" id="room-leave">Выйти</button><button class="btn" type="button" onclick="this.closest('dialog').close()">Закрыть</button></div></dialog><dialog id="guest-game"><strong id="guest-score"></strong><canvas id="guest-canvas"></canvas><p>Нажми на поле, чтобы идти. Потяни и отпусти для атаки или удара по мячу.</p><button class="btn" id="guest-leave">Выйти</button></dialog><canvas id="gameCanvas"></canvas>
+<dialog id="settings-dialog" aria-label="Настройки игры"><h2>Настройки</h2><label>Графика <select id="graphics-quality"><option value="0">Экономия</option><option value="1" selected>Обычная</option><option value="2">Высокая</option></select></label><label>Показывать FPS <input id="show-fps" type="checkbox"></label><label>Прозрачность джойстика <input id="control-opacity" type="range" min="20" max="100" value="85"></label><label>Размер джойстика <input id="control-scale" type="range" min=".75" max="1.6" step=".05" value="1"></label><label>Чувствительность <input id="control-sensitivity" type="range" min=".5" max="2" step=".1" value="1"></label><label>Музыка <input id="music-volume" type="range" min="0" max="100" value="35"></label><label>Эффекты <input id="effects-volume" type="range" min="0" max="100" value="60"></label><button id="settings-close" class="btn" type="button">Готово</button></dialog><dialog id="profile-dialog" style="max-width:85vw;border:0;border-radius:16px;padding:20px;color:white;background:#18243c"><h2>Профиль</h2><label>Ник <input id="nickname" maxlength="24" autocomplete="off"></label><p id="profile-status" role="status" style="overflow-wrap:anywhere"></p><button id="profile-save" class="btn">Сохранить</button><button id="profile-sync" class="btn">Синхронизировать</button><button id="profile-close" class="btn">Закрыть</button></dialog><dialog id="room-dialog" style="max-width:85vw;background:#18243c;color:white;border:0;border-radius:16px"><h2>Онлайн-лобби</h2><input id="room-code" maxlength="6" placeholder="Код комнаты"><div class="room-actions"><button class="btn" id="room-create">Создать комнату</button><button class="btn" id="room-join">Подключиться</button></div><p id="room-status" role="status"></p><div id="room-members"></div><button class="btn" id="room-ready">Готов к матчу</button><select id="shared-mode" aria-label="Режим комнаты"><option value="ball">Броулбол 3×3</option><option value="knockout">Нокаут 3×3</option></select><div class="room-actions"><button class="btn" id="shared-play">Играть против участника</button><button class="btn" id="room-race">Гонка с ботами · общий топ</button><button class="btn" id="room-preview">Тест синхронизации</button><button class="btn" id="room-leave">Выйти</button><button class="btn" type="button" onclick="this.closest('dialog').close()">Закрыть</button></div></dialog><dialog id="guest-game"><strong id="guest-score"></strong><canvas id="guest-canvas"></canvas><p>Нажми на поле, чтобы идти. Потяни и отпусти для атаки или удара по мячу.</p><button class="btn" id="guest-leave">Выйти</button></dialog><canvas id="gameCanvas"></canvas>
 
 <script src="js/audio.js"></script>
 <script src="js/brawlers.js"></script>
 <dialog id="result" oncancel="event.preventDefault()"><h2 id="result-text"></h2><p id="result-total"></p><button class="btn" onclick="this.closest('dialog').close();current=selectedFighter;initGame()">Реванш</button><button class="btn" onclick="this.closest('dialog').close();exitToMenu()">В меню</button></dialog>
-<script src="js/roster.js?v=20261128-release3"></script>
+<script src="js/roster.js?v=20261128-release4"></script>
 <script src="js/gems.js"></script>
-<script src="js/pitch.js?v=20261128-release3"></script>
+<script src="js/pitch.js?v=20261128-release4"></script>
 <script src="js/objectives.js?v=20261128-release1"></script>
-<script src="js/match.js?v=20261128-release3"></script>
+<script src="js/match.js?v=20261128-release4"></script>
 <script src="js/aim.js?v=20261128-release1"></script>
 <script src="js/summons.js"></script>
-<script src="js/hammer.js?v=20261128-release3"></script>
-<script src="js/waves.js?v=20261128-release3"></script>
+<script src="js/hammer.js?v=20261128-release4"></script>
+<script src="js/waves.js?v=20261128-release4"></script>
 <script src="js/canvas-state.js"></script>
-<script src="js/game.js?v=20261128-release3"></script>
-<script src="js/combat.js?v=20261128-release3"></script>
-<script src="js/controls.js?v=20261128-release3"></script>
+<script src="js/game.js?v=20261128-release4"></script>
+<script src="js/combat.js?v=20261128-release4"></script>
+<script src="js/controls.js?v=20261128-release4"></script>
 <script src="js/lobby.js?v=20261128-release2"></script>
-<script type="module" src="js/main.js?v=20261128-release3"></script>
+<script type="module" src="js/main.js?v=20261128-release4"></script>
 </body>
 </html>

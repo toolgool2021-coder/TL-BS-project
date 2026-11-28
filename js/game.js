@@ -200,10 +200,25 @@ function tlbsMiniMap(){
     }
 
     let frameId = 0, lastFrame = 0, accumulator = 0;
+    let fpsFrames = 0, fpsSince = 0, minimapAt = 0;
+    function graphicsQuality(){return window.tlbsGraphicsQuality??1;}
+    function updateFrameStats(now){
+        if(!fpsSince)fpsSince=now;
+        fpsFrames++;
+        if(now-fpsSince>=500){
+            const output=document.getElementById('battle-fps');
+            if(output&&!output.hidden)output.textContent=Math.round(fpsFrames*1000/(now-fpsSince))+' FPS';
+            fpsSince=now;fpsFrames=0;
+        }
+        if(now>=minimapAt){
+            tlbsMiniMap();
+            minimapAt=now+[160,80,40][graphicsQuality()];
+        }
+    }
     function initGame() {
         clearCombatTimers();
         resetControls();
-        cancelAnimationFrame(frameId); lastFrame = 0; accumulator = 0;
+        cancelAnimationFrame(frameId); lastFrame = 0; accumulator = 0;fpsFrames=0;fpsSince=0;minimapAt=0;
         p.scale = 1; isUltReady = false;
         for (const j of [joyL, joyR, joyU]) { j.active = false; j.id = null; }
         activePin.timer = enemyPin.timer = 0;
@@ -267,7 +282,7 @@ function tlbsMiniMap(){
             while (accumulator >= 1000 / 60 && steps++<6) { tick(); accumulator -= 1000 / 60; }
             if(!match.finished)window.shareMatch?.();
             window.sendRoomPosition?.(p.x/tlbsWorld.width,p.y/tlbsWorld.height);
-            tlbsFollowCamera();updateUI();drawFrame();tlbsMiniMap();
+            tlbsFollowCamera();updateUI();drawFrame();updateFrameStats(now);
         } catch(error) {
             // A single malformed ability must not silently kill requestAnimationFrame.
             console.error('[TL BS] Game frame failed:',error);
@@ -494,7 +509,7 @@ function tlbsMiniMap(){
     function draw() {
         ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.shadowBlur=0;ctx.save();ctx.translate(-tlbsCamera.x,-tlbsCamera.y);
         ctx.fillStyle = realm ? "#342649" : "#2e7d32"; ctx.fillRect(tlbsCamera.x,tlbsCamera.y,canvas.width,canvas.height);
-        if(!realm && match.mode!=='ball'){
+        if(graphicsQuality()>0&&!realm&&match.mode!=='ball'){
             ctx.save();ctx.strokeStyle='rgba(255,255,255,.045)';ctx.lineWidth=1;
             for(let x=Math.floor(tlbsCamera.x/64)*64;x<tlbsCamera.x+canvas.width;x+=64){ctx.beginPath();ctx.moveTo(x,tlbsCamera.y);ctx.lineTo(x,tlbsCamera.y+canvas.height);ctx.stroke();}
             for(let y=Math.floor(tlbsCamera.y/64)*64;y<tlbsCamera.y+canvas.height;y+=64){ctx.beginPath();ctx.moveTo(tlbsCamera.x,y);ctx.lineTo(tlbsCamera.x+canvas.width,y);ctx.stroke();}
@@ -611,8 +626,9 @@ function tlbsMiniMap(){
             ctx.strokeStyle=BRAWLERS[superFx.fighter]?.color||'#ffdb72';
             ctx.lineWidth=5*(1-u)+1;
             ctx.beginPath();ctx.arc(superFx.x,superFx.y,18+85*u,0,Math.PI*2);ctx.stroke();
-            for(let i=0;i<12;i++){
-                const a=i*Math.PI/6+u*.8, radius=25+95*u;
+            const rays=[4,8,12][graphicsQuality()];
+            for(let i=0;i<rays;i++){
+                const a=i*Math.PI*2/rays+u*.8, radius=25+95*u;
                 ctx.beginPath();ctx.moveTo(superFx.x+Math.cos(a)*radius,superFx.y+Math.sin(a)*radius);
                 ctx.lineTo(superFx.x+Math.cos(a)*(radius+18*(1-u)),superFx.y+Math.sin(a)*(radius+18*(1-u)));ctx.stroke();
             }
@@ -629,6 +645,7 @@ function tlbsMiniMap(){
         ctx.restore();
         if(!touchControls) return;
         ctx.save();
+        ctx.globalAlpha=window.tlbsControlOpacity??.85;
         for(const j of [joyL,joyR,joyU]){
             if(!j.active)continue;
             const r=42*window.tlbsControlScale,dx=j.cx-j.x,dy=j.cy-j.y,d=Math.hypot(dx,dy),k=d>r?r/d:1;
