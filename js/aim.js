@@ -31,7 +31,7 @@ function combatShape(superMove){
  if(!superMove && current==='Surge')return ray(13,surgeLife(),7);
  if(['Dynamike','Barley'].includes(current) || (!superMove && current==='Tick') || (superMove && current==='Kit')){
    const j=superMove?joyU:joyR;
-   const stick=j.active?Math.hypot(j.cx-j.x,j.cy-j.y):aimPoint?Math.hypot(aimPoint.x,aimPoint.y):60;
+   const stick=Number.isFinite(window.tlbsAttackPower)?window.tlbsAttackPower:j.active?Math.hypot(j.cx-j.x,j.cy-j.y)*window.tlbsSensitivity:aimPoint?Math.hypot(aimPoint.x,aimPoint.y)*window.tlbsSensitivity:60;
    const shape=current==='Kit'?kitJump:superMove?superAimData[current]:basicAim[current];
    return {...shape,range:shape.range*Math.min(1,stick/42)};
  }

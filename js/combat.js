@@ -13,7 +13,12 @@ function clearCombatTimers() {
     combatTimers.clear();waves=[];swipes=[];hammer=null;damageNotes=[];attackFx=[];
 }
 
-    function attack(angle, isUltAction) {
+    function attack(angle, isUltAction, power=null) {
+        window.tlbsAttackPower=power;
+        try { return performAttack(angle,isUltAction); }
+        finally {window.tlbsAttackPower=null;}
+    }
+    function performAttack(angle,isUltAction) {
         if (hammer && hammer.age<hammer.windup) return;
         if (!gameActive || p.out || p.isFlying || pip.active || (realm && isUltAction)) return;
         if(p.attachment && !p.attachment.ally)return;

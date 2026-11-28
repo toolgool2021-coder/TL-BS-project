@@ -55,3 +55,13 @@ room.addEventListener('cancel',()=>closeRoom());
 window.sendRoomPosition=(x,y)=>{if(window.roomPreview)publishPosition(x,y)};
 window.endRoomPreview=()=>{if(window.roomPreview){window.roomPreview=false;window.roomRace=false;leaders.hidden=true;
  publishRaceScore(null).catch(()=>{});room.showModal()}};
+
+const settingsDialog=document.getElementById('settings-dialog');
+document.getElementById('settings-open').onclick=()=>settingsDialog.showModal();
+document.getElementById('settings-close').onclick=()=>settingsDialog.close();
+for(const [id,key,cb] of [
+ ['control-scale','tlbs.controls.scale',v=>window.tlbsControlScale=v],
+ ['control-sensitivity','tlbs.controls.sensitivity',v=>window.tlbsSensitivity=v],
+ ['music-volume','tlbs.audio.music',v=>{sounds.menuMusic.volume=v/100;sounds.battleMusic.volume=v/100}],
+ ['effects-volume','tlbs.audio.effects',v=>{for(const k of ['click','shoot','ult','hit'])sounds[k].volume=v/100}]
+]){const el=document.getElementById(id);try{const saved=localStorage.getItem(key);if(saved!==null)el.value=saved}catch{}cb(Number(el.value));el.oninput=()=>{cb(Number(el.value));try{localStorage.setItem(key,el.value)}catch{}};}
