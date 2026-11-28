@@ -479,6 +479,70 @@
     frames(24);
     check(p.hp===beforePulse+780,'Pam boosted pulse failed to heal on time');
 
+    begin('Max');
+    const maxBase=playerMoveSpeed();
+    tlbsUseGadget();
+    check(playerMoveSpeed()>maxBase&&p.boostTimer===120,'Max sprint did not increase speed');
+    begin('Max');
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(p.gadgetUses===3,'Max wasted a recharge gadget at full ammo');
+    ammo=1;
+    tlbsUseGadget();
+    check(ammo===2&&p.gadgetUses===2,'Max did not restore one ammo');
+    p.passiveChoice='1';
+    useUltimate(0);
+    check(p.boostTimer===300,'Max extended boost did not apply');
+    begin('Max');
+    p.passiveChoice='0';
+    ammo=0;
+    frames(15);
+    const standingAmmo=ammo;
+    ammo=0;
+    pressedKeys.add(bindings.right);
+    frames(15);
+    check(ammo>standingAmmo,'Max did not reload faster while running');
+
+    begin('Rosa');
+    p.hp-=1000;
+    const rosaHealth=p.hp;
+    tlbsMapWalls.push({x:p.x-50,y:p.y-20,w:20,h:40});
+    tlbsUseGadget();
+    check(p.hp===rosaHealth+750,'Rosa cover healing failed');
+    p.passiveChoice='0';
+    useUltimate(0);
+    check(p.shield===240,'Rosa extended shield failed');
+    begin('Rosa');
+    enemy.x=p.x+48;
+    p.gadgetChoice='1';
+    p.passiveChoice='1';
+    tlbsUseGadget();
+    check(enemy.slow===90,'Rosa roots did not slow the nearby target');
+    useUltimate(0);
+    attack(0,false);
+    frames(12);
+    check(enemy.hp<=enemy.maxHp-520,'Rosa shielded punch did not apply extra damage');
+
+    begin('Leon');
+    p.passiveChoice='0';
+    const leonSpeed=playerMoveSpeed();
+    tlbsUseGadget();
+    check(p.hiddenTicks===60&&playerMoveSpeed()===leonSpeed*1.25,'Leon stealth speed failed');
+    attack(0,false);
+    check(!p.hiddenTicks,'Leon remained cloaked on attack');
+    begin('Leon');
+    p.passiveChoice='1';
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    attack(BRAWLERS.Leon.shot.spread,false);
+    frames(15);
+    check(enemy.slow>0&&!p.leonSnare,'Leon first projectile did not apply the snare');
+    p.hp-=1000;
+    const leonHealth=p.hp;
+    useUltimate(0);
+    frames(32);
+    check(p.hp===leonHealth+150,'Leon did not heal under his cloak');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -552,7 +616,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 36 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 42 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

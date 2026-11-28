@@ -64,7 +64,14 @@ function clearCombatTimers() {
                 case 'Bull': for(let i=-2; i<=2; i++) spawnBullet(angle+i*0.15, 13, 25); break;
                 case 'Colt': for(let i=0; i<5; i++) scheduleCombatAction(()=>spawnBullet(angle, 15, 45), i*80); break;
                 case 'El_Primo': 
-                case 'Rosa': for(let i=0; i<3; i++) scheduleCombatAction(()=>spawnBullet(angle, 10, 8), i*80); break;
+                case 'Rosa': {
+                    const damage=p.shield>0&&p.passiveChoice==='1'?520:400;
+                    for(let i=0;i<3;i++)scheduleCombatAction(()=>{
+                        spawnBullet(angle,10,8);
+                        bullets.at(-1).damage=damage;
+                    },i*80);
+                    break;
+                }
                 case 'Barley': spawnBarleyBottle(angle, combatShape(false).range, 'fire'); break;
                 case 'Brock': spawnBullet(angle, 14, 60); break;
                 case 'Dynamike': spawnBarleyBottle(angle, combatShape(false).range, 'boom'); break;
@@ -111,8 +118,8 @@ function clearCombatTimers() {
         switch(current) {
             case 'Shelly': for(let i=-4; i<=4; i++) spawnBullet(angle+i*0.15, 16, 40, true); break;
             case 'Colt': for(let i=0; i<12; i++) scheduleCombatAction(()=>spawnBullet(angle, 20, 60, true), i*50); break;
-            case 'Max': p.speedMult = 1.6; p.boostTimer = 240; break;
-            case 'Rosa': p.shield = 180; break; 
+            case 'Max': p.speedMult = 1.6; p.boostTimer=p.passiveChoice==='1'?300:240; break;
+            case 'Rosa': p.shield=p.passiveChoice==='0'?240:180; break;
             case 'Jessie': summon('turret',destination(angle,superAimData.Jessie.range)); break;
             case 'Bo':
                 zones=zones.filter(z=>z.type!=='boMine');
