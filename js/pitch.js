@@ -36,7 +36,7 @@ function paintTeamHUD(){
  if(match.mode==='knockout'){
    for(const team of [0,1]){
      const members=arena.actors.filter(a=>a.team===team);
-     ctx.fillStyle=team?'#ffd0c7':'#b9f2ff';ctx.fillText((team?'Соперники':'Союзники')+' '+members.filter(a=>!a.out).length+'/3 · '+members.map(a=>(a.out?'× ':'')+fighterNames[a.fighter]).join(' / '),canvas.width/2,115+team*18);
+     ctx.fillStyle=team?'#ffd0c7':'#b9f2ff';ctx.fillText((team?'Соперники':'Союзники')+' '+members.filter(a=>!a.out).length+'/3 · '+members.map(a=>(a.out?'× ':'')+fighterNames[a.fighter]).join(' / '),tlbsCamera.x+canvas.width/2,tlbsCamera.y+115+team*18);
    }
  }
  if(match.mode==='ball'){

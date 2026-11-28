@@ -63,7 +63,7 @@ function rosterAttack(angle) {
 function rosterSuper(angle) {
     const ability=BRAWLERS[current].ultType;
     const targets=combatTargets();
-    const step=d=>({x:Math.max(22,Math.min(canvas.width-22,p.x+Math.cos(angle)*d)),y:Math.max(22,Math.min(canvas.height-22,p.y+Math.sin(angle)*d))});
+    const step=d=>({x:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(angle)*d)),y:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(angle)*d))});
     const area=(pos,r,dmg)=>{for(const t of targets) if(Math.hypot(t.x-pos.x,t.y-pos.y)<r) hitEnemy(dmg,false,t);};
     switch(ability) {
         case 'heal':

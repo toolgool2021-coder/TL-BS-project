@@ -25,7 +25,7 @@ function tickWaves(){
      if(t.out){w.push.delete(t);continue;}
      const force=2+left*1.35;
      moveOnPitch(t,c*force,s*force);
-     t.x=Math.max(22,Math.min(canvas.width-22,t.x));t.y=Math.max(22,Math.min(canvas.height-22,t.y));
+     t.x=Math.max(22,Math.min(tlbsWorld.width-22,t.x));t.y=Math.max(22,Math.min(tlbsWorld.height-22,t.y));
      if(left===1)w.push.delete(t);else w.push.set(t,left-1);
    }
  }

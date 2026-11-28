@@ -18,7 +18,7 @@ function diamond(x,y,r){
  ctx.beginPath();ctx.moveTo(x-r*.35,y-r*.28);ctx.lineTo(x,y-r*.62);ctx.lineTo(x+r*.22,y-r*.24);ctx.stroke();
 }
 function drawGemMine(){
- const x=canvas.width/2,y=canvas.height/2;
+ const x=tlbsWorld.width/2,y=tlbsWorld.height/2;
  ctx.save();ctx.fillStyle='#39233e';ctx.strokeStyle='#d49aec';ctx.lineWidth=3;
  ctx.beginPath();ctx.ellipse(x,y,42,22,0,0,Math.PI*2);ctx.fill();ctx.stroke();
  ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#fff';ctx.fillText('ШАХТА',x,y+5);
@@ -44,9 +44,9 @@ function drawGemActors(){
    }
    const title=(a===p?'Ты · ':'')+fighterNames[a.fighter], stats=Math.ceil(a.hp)+' HP   ◆ '+a.gems;
    const w=Math.max(ctx.measureText(title).width,ctx.measureText(stats).width)+14;
-   const x=Math.max(w/2+2,Math.min(canvas.width-w/2-2,a.x));
+   const x=Math.max(w/2+2,Math.min(tlbsWorld.width-w/2-2,a.x));
    const above=a.y-58,below=a.y+26;
-   const candidates=[above,below,above-34,below+34,above-68,below+68].filter(y=>y>=0 && y+33<=canvas.height);
+   const candidates=[above,below,above-34,below+34,above-68,below+68].filter(y=>y>=0 && y+33<=tlbsWorld.height);
    const y=candidates.find(top=>placed.every(rect=>Math.abs(rect.x-x)>=(rect.w+w)/2+2 || Math.abs(top-rect.y)>=34)) ?? candidates[0] ?? 0;
    placed.push({x,y,w});
    if(y!==above && y!==below){
