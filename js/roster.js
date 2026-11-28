@@ -97,6 +97,8 @@ function rosterAttack(angle) {
         const fastBee=current==='Bea'&&p.beeCharge&&p.passiveChoice==='0';
         spawnBullet(angle+offset,fastBee?speed*1.25:speed,fastBee?Math.ceil(life/1.25):life,false,6,current);
         if(current==='Chester'&&count===4&&p.passiveChoice==='0')bullets.at(-1).damage=520;
+        if(current==='Colette')bullets.at(-1).coletteHeavy=p.coletteHeavy;
+        if(current==='Cordelius')bullets.at(-1).cordSlow=p.cordSlow;
         if(current==='Spike')bullets.at(-1).extraThorns=p.passiveChoice==='0';
         if(current==='Emz')bullets.at(-1).emzDense=p.emzDense;
         if(current==='Gale')bullets.at(-1).galeFrost=p.galeFrost;
@@ -104,6 +106,8 @@ function rosterAttack(angle) {
     }
     if(current==='Gale')p.galeFrost=false;
     if(current==='Emz')p.emzDense=false;
+    if(current==='Colette')p.coletteHeavy=false;
+    if(current==='Cordelius')p.cordSlow=false;
 }
 function rosterSuper(angle) {
     const ability=BRAWLERS[current].ultType;
@@ -136,7 +140,11 @@ function rosterSuper(angle) {
         case 'upgrade': case 'return': case 'kick': case 'leap': case 'pounce': {
             const shape=combatShape(true);beginTravel(angle,shape.range,current==='Kit'?26:20,current,shape.radius);break;
         }
-        case 'hook': spawnBullet(angle,14,23,true,8,'anchor');break;
+        case 'hook':
+            spawnBullet(angle,14,p.passiveChoice==='0'?29:23,true,8,'anchor');
+            bullets.at(-1).buzzRepair=p.buzzRepair;
+            p.buzzRepair=false;
+            break;
         case 'surprise': {
             switch(p.jackpot||0){
                 case 0:spawnBarleyBottle(angle,220,'boom',true);break;

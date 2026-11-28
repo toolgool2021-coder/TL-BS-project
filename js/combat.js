@@ -126,8 +126,17 @@ function clearCombatTimers() {
                 case 'Nani': spawnNaniProjectiles(angle); break;
                 case 'Max': for(let i=0; i<4; i++) scheduleCombatAction(()=>spawnBullet(angle, 18, 35), i*50); break;
                 case 'Crow': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.3, 14, 40, false, 4, 'poison'); break;
-                case 'Tara': for(let i=-1; i<=1; i++) spawnBullet(angle+i*0.15, 13, 40); break;
-                case 'Gene': spawnBullet(angle, 11, 25, false, 10, 'gene_main'); break; 
+                case 'Tara':
+                    for(let i=-1;i<=1;i++){
+                        spawnBullet(angle+i*.15,13,40);
+                        if(p.taraHeavy)bullets.at(-1).damage=550;
+                    }
+                    p.taraHeavy=false;
+                    break;
+                case 'Gene':
+                    spawnBullet(angle,11,25,false,10,'gene_main');
+                    bullets.at(-1).geneFragment=p.passiveChoice==='1';
+                    break;
                 case 'Bibi': for(const t of combatTargets()) if(inFan(t,angle,basicAim.Bibi)){
                     if(t.spawnShield||t.altitude||!visibleTo(p,t))continue;
                     if(!t.safe&&!t.out)for(let i=0;i<6;i++)moveOnPitch(t,Math.cos(angle)*10,Math.sin(angle)*10);
@@ -171,8 +180,8 @@ function clearCombatTimers() {
                 summon('head',{x:p.x,y:p.y});
                 if(p.passiveChoice==='1'){zones.at(-1).maxHp+=800;zones.at(-1).hp+=800;}
                 break;
-            case 'Tara': zones.push({ x: p.x+Math.cos(angle)*250, y: p.y+Math.sin(angle)*250, r: 100, life: 60, type: 'gravity' }); break;
-            case 'Gene': spawnBullet(angle, 18, 40, true, 12, 'pull'); break;
+            case 'Tara': zones.push({...destination(angle,250),r:combatShape(true).radius,life:60,type:'gravity',damage:p.passiveChoice==='1'?2600:2000}); break;
+            case 'Gene': spawnBullet(angle,18,40,true,12,'pull');bullets.at(-1).geneHeal=p.passiveChoice==='0';break;
             case 'Bibi':
                 spawnBullet(angle,10,300,true,15,'bubble');
                 bullets.at(-1).bibiSticky=p.bibiSticky;
@@ -309,7 +318,7 @@ function advanceSuperMotion(){
     if(['Kit','Edgar','Surge','Piper','Crow','El_Primo','Dynamike','Bonnie'].includes(m.fighter))p.altitude=58*Math.sin(progress*Math.PI);
     for(const target of combatTargets()) {
         if((m.fighter==='Colette' || m.fighter==='Mortis') && !m.hits.has(target) && dist(p,target)<=m.radius){
-            m.hits.add(target);hitEnemy(m.fighter==='Mortis'?900:Math.round(target.maxHp*.16),m.fighter==='Mortis',target);
+            m.hits.add(target);hitEnemy(m.fighter==='Mortis'?900:Math.round(target.maxHp*(m.returning&&p.passiveChoice==='0'?.21:.16)),m.fighter==='Mortis',target);
         }
         const slam=m.fighter==='El_Primo' && progress===1;
         if(!slam && m.fighter!=='Bull' && m.fighter!=='Darryl') continue;
@@ -357,6 +366,8 @@ function landRosterMove(m){
         const ally=allies.includes(target);
         p.attachment={target,ally,left:ally?480:120};
         if(!ally){target.stun=120;hitEnemy(p.passiveChoice==='1'?1250:950,false,target);}
+    }else if(m.fighter==='Colette'&&m.returning){
+        if(p.passiveChoice==='1'&&!p.out)p.hp=Math.min(p.maxHp,p.hp+600);
     }else if(m.fighter==='Colette' && !m.returning){
         const distance=Math.hypot(m.dx,m.dy);
         beginTravel(Math.atan2(-m.dy,-m.dx),distance,16,'Colette',m.radius);
@@ -381,9 +392,10 @@ function landRosterMove(m){
         }
     }else if(['Edgar','Surge','Buzz'].includes(m.fighter)){
         for(const t of targets) if(dist(t,p)<=m.radius){
-            if(m.fighter==='Buzz' && !t.safe)t.stun=70;
+            if(m.fighter==='Buzz'&&!t.safe&&!t.spawnShield&&!t.altitude)t.stun=p.passiveChoice==='1'?90:70;
             hitEnemy(m.fighter==='Edgar'&&p.passiveChoice==='1'?2000:1600,false,t);
         }
+        if(m.fighter==='Buzz'&&m.buzzRepair&&!p.out)p.hp=Math.min(p.maxHp,p.hp+650);
         if(m.fighter==='Surge'){
             p.surgeLevel=Math.min(4,(p.surgeLevel||1)+1);p.speedMult=1.25;p.boostTimer=0;
         }

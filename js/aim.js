@@ -41,6 +41,8 @@ function combatShape(superMove){
  }
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove&&current==='Griff')return fan(420,.52);
+ if(superMove&&current==='Tara'&&p.passiveChoice==='0')return {...superAimData.Tara,radius:130};
+ if(superMove&&current==='Buzz'&&p.passiveChoice==='0')return ray(14,29,8);
  if(superMove&&current==='Rico'&&p.passiveChoice==='1')return ray(15,75);
  if(!superMove&&current==='Mortis'&&p.mortisReach)return {...basicAim.Mortis,range:175};
  if(superMove&&current==='Stu'&&p.passiveChoice==='0')return {...superAimData.Stu,range:255};

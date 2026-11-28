@@ -835,6 +835,118 @@
     frames(4);
     check(p.hp===spikeHealth+220,'Spike did not heal inside the super');
 
+    for(const fighter of Object.keys(BRAWLERS)){
+      begin(fighter);
+      check(tlbsLoadouts[fighter]?.every(choices=>choices.length===2)
+        && tlbsAbilityDescriptions[fighter]?.every(choices=>choices.length===2), fighter+' is missing a loadout');
+      updateUI();
+      check(!document.querySelector('#tlbs-gadget').hidden,fighter+' is missing its gadget control');
+    }
+    begin('Nani');
+    p.passiveChoice='1';
+    useUltimate(0);
+    const droneX=pip.x;
+    frames(3);
+    check(pip.active&&pip.x>=droneX+18,'Nani faster drone failed');
+    tlbsUseGadget();
+    check(!pip.active,'Nani did not recall the drone');
+    begin('Nani');
+    p.gadgetChoice='1';p.passiveChoice='0';
+    tlbsUseGadget();
+    check(p.shield===90,'Nani shield failed');
+    useUltimate(0);
+    frames(28);
+    check(enemy.hp===enemy.maxHp-3600,'Nani drone damage or single explosion failed');
+
+    begin('Tara');
+    p.passiveChoice='0';
+    enemy.x=p.x+100;
+    tlbsUseGadget();
+    useUltimate(0);
+    check(enemy.slow===60&&zones[0].r===130,'Tara slow or wide gravity failed');
+    begin('Tara');
+    p.gadgetChoice='1';p.passiveChoice='1';
+    tlbsUseGadget();
+    attack(0,false);
+    check(bullets.every(b=>b.damage===550)&&!p.taraHeavy,'Tara heavy volley failed');
+    bullets.length=0;
+    enemy.x=p.x+250;
+    useUltimate(0);
+    frames(64);
+    check(enemy.hp===enemy.maxHp-2600,'Tara gravity damage failed');
+
+    begin('Gene');
+    p.passiveChoice='0';
+    p.hp-=1600;
+    const geneHealth=p.hp;
+    tlbsUseGadget();
+    useUltimate(0);
+    frames(12);
+    check(p.hp===geneHealth+1150,'Gene gadget or pull healing failed');
+    begin('Gene');
+    p.gadgetChoice='1';p.passiveChoice='1';p.stun=65;p.slow=60;
+    tlbsUseGadget();
+    check(!p.stun&&!p.slow,'Gene cleanse failed');
+    attack(Math.PI,false);
+    frames(28);
+    check(bullets.filter(b=>b.special==='gene_split'&&b.damage===250).length===3,'Gene split damage failed');
+
+    begin('Colette');
+    p.passiveChoice='0';
+    tlbsUseGadget();
+    attack(0,false);
+    frames(15);
+    check(enemy.hp===21600,'Colette percentage gadget failed');
+    enemy.x=p.x+125;
+    useUltimate(0);
+    frames(42);
+    check(enemy.hp===21600-4800-6300,'Colette return damage failed');
+    begin('Colette');
+    p.gadgetChoice='1';p.passiveChoice='1';
+    p.hp-=1300;
+    const coletteHealth=p.hp;
+    tlbsUseGadget();
+    check(p.shield===90,'Colette shield failed');
+    useUltimate(0);
+    frames(42);
+    check(p.hp===coletteHealth+600,'Colette return healing failed');
+
+    begin('Buzz');
+    p.passiveChoice='0';
+    ultCharge=40;
+    tlbsUseGadget();
+    check(ultCharge===70&&combatShape(true).range===392,'Buzz charge or hook range failed');
+    begin('Buzz');
+    p.gadgetChoice='1';p.passiveChoice='1';
+    p.hp-=1500;
+    const buzzHealth=p.hp;
+    tlbsUseGadget();
+    useUltimate(0);
+    frames(29);
+    check(p.hp===buzzHealth+650&&enemy.stun>75,'Buzz hook healing or stun failed');
+
+    begin('Cordelius');
+    tlbsUseGadget();
+    attack(0,false);
+    frames(15);
+    check(enemy.slow>0&&!p.cordSlow,'Cordelius slowing spores failed');
+    begin('Cordelius');
+    p.passiveChoice='1';p.gadgetChoice='1';
+    useUltimate(0);
+    frames(11);
+    check(realm?.left>480,'Cordelius extended realm failed');
+    tlbsUseGadget();
+    check(!realm,'Cordelius realm exit failed');
+    begin('Cordelius');
+    p.passiveChoice='0';
+    ammo=0;
+    frames(12);
+    const normalReload=ammo;
+    startRealm(enemy);
+    ammo=0;
+    frames(12);
+    check(ammo>normalReload,'Cordelius realm reload failed');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -908,7 +1020,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 72 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 84 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

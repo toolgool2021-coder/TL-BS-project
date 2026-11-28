@@ -14,7 +14,7 @@ function playerAllies(){return (arena?.actors||[p]).filter(a=>!a.out&&(a===p||a.
 function combatTargets(){return [enemy,...trainingTargets].filter(t=>!t.out && inPlane(t));}
 function startRealm(target){
  if(target.safe) return;
- realm={target,left:480};
+ realm={target,left:current==='Cordelius'&&p.passiveChoice==='1'?600:480};
  clearCombatTimers();bullets.length=0;zones.length=0;throws.length=0;
  if(arena?.carrier===p || arena?.carrier===target) {Object.assign(arena.ball,{x:arena.carrier.x,y:arena.carrier.y});arena.carrier=null;}
 }

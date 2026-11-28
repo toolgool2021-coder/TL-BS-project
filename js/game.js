@@ -1,5 +1,11 @@
 const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушает статические препятствия в радиусе взрыва.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Четвёртая очередь из четырёх колокольчиков наносит на 30% больше урона.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","На 3,5 секунды замедляет только противников, которых отравил Ворон."],["Отравленные цели наносят на 20% меньше урона.","Ворон наносит на 25% больше урона ослабленным целям."]]};
 Object.assign(tlbsAbilityDescriptions,{
+ Nani:[['Возвращает управление телом, прерывая полёт дрона.','Защищает Нани щитом на 1,5 секунды.'],['Прямое попадание дрона наносит 3600 урона.','Дрон летит быстрее.']],
+ Tara:[['Создаёт короткий импульс, замедляющий ближайших противников.','Следующий залп карт наносит больше урона.'],['Расширяет зону притяжения.','Притяжение наносит 2600 урона.']],
+ Gene:[['Лечит Джина и ближайших союзников на 500.','Снимает с Джина оглушение и замедление.'],['Ульта лечит Джина при захвате цели.','Осколки обычного выстрела наносят 250 урона.']],
+ Colette:[['Следующее попадание снимает 28% текущего здоровья цели.','Даёт щит на 1,5 секунды.'],['Обратный рывок наносит 21% максимального здоровья цели.','Возвращение после ульты восстанавливает 600 здоровья.']],
+ Buzz:[['Добавляет 30 пунктов заряда ульты.','Следующий захват лечит Базза при приземлении.'],['Увеличивает дальность захвата.','Оглушение при приземлении длится 1,5 секунды.']],
+ Cordelius:[['Следующая атака замедляет цели.','Досрочно завершает пребывание в мире теней.'],['В мире теней атаки перезаряжаются быстрее.','Мир теней длится на 2 секунды дольше.']],
  Bibi:[['Восстанавливает до 750 здоровья.','Следующий пузырь замедляет цели.'],['При полном запасе атак Биби движется на 15% быстрее.','При запуске пузыря Биби получает щит на секунду.']],
  Rico:[['Выпускает шесть отскакивающих снарядов вокруг себя.','Первый отскок следующего выстрела восстанавливает 600 здоровья.'],['Обычный снаряд наносит больше урона после отскока.','Снаряды ульты живут на 15 кадров дольше.']],
  Spike:[['Выпускает восемь игл во все стороны.','Даёт щит на 1,5 секунды.'],['Взрыв обычного снаряда выпускает восемь осколков вместо шести.','Пребывание в зоне своей ульты восстанавливает здоровье.']],
@@ -33,9 +39,21 @@ Object.assign(tlbsAbilityDescriptions,{
  Piper:[['Стреляет по ближайшему видимому врагу, замедляет и отталкивает его.','Следующая пуля доворачивает к цели.'],['Выстрел из укрытия наносит на 25% больше урона.','Попадание возвращает 0,4 заряда атаки.']],
  Frank:[['Снимает оглушение и даёт иммунитет на 2 секунды.','Следующий удар молотом притягивает цель и наносит на 35% больше урона.'],['Устранение усиливает удары на 25% на 8 секунд.','Увеличивает запас здоровья на 15%.']]
 });
-const tlbsLoadouts={Bibi:[['Глоток перед боем','Липкий пузырь'],['Свободный шаг','Защитный замах']],Rico:[['Веер отскоков','Восстановление от стены'],['Сильный рикошет','Долгий полёт']],Spike:[['Игольчатое кольцо','Защитная оболочка'],['Частые иглы','Восстановление в зоне']],Darryl:[['Круговой залп','Быстрая подача'],['Защищённый перекат','Сильный таран']],Mortis:[['Дальний выпад','Запас сил'],['После победы','Сильнее стая']],Stu:[['Импульс заряда','Защитный буфер'],['Длинный рывок','Мягкая посадка']],Shelly:[['Плотный залп','Защитная стойка'],['Сдерживающий удар','Ближний бой']],Colt:[['Запасной магазин','Длинная очередь'],['Быстрый ритм','Дальний выстрел']],Brock:[['Тяжёлая ракета','Быстрый отход'],['Быстрая ракета','Широкий взрыв']],Edgar:[['Рывок заряда','Плотный шарф'],['Восстановление за удар','Тяжёлое приземление']],El_Primo:[['Сбить шаг','Выход на ринг'],['Широкий удар','Второй раунд']],Bull:[['Передышка','Резкое торможение'],['Последний резерв','Защита на разгоне']],Poco:[['Лечебный мотив','Чистый аккорд'],['Поддержка волной','Громкий финал']],Sandy:[['Передышка в буре','Тяжёлый песок'],['Песчаный ожог','Широкая буря']],Emz:[['Вытеснение','Плотное облако'],['Обратная подпитка','Липкая аура']],Max:[['Ускорение с места','Запас энергии'],['Бег и перезарядка','Продлённый разгон']],Rosa:[['Передышка у укрытия','Цепкие побеги'],['Долгая защита','Усиленный удар']],Leon:[['Короткое исчезновение','Тормозящий диск'],['Тихий спринт','Восстановление в тени']],Jessie:[['Ремонт на месте','Перегрузка'],['Дальний отскок','Укреплённая турель']],Nita:[['Топот','Защита медведя'],['Быстрые лапы','Взаимная поддержка']],Pam:[['Первая помощь','Частый импульс'],['Расширенная зона','Усиленное лечение']],Bo:[['Общий сигнал','Связующий залп'],['Быстрая готовность','Широкий охват']],Tick:[['Защитный корпус','Широкий разброс'],['Долгий дозор','Усиленный корпус']],Barley:[['Скорая помощь','Липкая смесь'],['Крепкая смесь','Медицинская порция']],Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
+const tlbsLoadouts={Nani:[['Отзыв дрона','Защитный контур'],['Сильный контакт','Быстрый полёт']],Tara:[['Импульс карт','Тяжёлая колода'],['Широкое притяжение','Сильный разлом']],Gene:[['Тёплый свет','Свободное движение'],['Лечение при захвате','Усиленные осколки']],Colette:[['Точный расчёт','Плотная обложка'],['Сильное возвращение','Передышка после рывка']],Buzz:[['Запас заряда','Полевой ремонт'],['Дальний захват','Долгая остановка']],Cordelius:[['Липкие споры','Досрочный выход'],['Быстрая подача в тени','Долгая тень']],Bibi:[['Глоток перед боем','Липкий пузырь'],['Свободный шаг','Защитный замах']],Rico:[['Веер отскоков','Восстановление от стены'],['Сильный рикошет','Долгий полёт']],Spike:[['Игольчатое кольцо','Защитная оболочка'],['Частые иглы','Восстановление в зоне']],Darryl:[['Круговой залп','Быстрая подача'],['Защищённый перекат','Сильный таран']],Mortis:[['Дальний выпад','Запас сил'],['После победы','Сильнее стая']],Stu:[['Импульс заряда','Защитный буфер'],['Длинный рывок','Мягкая посадка']],Shelly:[['Плотный залп','Защитная стойка'],['Сдерживающий удар','Ближний бой']],Colt:[['Запасной магазин','Длинная очередь'],['Быстрый ритм','Дальний выстрел']],Brock:[['Тяжёлая ракета','Быстрый отход'],['Быстрая ракета','Широкий взрыв']],Edgar:[['Рывок заряда','Плотный шарф'],['Восстановление за удар','Тяжёлое приземление']],El_Primo:[['Сбить шаг','Выход на ринг'],['Широкий удар','Второй раунд']],Bull:[['Передышка','Резкое торможение'],['Последний резерв','Защита на разгоне']],Poco:[['Лечебный мотив','Чистый аккорд'],['Поддержка волной','Громкий финал']],Sandy:[['Передышка в буре','Тяжёлый песок'],['Песчаный ожог','Широкая буря']],Emz:[['Вытеснение','Плотное облако'],['Обратная подпитка','Липкая аура']],Max:[['Ускорение с места','Запас энергии'],['Бег и перезарядка','Продлённый разгон']],Rosa:[['Передышка у укрытия','Цепкие побеги'],['Долгая защита','Усиленный удар']],Leon:[['Короткое исчезновение','Тормозящий диск'],['Тихий спринт','Восстановление в тени']],Jessie:[['Ремонт на месте','Перегрузка'],['Дальний отскок','Укреплённая турель']],Nita:[['Топот','Защита медведя'],['Быстрые лапы','Взаимная поддержка']],Pam:[['Первая помощь','Частый импульс'],['Расширенная зона','Усиленное лечение']],Bo:[['Общий сигнал','Связующий залп'],['Быстрая готовность','Широкий охват']],Tick:[['Защитный корпус','Широкий разброс'],['Долгий дозор','Усиленный корпус']],Barley:[['Скорая помощь','Липкая смесь'],['Крепкая смесь','Медицинская порция']],Fang:[['Сбить ритм','Защитная стойка'],['Дальний перехват','Второе дыхание']],Kit:[['Тихие лапы','Перевязка'],['Заботливый спутник','Точное приземление']],Gale:[['Обратная тяга','Морозный залп'],['Прижать к стене','Широкий фронт']],Bea:[['Пчелиное поле','Запасной заряд'],['Быстрое жало','Вязкий рой']],Bonnie:[['Быстрая подача','Расчистка'],['Дальний прыжок','Полевой ремонт']],Surge:[['Форсаж','Обмен энергии'],['Рикошетный разлом','Дальний каскад']],Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}let info=document.getElementById(id+'-description');if(!info){info=document.createElement('small');info.id=id+'-description';info.style.cssText='display:block;color:#b9c8df;font-size:12px;line-height:1.5;margin:6px 0 12px';el.insertAdjacentElement('afterend',info);}const describe=()=>{info.textContent=tlbsAbilityDescriptions[current]?.[i]?.[Number(el.value)]||'Способность пока не реализована.';};describe();el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}describe();};}}
 const tlbsGadgetIcons=Object.fromEntries(Object.entries({
+ recall:'M20 6H8a5 5 0 0 0 0 10h8m-5-4 5 4-5 4',
+ contour:'M4 4h16v12l-8 5-8-5zM8 9h8',
+ cards:'M7 4h12v16H7zM4 8v12m7-8 2-3 2 3-2 3z',
+ deck:'M4 7h13v12H4zM8 4h12v12M8 12h5',
+ lampAid:'M3 17h18l-3 3H6zM12 5v8M8 9h8',
+ freeGene:'M4 12h16m-4-5 4 5-4 5M8 5v14',
+ ledger:'M5 4h14v16H5zM8 8h8m-7 8 6-5',
+ bookGuard:'M4 5h16v14H4zM7 5v14m4-7h6',
+ buoy:'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8z',
+ hookAid:'M5 5h7v10a4 4 0 0 0 8 0m-3-7v6m-3-3h6',
+ spores:'M6 15a3 3 0 1 1 0-6m6 9a3 3 0 1 1 0-6m6-3a3 3 0 1 1 0-6',
+ exitRealm:'M5 20V4h9v6m-3 4h10m-4-4 4 4-4 4',
  bubbleAid:'M4 8h16v12H4zM9 8V4h6v4m-6 6h6m-3-3v6',
  tack:'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM7 10l5 5 5-5',
  ricochet:'M3 17l9-11 9 11m-5 0h5v-5',
@@ -301,6 +319,34 @@ function tlbsUseGadget(angleOverride){if(!gameActive||p.out||match.finished||!(p
             spawnBullet(i*Math.PI/4,11,14,true,4,'thorn');
             bullets.at(-1).damage=260;
         }
+    }else if(current==='Nani'){
+        if(second)p.shield=Math.max(p.shield,90);
+        else {if(!pip.active)return;pip.active=false;}
+    }else if(current==='Tara'){
+        if(second){if(p.taraHeavy)return;p.taraHeavy=true;}
+        else{
+            const nearby=combatTargets().filter(t=>!t.safe&&!t.spawnShield&&!t.altitude&&dist(p,t)<=140&&visibleTo(p,t));
+            if(!nearby.length)return;
+            for(const target of nearby)target.slow=Math.max(target.slow||0,60);
+        }
+    }else if(current==='Gene'){
+        if(second){
+            if(!p.stun&&!p.slow)return;
+            p.stun=0;p.slow=0;
+        }else{
+            const allies=playerAllies().filter(a=>a.hp<a.maxHp&&dist(p,a)<=135);
+            if(!allies.length)return;
+            for(const ally of allies)ally.hp=Math.min(ally.maxHp,ally.hp+500);
+        }
+    }else if(current==='Colette'){
+        if(second)p.shield=Math.max(p.shield,90);
+        else {if(p.coletteHeavy)return;p.coletteHeavy=true;}
+    }else if(current==='Buzz'){
+        if(second){if(p.buzzRepair)return;p.buzzRepair=true;}
+        else {if(ultCharge>=100)return;ultCharge=Math.min(100,ultCharge+30);}
+    }else if(current==='Cordelius'){
+        if(second){if(!realm)return;realm=null;}
+        else {if(p.cordSlow)return;p.cordSlow=true;}
     }else return;
     p.gadgetFlash=24;
     p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
@@ -532,7 +578,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost'],Bo:['signal','tether'],Tick:['shell','spread'],Barley:['remedy','sticky'],Jessie:['repair','rapid'],Nita:['stomp','bearShield'],Pam:['aid','pulse'],Max:['sprint','reserve'],Rosa:['coverHeal','roots'],Leon:['veil','disc'],Poco:['melody','cleanse'],Sandy:['dunes','sand'],Emz:['repelEmz','cloud'],Edgar:['chargeMeter','scarf'],El_Primo:['gloves','ringRush'],Bull:['bullAid','brake'],Shelly:['focusShot','coverStep'],Colt:['quickClip','extraRound'],Brock:['heavyOrb','retreat'],Darryl:['radial','barrel'],Mortis:['lunge','vigor'],Stu:['impulse','buffer'],Bibi:['bubbleAid','tack'],Rico:['ricochet','reboundAid'],Spike:['needles','cactusShield']};
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!Object.hasOwn(tlbsLoadouts,current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass'],Piper:['repel','guide'],Frank:['guard','pull'],Bea:['hive','beeCharge'],Bonnie:['reload','push'],Surge:['overdrive','capacitor'],Fang:['kickStun','stance'],Kit:['paw','bandage'],Gale:['gust','frost'],Bo:['signal','tether'],Tick:['shell','spread'],Barley:['remedy','sticky'],Jessie:['repair','rapid'],Nita:['stomp','bearShield'],Pam:['aid','pulse'],Max:['sprint','reserve'],Rosa:['coverHeal','roots'],Leon:['veil','disc'],Poco:['melody','cleanse'],Sandy:['dunes','sand'],Emz:['repelEmz','cloud'],Edgar:['chargeMeter','scarf'],El_Primo:['gloves','ringRush'],Bull:['bullAid','brake'],Shelly:['focusShot','coverStep'],Colt:['quickClip','extraRound'],Brock:['heavyOrb','retreat'],Darryl:['radial','barrel'],Mortis:['lunge','vigor'],Stu:['impulse','buffer'],Bibi:['bubbleAid','tack'],Rico:['ricochet','reboundAid'],Spike:['needles','cactusShield'],Nani:['recall','contour'],Tara:['cards','deck'],Gene:['lampAid','freeGene'],Colette:['ledger','bookGuard'],Buzz:['buoy','hookAid'],Cordelius:['spores','exitRealm']};
         const symbolName=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
         if(gadget.dataset.symbol!==symbolName){gadget.replaceChildren();const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbolName;if(tlbsGadgetIcons[symbolName]){icon.className='tlbs-gadget-svg';icon.innerHTML=tlbsGadgetIcons[symbolName];}const count=document.createElement('span');count.className='tlbs-gadget-count';gadget.append(icon,count);gadget.dataset.symbol=symbolName;}
         const count=gadget.lastElementChild;
@@ -608,7 +654,7 @@ function tlbsMiniMap(){
         if(ammo<maxAmmo){
             const runningMax=current==='Max'&&p.passiveChoice==='0'&&Math.hypot(p.botVx||0,p.botVy||0)>1;
             const woundedBull=current==='Bull'&&p.passiveChoice==='0'&&p.hp<p.maxHp*.4;
-            const reloadRate=p.candyReload>0||p.bonnieReload>0&&!p.bonnieOnFoot||runningMax||woundedBull||p.rapidLoad>0?22:16.6;
+            const reloadRate=p.candyReload>0||p.bonnieReload>0&&!p.bonnieOnFoot||runningMax||woundedBull||p.rapidLoad>0||(current==='Cordelius'&&realm&&p.passiveChoice==='0')?22:16.6;
             ammo=Math.min(maxAmmo,ammo+reloadRate/BRAWLERS[current].reload);
         }
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
@@ -620,11 +666,13 @@ function tlbsMiniMap(){
         }
         if(pip.active) {
             if(joyL.active) { let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y; pip.angle = Math.atan2(dy, dx); }
-            pip.x += Math.cos(pip.angle) * 7; pip.y += Math.sin(pip.angle) * 7; pip.life--;
-            if(Math.hypot(pip.x-enemy.x, pip.y-enemy.y) < 40 || pip.life <= 0) {
-                if(pip.life > 0) hitEnemy(3000, false);
-                zones.push({x: pip.x, y: pip.y, r: 120, life: 20, type: 'boom'});
-                pip.active = false;
+            const speed=p.passiveChoice==='1'?9:7;
+            pip.x+=Math.cos(pip.angle)*speed;pip.y+=Math.sin(pip.angle)*speed;pip.life--;
+            const target=combatTargets().find(t=>!t.spawnShield&&!t.altitude&&dist(t,pip)<40);
+            if(target||pip.life<=0||pip.x<0||pip.x>tlbsWorld.width||pip.y<0||pip.y>tlbsWorld.height||insideCover(pip.x,pip.y)){
+                if(target)hitEnemy(p.passiveChoice==='0'?3600:3000,false,target);
+                zones.push({x:pip.x,y:pip.y,r:120,life:14,type:'blast'});
+                pip.active=false;
             }
         } else if(joyL.active && !p.stun && !p.attachment && !p.isFlying && !p.out) {
             let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y, dist=Math.hypot(dx,dy); 
@@ -663,6 +711,7 @@ function tlbsMiniMap(){
                     if(b.special === 'gene_main') {
                         for(let j=-1; j<=1; j++) {
                             spawnBullet(b.angle + j*0.25, 12, 25, false, 5, 'gene_split');
+                            bullets.at(-1).damage=b.geneFragment?250:150;
                             bullets[bullets.length-1].x = b.x; bullets[bullets.length-1].y = b.y;
                         }
                     }
@@ -690,9 +739,12 @@ function tlbsMiniMap(){
             const targets = combatTargets();
             const target = targets.find(t => !b.visited?.includes(t) && Math.hypot(b.x-t.x,b.y-t.y)<30);
             if (!target) continue;
-            if(b.special==='realm' && !target.safe){startRealm(target);break;}
+            if(b.special==='realm'&&!target.safe&&!target.spawnShield&&!target.altitude){startRealm(target);break;}
             if(b.special==='anchor'){
-                if(!target.safe) beginTravel(angleTo(target),Math.min(dist(p,target),308),18,'Buzz',65,target);
+                if(!target.safe&&!target.spawnShield&&!target.altitude){
+                    beginTravel(angleTo(target),dist(p,target),18,'Buzz',65,target);
+                    p.motion.buzzRepair=b.buzzRepair;
+                }
                 bullets.splice(i,1);continue;
             }
             if(b.special==='griffCoin'){hitEnemy(280,true,target);bullets.splice(i,1);continue;}
@@ -740,7 +792,12 @@ function tlbsMiniMap(){
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
             if(b.bibiSticky&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,90);
             if (b.special==='Spike')burstSpike(b);
-            if (b.special === 'pull') { target.x=p.x; target.y=p.y; }
+            if(b.special==='pull'&&!target.safe&&!target.spawnShield&&!target.altitude){
+                const a=angleTo(target);
+                target.x=p.x+Math.cos(a)*32;target.y=p.y+Math.sin(a)*32;
+                if(b.geneHeal&&!p.out)p.hp=Math.min(p.maxHp,p.hp+650);
+            }
+            if(b.cordSlow&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,75);
             if(b.special==='poison'&&!target.safe&&!target.spawnShield&&!target.altitude){
                 const active=tlbsCrowPoison.get(target);
                 tlbsCrowPoison.set(target,{left:180,next:active?.next||30});
@@ -748,7 +805,7 @@ function tlbsMiniMap(){
             if(b.shellySlow&&!target.safe&&!target.spawnShield&&!target.altitude)target.slow=Math.max(target.slow||0,105);
             if(b.shellyClose&&Math.hypot(b.x-b.originX,b.y-b.originY)<=95)b.damage=500;
             if(b.emzDense&&Math.hypot(b.x-b.originX,b.y-b.originY)>=115)b.damage=580;
-            hitEnemy(b.special==='Colette'?Math.max(300,Math.round(target.hp*.2)):b.special==='energy' ? Math.round(1200*0.75**(b.visited?.length || 0)) : b.special==='gene_split' ? 150 : b.damage||400,!b.isUlt,target);
+            hitEnemy(b.special==='Colette'?Math.max(300,Math.round(target.hp*(b.coletteHeavy?.28:.2))):b.special==='energy' ? Math.round(1200*0.75**(b.visited?.length || 0)) : b.damage||400,!b.isUlt,target);
             if (b.special==='energy') {
                 (b.visited ||= []).push(target);
                 const distance = t => Math.hypot(t.x-b.x,t.y-b.y);
@@ -770,10 +827,15 @@ function tlbsMiniMap(){
                 z.type='blast';z.life=15;
             }
             if(summonStats[z.type]){z.age++;if(z.hitFlash)z.hitFlash--;if(z.guard>0)z.guard--;}
-            if(z.type === 'gravity') { enemy.x += (z.x - enemy.x) * 0.1; enemy.y += (z.y - enemy.y) * 0.1; if(z.life === 1) hitEnemy(2000, false); }
+
             if(z.type === 'stun' && Math.hypot(enemy.x-z.x, enemy.y-z.y)<z.r) hitEnemy(10, false);
             if(z.type==='aura'){z.x=p.x;z.y=p.y;}
             const nearby = combatTargets().filter(t=>Math.hypot(t.x-z.x,t.y-z.y)<z.r);
+            if(z.type==='gravity')for(const target of nearby){
+                if(target.spawnShield||target.altitude)continue;
+                if(!target.safe)moveOnPitch(target,(z.x-target.x)*.1,(z.y-target.y)*.1);
+                if(z.life===1)hitEnemy(z.damage||2000,false,target);
+            }
             if(z.type==='head') {
                 const target=combatTargets().filter(t=>!t.safe).sort((a,b)=>dist(z,a)-dist(z,b))[0];
                 if(target){
