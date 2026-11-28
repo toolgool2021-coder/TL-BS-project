@@ -118,3 +118,17 @@ dialog {max-height:85dvh;overflow:auto}
 #settings-dialog::backdrop{background:#040b15cc}
 #settings-dialog label{display:grid;gap:7px;font:600 14px system-ui;margin:18px 0}
 #settings-dialog input{width:100%;accent-color:#a6f9b9}
+
+/* Online lobby: responsive controls and clear action hierarchy. */
+#room-open{min-width:138px;min-height:48px;background:#a6f9b9;color:#092318;font-size:17px}
+#room-dialog{box-sizing:border-box;width:min(720px,94vw);max-width:94vw!important;padding:clamp(18px,4vw,32px);border:1px solid #475670!important;box-shadow:0 24px 90px #0008;}
+#room-dialog::backdrop{background:#080d19bd;backdrop-filter:blur(9px)}
+#room-dialog h2{font-size:28px;margin:0 0 20px;letter-spacing:-.04em}
+#room-dialog .btn,#room-dialog input,#room-dialog select{box-sizing:border-box;min-height:48px;font:600 15px system-ui;border-radius:12px;padding:12px;color:#eef3ff;background:#25344d;border:1px solid #52647d;}
+#room-dialog input,#room-dialog select{width:100%;min-width:0}
+.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+#room-dialog #shared-play,#room-dialog #room-create{background:#a6f9b9;color:#092318;border-color:#a6f9b9}
+#room-members{display:grid;gap:8px;margin:14px 0;overflow-wrap:anywhere}
+#room-status{color:#bdcce1;overflow-wrap:anywhere}
+#room-preview{display:none!important}
+@media(max-width:480px){.room-actions{grid-template-columns:1fr}#room-dialog h2{font-size:24px}}
