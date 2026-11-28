@@ -306,6 +306,66 @@
     splitSurge(bullets.at(-1),enemy);
     check(bullets.filter(b=>b.special==='surgeShard'&&b.life===21).length===6,'Surge extended shards failed');
 
+    begin('Fang');
+    enemy.x=p.x+60;
+    p.passiveChoice='1';
+    p.hp-=500;
+    const fangHealth=p.hp;
+    tlbsUseGadget();
+    attack(0,false);
+    check(enemy.stun===60&&!p.fangStun&&p.hp===fangHealth+180,'Fang close hit failed to stun and heal');
+    begin('Fang');
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    check(p.shield===75,'Fang did not gain his shield');
+    p.passiveChoice='0';
+    enemy.x=p.x+190;
+    trainingTargets=[{x:enemy.x+195,y:p.y,hp:30000,maxHp:30000}];
+    useUltimate(0);
+    frames(40);
+    check(trainingTargets[0].hp===28400,'Fang extended chain missed the second target');
+
+    begin('Kit');
+    tlbsUseGadget();
+    check(p.hiddenTicks===120,'Kit did not hide');
+    attack(0,false);
+    check(p.hiddenTicks===0,'Kit attack did not reveal him');
+    begin('Kit','zone');
+    const partner=arena.actors[2];
+    partner.hp-=2200;
+    p.attachment={ally:true,target:partner,left:31};
+    p.gadgetChoice='1';
+    p.passiveChoice='0';
+    const partnerHealth=partner.hp;
+    tlbsUseGadget();
+    advanceAttachment();
+    check(partner.hp===partnerHealth+1425,'Kit gadget and healing passive failed');
+    begin('Kit');
+    p.passiveChoice='1';
+    p.x=enemy.x;
+    const kitTargetHealth=enemy.hp;
+    landRosterMove({fighter:'Kit',radius:52});
+    check(p.attachment?.target===enemy&&enemy.hp===kitTargetHealth-1250,'Kit landing damage failed');
+
+    begin('Gale');
+    enemy.x=p.x+60;
+    tlbsUseGadget();
+    check(enemy.x>p.x+100,'Gale pulse did not push an opponent');
+    begin('Gale');
+    p.gadgetChoice='1';
+    tlbsUseGadget();
+    attack(0,false);
+    frames(16);
+    check(enemy.slow>0&&!p.galeFrost,'Gale frost did not apply or consume');
+    begin('Gale');
+    p.passiveChoice='0';
+    tlbsMapWalls.push({x:enemy.x+26,y:enemy.y-30,w:20,h:60});
+    useUltimate(0);
+    frames(22);
+    check(enemy.stun>0,'Gale did not stun a target against cover');
+    p.passiveChoice='1';
+    check(combatShape(true).width===88,'Gale wide super did not update the aim preview');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
@@ -379,7 +439,7 @@
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, 18 gadget activations and Bea, Bonnie and Surge star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
+      modes.length + ' mode lifecycle scenarios, Canvas, 24 gadget activations and expanded star power scenarios, five Chester variants, Bo, Griff, Bonnie, Crow, Bea, Fang, Piper and Frank regressions, bot difficulty, dodge, blast, pathfinding, super charge, gadget cooldown and respawn';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }

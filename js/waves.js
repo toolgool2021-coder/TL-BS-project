@@ -7,8 +7,14 @@ const fronts={
 };
 let waves=[],swipes=[];
 function startWave(name,angle){
- waves.push({name,angle,x:p.x,y:p.y,age:0,hits:new Set(),push:new Map(),...fronts[name]});
+ const wave={name,angle,x:p.x,y:p.y,age:0,hits:new Set(),push:new Map(),...fronts[name]};
+ if(name==='Gale'){
+   wave.width=galeWindWidth();
+   wave.wallStun=p.passiveChoice==='0';
+ }
+ waves.push(wave);
 }
+function galeWindWidth(){return p.passiveChoice==='1'?88:fronts.Gale.width;}
 function fanWidth(w,d){return w.width || Math.max(8,d*Math.tan(w.spread));}
 function tickWaves(){
  for(const w of waves){
@@ -19,12 +25,16 @@ function tickWaves(){
      if(w.hits.has(t)||Math.abs(across)>fanWidth(w,along)+12 || along<front-step-14 || along>front+14)continue;
      if(!visibleTo({x:w.x,y:w.y},t))continue;
      w.hits.add(t);hitEnemy(w.damage,w.name!=='Gale',t);
-     if(w.name==='Gale' && !t.safe && !t.out && !t.spawnShield)w.push.set(t,12);
+     if(w.name==='Gale' && !t.safe && !t.out && !t.spawnShield && !t.altitude)w.push.set(t,12);
    }
    for(const [t,left] of w.push){
      if(t.out){w.push.delete(t);continue;}
      const force=2+left*1.35;
+     const x=t.x,y=t.y;
      moveOnPitch(t,c*force,s*force);
+     if(w.wallStun&&Math.hypot(t.x-x,t.y-y)<force*.65&&insideCover(x+c*force,y+s*force,16)){
+       t.stun=Math.max(t.stun||0,60);w.push.delete(t);continue;
+     }
      t.x=Math.max(22,Math.min(tlbsWorld.width-22,t.x));t.y=Math.max(22,Math.min(tlbsWorld.height-22,t.y));
      if(left===1)w.push.delete(t);else w.push.set(t,left-1);
    }
@@ -61,7 +71,7 @@ function paintWaves(){
  ctx.restore();
 }
 function resetFighterStage(){
- Object.assign(p,{slow:0,bonnieReload:0,surgeOverdrive:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
+ Object.assign(p,{slow:0,fangStun:false,galeFrost:false,bonnieReload:0,surgeOverdrive:0,piperGuide:false,frankGuard:0,frankRage:0,frankPull:false,gadgetFlash:0});
  p.surgeLevel=1;p.beeCharge=false;p.bonnieOnFoot=false;
  if(current==='Surge')p.speedMult=1;
 }

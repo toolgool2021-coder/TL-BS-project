@@ -31,8 +31,17 @@ function rosterAttack(angle) {
     if(current==='Fang'){
         swipes.push({name:current,x:p.x,y:p.y,age:0,angle});
         const t=combatTargets().filter(t=>inFan(t,angle,fan(85,.58)) && visibleTo(p,t)).sort((a,b)=>dist(p,a)-dist(p,b))[0];
-        if(t)hitEnemy(1440,true,t);
-        else spawnBullet(angle,15,32,false,6,'shoe');
+        if(t){
+            if(!t.safe&&!t.spawnShield&&!t.altitude){
+                if(p.fangStun)t.stun=Math.max(t.stun||0,60);
+                if(p.passiveChoice==='1')p.hp=Math.min(p.maxHp,p.hp+180);
+            }
+            hitEnemy(1440,true,t);
+        }else{
+            spawnBullet(angle,15,32,false,6,'shoe');
+            bullets.at(-1).fangStun=p.fangStun;
+        }
+        p.fangStun=false;
         return;
     }
     if(current==='Piper'){
@@ -59,6 +68,7 @@ function rosterAttack(angle) {
         return;
     }
     if(current==='Kit'){
+        p.hiddenTicks=0;
         if(p.attachment?.ally)spawnBarleyBottle(angle,kitYarn.range,'yarn',false);
         else {
             swipes.push({name:current,x:p.x,y:p.y,age:0,angle});
@@ -82,8 +92,10 @@ function rosterAttack(angle) {
         const fastBee=current==='Bea'&&p.beeCharge&&p.passiveChoice==='0';
         spawnBullet(angle+offset,fastBee?speed*1.25:speed,fastBee?Math.ceil(life/1.25):life,false,6,current);
         if(current==='Chester'&&count===4&&p.passiveChoice==='0')bullets.at(-1).damage=520;
+        if(current==='Gale')bullets.at(-1).galeFrost=p.galeFrost;
         if(current==='Bea'){bullets[bullets.length-1].charged=Boolean(p.beeCharge);p.beeCharge=false;}
     }
+    if(current==='Gale')p.galeFrost=false;
 }
 function rosterSuper(angle) {
     const ability=BRAWLERS[current].ultType;

@@ -252,19 +252,20 @@ function advanceAttachment(){
     if(current!=='Kit'||p.out||target.out||--grip.left<=0){clearAttachment();return;}
     p.x=target.x;p.y=target.y;
     if(grip.left%30===0){
-        if(grip.ally)target.hp=Math.min(target.maxHp,target.hp+380);
+        if(grip.ally)target.hp=Math.min(target.maxHp,target.hp+(p.passiveChoice==='0'?525:380));
         else hitEnemy(240,false,target);
     }
 }
 function landRosterMove(m){
     const targets=combatTargets();
     if(m.fighter==='Kit'){
+        p.hiddenTicks=0;
         const allies=arena?.actors.filter(t=>t!==p && t.team===p.team && !t.out && inPlane(t)) || [];
-        const target=[...targets.filter(t=>!t.safe),...allies].filter(t=>dist(t,p)<=m.radius).sort((a,b)=>dist(a,p)-dist(b,p))[0];
+        const target=[...targets.filter(t=>!t.safe&&!t.spawnShield&&!t.altitude),...allies].filter(t=>dist(t,p)<=m.radius).sort((a,b)=>dist(a,p)-dist(b,p))[0];
         if(!target)return;
         const ally=allies.includes(target);
         p.attachment={target,ally,left:ally?480:120};
-        if(!ally){target.stun=120;hitEnemy(950,false,target);}
+        if(!ally){target.stun=120;hitEnemy(p.passiveChoice==='1'?1250:950,false,target);}
     }else if(m.fighter==='Colette' && !m.returning){
         const distance=Math.hypot(m.dx,m.dy);
         beginTravel(Math.atan2(-m.dy,-m.dx),distance,16,'Colette',m.radius);
@@ -280,7 +281,7 @@ function landRosterMove(m){
             hitEnemy(1600,false,t);
         }
         if(landings.length&&chained.size<4&&!match.finished&&!match.nextRound&&current==='Fang'){
-            const next=targets.filter(t=>!t.safe&&!t.out&&!t.spawnShield&&!t.altitude&&!chained.has(t)&&dist(p,t)<=160)
+            const next=targets.filter(t=>!t.safe&&!t.out&&!t.spawnShield&&!t.altitude&&!chained.has(t)&&dist(p,t)<=(p.passiveChoice==='0'?210:160))
                 .sort((a,b)=>dist(p,a)-dist(p,b))[0];
             if(next){
                 beginTravel(angleTo(next),dist(p,next),14,'Fang',m.radius);

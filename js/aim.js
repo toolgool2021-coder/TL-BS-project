@@ -28,7 +28,7 @@ const superAimData={
 function combatShape(superMove){
  if(arena?.carrier===p)return ray(8,50,8);
  if((!superMove && ['Poco','Nita','Sandy'].includes(current)) || (superMove && current==='Gale')){
-   const w=fronts[current];return w.spread?fan(w.range,w.spread):{kind:'ray',range:w.range,width:w.width,spread:0};
+   const w=fronts[current];return w.spread?fan(w.range,w.spread):{kind:'ray',range:w.range,width:superMove&&current==='Gale'?galeWindWidth():w.width,spread:0};
  }
  if(!superMove && current==='Nani')return {kind:'nani',range:naniRange(),radius:12};
  if(!superMove && current==='Surge')return ray(13,surgeLife(),7);
