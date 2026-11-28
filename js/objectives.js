@@ -56,6 +56,7 @@ function objectiveDeath(a){
 }
 function objectiveHit(a,dmg){
  if(a.out || a.spawnShield>0 || match.finished) return;
+ if(a===p)ultCharge=Math.min(100,ultCharge+Math.min(a.hp,dmg)/a.maxHp*35);
  a.hp=Math.max(0,a.hp-dmg);if(a.hp===0)objectiveDeath(a);
 }
 function kickBall(a,angle){
