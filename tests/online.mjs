@@ -22,9 +22,52 @@ await runInNewContext(read('online.js') + `
 })();
 `,scope);
 
+await runInNewContext(read('online.js') + `
+(async()=>{
+ const listeners={};
+ const writes=[];
+ let registrations=0;
+ const sdk={
+  ref:(_,path)=>path,child:(path,id)=>path+'/'+id,
+  onDisconnect:()=>({remove:async()=>{registrations++;},cancel:async()=>{}}),
+  onValue:(ref,cb)=>{listeners[ref]=cb;return ()=>{delete listeners[ref];};},
+  set:async(_,data)=>writes.push(['set',data]),
+  update:async(_,data)=>writes.push(['update',data]),
+  remove:async()=>{},serverTimestamp:()=>123
+ };
+ globalThis.connect=async()=>({sdk,uid:'player',db:{}});
+ const states=[];
+ const joining=joinRoom('ABC123','Player',()=>{},state=>states.push(state));
+ for(let i=0;i<8;i++)await Promise.resolve();
+ const connection=connected=>listeners['.info/connected']({val:()=>connected});
+ connection(true);
+ await joining;
+ await setReady(true);
+ await writeMatchField('matchState',{frame:3});
+ await writeMatchField('matchInput',{seq:6});
+ connection(false);
+ const before=writes.length;
+ await writeMatchField('matchInput',{seq:7});
+ await writeMatchField('matchState',{frame:4});
+ assert.equal(writes.length,before);
+ connection(true);
+ for(let i=0;i<12;i++)await Promise.resolve();
+ const restored=writes.at(-1)[1];
+ assert.equal(restored.ready,true);
+ assert.equal(JSON.parse(restored.matchState).frame,4);
+ assert.equal(restored.matchInput,undefined);
+ assert.equal(registrations,2);
+ assert.deepEqual(states,[true,false,true]);
+ await leaveRoom();
+ assert.equal(Object.keys(listeners).length,0);
+})();
+`,{assert,performance:{now:()=>0}});
+
 const modal={open:false,showModal(){this.open=true;},close(){this.open=false;}};
 const elements={'#guest-game':modal,'#guest-canvas':{},'#room-dialog':{...modal},'#guest-leave':{}};
+const timers=new Map();let timerId=0;
 const context={
+  setTimeout:callback=>{timers.set(++timerId,callback);return timerId;},clearTimeout:id=>timers.delete(id),timers,
   assert, document:{querySelector:id=>elements[id]},
   window:{}, performance:{now:()=>100},
   requestAnimationFrame:()=>1,cancelAnimationFrame:()=>{},
@@ -42,6 +85,12 @@ updateSharedGame({host:{matchState:snapshot(3)}},'guest');
 assert.equal(previous.frame,2);
 assert.equal(latest.frame,3);
 updateSharedGame({},'guest');
+assert.equal(latest.frame,3);
+updateSharedGame({host:{matchState:snapshot(4)}},'guest');
+assert.equal(latest.frame,4);
+assert.equal(timers.size,0);
+updateSharedGame({},'guest');
+for(const [id,callback] of timers){timers.delete(id);callback();}
 assert.equal(latest,null);
 host={id:'m',opponent:'guest'};
 const bot={fighter:'Shelly',x:0,y:0};
@@ -58,4 +107,4 @@ updateSharedGame(packet(2,.7),'host');
 window.stepRoomBot(bot);
 assert.equal(bullets.length,6);
 `,context);
-console.log('PASS: position throttling, snapshot ordering, and guest shot deduplication with mocked transport');
+console.log('PASS: position throttling, snapshot ordering, and guest shot deduplication and room reconnection with mocked transport');

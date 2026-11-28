@@ -1,9 +1,15 @@
-import {writeMatchField} from './online.js?v=20261128-release3';
+import {writeMatchField} from './online.js?v=20261128-release19';
 const spectator=document.querySelector('#guest-game'), surface=document.querySelector('#guest-canvas');
 let host=null, guest=null, latest=null, lastSent=0, pointer=null, command=null;
 let guestSequence=0, hostSequence=0, frameSequence=0;
 let previous=null, receivedAt=0, paintFrame=0;
 const snapshotInterval=120;
+const reconnectGrace=12000;
+let missingOpponent=0,missingHost=0;
+function clearReconnectTimers(){
+ clearTimeout(missingOpponent);clearTimeout(missingHost);
+ missingOpponent=0;missingHost=0;
+}
 function stopGuestPaint(){
  cancelAnimationFrame(paintFrame);paintFrame=0;previous=null;
 }
@@ -29,7 +35,15 @@ export async function hostGame(mode,uid,players){
 export function updateSharedGame(players,uid){
  if(!uid)return;
  if(host){
-   if(!players[host.opponent]){host=null;send('matchState',null);exitToMenu();document.querySelector('#room-dialog').showModal();return;}
+   if(!players[host.opponent]){
+     command=null;
+     if(!missingOpponent)missingOpponent=setTimeout(()=>{
+       missingOpponent=0;host=null;send('matchState',null);
+       exitToMenu();document.querySelector('#room-dialog').showModal();
+     },reconnectGrace);
+     return;
+   }
+   clearTimeout(missingOpponent);missingOpponent=0;
    const next=decode(players[host.opponent]?.matchInput);
    if(next?.id===host.id&&Number.isFinite(next.x)&&Number.isFinite(next.y)){
      if(next.angle!==null&&Number.isSafeInteger(next.seq)&&next.seq>hostSequence&&Number.isFinite(next.angle)){
@@ -40,7 +54,14 @@ export function updateSharedGame(players,uid){
    }
  }
  const source=Object.values(players).map(v=>decode(v.matchState)).find(s=>s?.opponent===uid && validFrame(s));
- if(!source){if(guest){spectator.close();guest=null;latest=null;stopGuestPaint();document.querySelector('#room-dialog').showModal();}return;}
+ if(!source){
+   if(guest&&!missingHost)missingHost=setTimeout(()=>{
+     missingHost=0;spectator.close();guest=null;latest=null;stopGuestPaint();
+     document.querySelector('#room-dialog').showModal();
+   },reconnectGrace);
+   return;
+ }
+ clearTimeout(missingHost);missingHost=0;
  if(guest!==source.id){
    document.querySelector('#room-dialog').close();
    if(!spectator.open)spectator.showModal();
@@ -77,7 +98,7 @@ window.shareMatch=(result=null)=>{
    units:zones.filter(z=>Object.hasOwn(summonStats,z.type)).map(z=>({...point(z),type:z.type,hp:z.hp,age:z.age,angle:z.angle||0,r:z.r/tlbsWorld.width})),
    shots:bullets.slice(-30).map(point),aspect:tlbsWorld.width/tlbsWorld.height,result});
 };
-window.closeSharedHost=()=>{if(host){host=null;command=null;send('matchState',null);}};
+window.closeSharedHost=()=>{clearReconnectTimers();if(host){host=null;command=null;send('matchState',null);}};
 function animateGuest(now){
  paintFrame=0;
  if(!latest||!spectator.open)return;
@@ -121,11 +142,11 @@ function paintGuest(progress){
 surface.onpointerdown=e=>{pointer={x:e.clientX,y:e.clientY,id:e.pointerId};surface.setPointerCapture(e.pointerId);};
 surface.onpointercancel=()=>pointer=null;
 surface.onpointerup=e=>{
- if(!guest || !pointer || pointer.id!==e.pointerId || latest.result)return;
+ if(!guest || missingHost || !pointer || pointer.id!==e.pointerId || latest.result)return;
  const box=surface.getBoundingClientRect(),dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer=null;
  const shot=Math.hypot(dx,dy)>10,me=latest.actors[1];
  send('matchInput',{id:guest,x:shot?me.x:(e.clientX-box.left)/box.width,y:shot?me.y:(e.clientY-box.top)/box.height,
  seq:shot?++guestSequence:guestSequence,angle:shot?Math.atan2(dy/box.height*surface.height,dx/box.width*surface.width):null});
 };
-document.querySelector('#guest-leave').onclick=()=>{spectator.close();guest=null;latest=null;stopGuestPaint();document.querySelector('#room-leave').click();};
+document.querySelector('#guest-leave').onclick=()=>{clearReconnectTimers();spectator.close();guest=null;latest=null;stopGuestPaint();document.querySelector('#room-leave').click();};
 spectator.oncancel=e=>{e.preventDefault();document.querySelector('#guest-leave').click();};
