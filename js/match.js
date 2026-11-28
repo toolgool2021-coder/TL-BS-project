@@ -18,12 +18,12 @@ function duelTurn() {
     enemy.x=tlbsWorld.width/2;enemy.y=65;
     clearCombatTimers();resetControls();
     bullets.length=0;zones.length=0;throws.length=0;
-    p.motion=null;superFx=null;pip.active=false;p.isFlying=false;p.scale=1;p.hiddenTicks=0;p.boostTimer=0;p.speedMult=1;p.shield=0;
+    p.motion=null;p.altitude=0;superFx=null;pip.active=false;p.isFlying=false;p.scale=1;p.hiddenTicks=0;p.boostTimer=0;p.speedMult=1;p.shield=0;
     ammo=BRAWLERS[current].maxAmmo;match.cooldown=75;
     renderAmmo();
 }
 function setupMatch() {
-    p.gadgetUses=3;p.gadgetCooldown=0;
+    p.gadgetUses=3;p.gadgetCooldown=0;p.gadgetChoice=document.getElementById('gadget-choice')?.value||'unique';p.passiveChoice=document.getElementById('passive-choice')?.value||'unique';
     clearAttachment();enemy.stun=0;
     p.bells=0;p.jackpot=Math.floor(Math.random()*5);p.beeCharge=false;
     resetFighterStage();selectedFighter=current;
@@ -73,7 +73,7 @@ function combatTick() {
     }
 }
 function receiveHit() {
-    if(match.finished || match.nextRound) return;
+    if((p.altitude||0)>0 || match.finished || match.nextRound) return;
     p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
     if(p.hp) return;
     clearAttachment();realm=null;
