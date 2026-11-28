@@ -38,6 +38,7 @@ function combatShape(superMove){
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove)return superAimData[current];
  if(current==='Kit' && p.attachment?.ally)return kitYarn;
+ if(current==='Chester'){const shot=BRAWLERS[current].shot,count=1+(p.bells||0);return {...ray(shot.speed,shot.life,6,count===1?0:shot.spread),count};}
  if(basicAim[current])return basicAim[current];
  const shot=BRAWLERS[current].shot;
  return ray(shot.speed,shot.life,6,shot.spread);
@@ -77,8 +78,9 @@ function drawAim(angle,superMove){
    if(s.spread){ctx.moveTo(0,0);ctx.arc(0,0,s.range,-s.spread,s.spread);ctx.closePath();}
    else ctx.rect(0,-s.width,s.range,2*s.width);
    ctx.fill();ctx.stroke();
-   const count=superMove?({Shelly:9,Colt:12,Rico:9}[current]||1):({Shelly:3,Bull:5,Darryl:5,Colt:5,El_Primo:3,Rosa:3,Bo:3,Crow:3,Tara:3,Max:4,Stu:2}[current]||BRAWLERS[current].shot?.count||1);
-   if(s.kind==='ray'&&count>1){ctx.strokeStyle=superMove?'#ffe482':'#fff';ctx.lineWidth=1.5;for(let i=0;i<count;i++){const a=count===1?0:(i/(count-1)*2-1)*(s.spread||0);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*s.range,Math.sin(a)*s.range);ctx.stroke();}ctx.fillStyle=ctx.strokeStyle;ctx.font='bold 16px system-ui';ctx.fillText('×'+count,Math.min(s.range,100),-12);}
+   const count=s.count??(superMove?({Shelly:9,Colt:12,Rico:9}[current]||1):({Shelly:3,Bull:5,Darryl:5,Colt:5,El_Primo:3,Rosa:3,Bo:3,Crow:3,Tara:3,Max:4,Stu:2}[current]||BRAWLERS[current].shot?.count||1));
+   if(current==='Chester'&&!superMove&&arena?.carrier!==p){ctx.save();ctx.fillStyle='#fff';ctx.font='bold 18px system-ui';ctx.textAlign='center';ctx.fillText('×'+count,Math.min(s.range*.65,140),-Math.max(18,Math.sin(s.spread||0)*Math.min(s.range*.65,140)+12));ctx.restore();}
+   if(s.kind==='ray'&&count>1){ctx.strokeStyle=superMove?'#ffe482':'#fff';ctx.lineWidth=1.5;for(let i=0;i<count;i++){const a=count===1?0:(i/(count-1)*2-1)*(s.spread||0);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*s.range,Math.sin(a)*s.range);ctx.stroke();}ctx.fillStyle=ctx.strokeStyle;ctx.font='bold 16px system-ui';if(current!=='Chester'||superMove)ctx.fillText('×'+count,Math.min(s.range,100),-12);}
  }
  ctx.restore();
 }
