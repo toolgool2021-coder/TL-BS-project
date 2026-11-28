@@ -74,7 +74,6 @@ function combatTick() {
 }
 function receiveHit() {
     if(match.finished || match.nextRound) return;
-    ultCharge=Math.min(100,ultCharge+Math.min(p.hp,p.shield>0?240:800)/p.maxHp*35);
     p.hp=Math.max(0,p.hp-(p.shield>0?240:800));
     if(p.hp) return;
     clearAttachment();realm=null;
