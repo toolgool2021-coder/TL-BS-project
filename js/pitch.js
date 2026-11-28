@@ -1,3 +1,17 @@
+function tlbsBotMove(a,goal,speed){
+ const clear=(x,y)=>x>=20&&y>=20&&x<=tlbsWorld.width-20&&y<=tlbsWorld.height-20&&!insideCover(x,y,22);
+ const segment=(x,y,X,Y)=>{const n=Math.max(1,Math.ceil(Math.hypot(X-x,Y-y)/12));for(let i=1;i<=n;i++)if(!clear(x+(X-x)*i/n,y+(Y-y)*i/n))return false;return true;};
+ if(segment(a.x,a.y,goal.x,goal.y)){a.nav=null;}else if(!a.nav||--a.nav.ttl<=0||Math.hypot(a.nav.gx-goal.x,a.nav.gy-goal.y)>80){
+ const nodes=[{x:a.x,y:a.y},{x:Math.max(22,Math.min(tlbsWorld.width-22,goal.x)),y:Math.max(22,Math.min(tlbsWorld.height-22,goal.y))}];
+ for(const w of (arena?.walls||tlbsMapWalls))for(const x of [w.x-26,w.x+w.w+26])for(const y of [w.y-26,w.y+w.h+26])if(clear(x,y))nodes.push({x,y});
+ const d=nodes.map(()=>Infinity),prev=[],used=new Set();d[0]=0;
+ for(let k=0;k<nodes.length;k++){let i=-1;for(let j=0;j<nodes.length;j++)if(!used.has(j)&&(i<0||d[j]<d[i]))i=j;if(i<0||!Number.isFinite(d[i])||i===1)break;used.add(i);for(let j=1;j<nodes.length;j++)if(!used.has(j)&&segment(nodes[i].x,nodes[i].y,nodes[j].x,nodes[j].y)){const v=d[i]+Math.hypot(nodes[i].x-nodes[j].x,nodes[i].y-nodes[j].y);if(v<d[j]){d[j]=v;prev[j]=i;}}}
+ let route=[];if(Number.isFinite(d[1]))for(let j=1;j!==0;j=prev[j])route.unshift(nodes[j]);a.nav={route,ttl:45,gx:goal.x,gy:goal.y};
+ }
+ const route=a.nav?.route;if(route?.length&&Math.hypot(a.x-route[0].x,a.y-route[0].y)<12)route.shift();
+ const t=route?.[0]||goal,angle=Math.atan2(t.y-a.y,t.x-a.x);
+ for(const off of [0,.6,-.6,1.2,-1.2,1.8,-1.8]){const x=Math.cos(angle+off)*speed,y=Math.sin(angle+off)*speed;if(clear(a.x+x,a.y+y)){moveOnPitch(a,x,y);return;}}
+}
 function insideCover(x,y,pad=0){
  return (arena?.walls||tlbsMapWalls)?.some(w=>x>w.x-pad && x<w.x+w.w+pad && y>w.y-pad && y<w.y+w.h+pad);
 }
