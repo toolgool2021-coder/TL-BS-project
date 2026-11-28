@@ -61,14 +61,14 @@ function paintWaves(){
  ctx.restore();
 }
 function resetFighterStage(){
- p.surgeLevel=1;p.beeCharge=false;
+ p.surgeLevel=1;p.beeCharge=false;p.bonnieOnFoot=false;
  if(current==='Surge')p.speedMult=1;
 }
 function surgeLife(){return (p.surgeLevel||1)>=3?44:33;}
 function splitSurge(b,target){
  const count=b.level===4?6:2;
  for(let i=0;i<count;i++){
-   spawnBullet(b.angle+Math.PI/2+i*2*Math.PI/count,10,16,false,4,'surgeShard',b);
+   spawnBullet(b.angle+Math.PI/2+i*2*Math.PI/count,10,16,b.isUlt,4,'surgeShard',b);
    bullets.at(-1).visited=[target];
  }
 }

@@ -40,7 +40,8 @@ function combatShape(superMove){
  }
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove&&current==='Griff')return fan(420,.52);
- if(superMove&&current==='Bonnie')return {kind:'jump',range:300,radius:75};
+ if(superMove&&current==='Bonnie')return p.bonnieOnFoot?ring(24):jump(300,75);
+ if(!superMove&&current==='Bonnie'&&p.bonnieOnFoot)return ray(14,15,6,.18);
  if(superMove)return superAimData[current]||ray(12,35,8);
  if(current==='Kit' && p.attachment?.ally)return kitYarn;
  if(current==='Chester'){const shot=BRAWLERS[current].shot,count=1+(p.bells||0);return {...ray(shot.speed,shot.life,6,chesterSpread(count)),count};}

@@ -32,11 +32,11 @@ function initObjective(){
  trainingTargets=actors.filter(a=>a!==enemy && a.team!==0).concat(arena.safes.filter(a=>a.team===1));
 }
 function resetField(){
- resetFighterStage();
+ resetFighterStage();tlbsCrowPoison.clear();
  clearAttachment();realm=null;clearCombatTimers();bullets.length=0;zones.length=0;throws.length=0;
  p.motion=null;p.isFlying=false;p.scale=1;p.shield=0;p.hiddenTicks=0;pip.active=false;
  for(const a of arena.actors){
-    a.stun=0;a.spawnShield=match.mode==='gems'?90:0;
+    a.stun=0;a.slow=0;a.spawnShield=match.mode==='gems'?90:0;
     const slot=Math.floor(a.slot/2);
     a.homeX=tlbsWorld.width*(slot+1)/4;a.homeY=a.slot%2?65:tlbsWorld.height-65;
     Object.assign(a,{x:a.homeX,y:a.homeY,hp:a.maxHp,out:false,respawn:0,gems:0,cool:45+a.slot*7});
@@ -46,6 +46,7 @@ function resetField(){
 }
 function objectiveDeath(a){
  if(a.out || match.finished) return;
+ tlbsCrowPoison.delete(a);a.slow=0;
  if(a.safe){finishMatch(a.team===1);return;}
  if(realm && inPlane(a)) realm=null;
  if(a===arena.carrier){arena.ball.x=a.x;arena.ball.y=a.y;arena.carrier=null;}
@@ -88,7 +89,7 @@ function tickObjective(){
    }
    const d=dist(a,goal);
    if(d>stop){
-     const speed=BRAWLERS[a.fighter].speed*.65,dx=(goal.x-a.x)/d*speed,dy=(goal.y-a.y)/d*speed;
+     const speed=BRAWLERS[a.fighter].speed*.65*(a.slow>0?.5:1),dx=(goal.x-a.x)/d*speed,dy=(goal.y-a.y)/d*speed;
      const retreat=a.hp<a.maxHp*.25 && goal===target;
      const heading=Math.atan2(dy,dx)+(retreat?Math.PI:0);
      tlbsBotMove(a,retreat?{x:a.x+Math.cos(heading)*120,y:a.y+Math.sin(heading)*120}:goal,speed);

@@ -1,6 +1,7 @@
 let touchControls=matchMedia('(any-pointer: coarse)').matches;
 function superHome(){return {x:canvas.width-55,y:Math.max(95,canvas.height*.48)}}
-window.tlbsControlScale=Number(localStorage.getItem('tlbs.controls.scale'))||1;
+const savedControlScale=Number(localStorage.getItem('tlbs.controls.scale'));
+window.tlbsControlScale=Number.isFinite(savedControlScale)&&savedControlScale>0?savedControlScale:1;
 window.tlbsSensitivity=Number(localStorage.getItem('tlbs.controls.sensitivity'))||1;
 function touchPoint(t){const r=canvas.getBoundingClientRect();return {x:(t.clientX-r.left)*canvas.width/r.width,y:(t.clientY-r.top)*canvas.height/r.height}}
 canvas.addEventListener('touchstart',e=>{
@@ -19,7 +20,7 @@ let bindings = {up:'KeyW',down:'KeyS',left:'KeyA',right:'KeyD',super:'Space'};
 try { Object.assign(bindings, JSON.parse(localStorage.getItem('tlbs.keys') || '{}')); } catch {}
 function resetControls() {
     document.getElementById('pin-menu').style.display='none';
-    pressedKeys.clear(); aimPoint = null; drag = null;
+    pressedKeys.clear(); aimPoint = null; drag = null;tlbsGadgetAim=null;
     for(const j of [joyL,joyR,joyU]) { j.active=false; j.id=null; }
 }
 window.addEventListener('blur', resetControls);
@@ -27,7 +28,11 @@ window.addEventListener('touchcancel', resetControls);
 window.addEventListener('keydown', e => {
     if(!gameActive) return;
     if(e.code==='KeyG'){e.preventDefault();if(!e.repeat)tlbsUseGadget();return;}
-    if(e.code==='Escape') { exitToMenu();return; }
+    if(e.code==='Escape') {
+        if(drag||joyR.active||joyU.active||tlbsGadgetAim!==null)resetControls();
+        else exitToMenu();
+        return;
+    }
     if(e.code==='KeyE') { e.preventDefault();if(!e.repeat) togglePinMenu();return; }
     const digit=/^(?:Digit|Numpad)([1-5])$/.exec(e.code);
     if(digit && document.getElementById('pin-menu').style.display==='flex') {

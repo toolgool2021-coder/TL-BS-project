@@ -158,6 +158,17 @@ function clearCombatTimers() {
             y:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(angle)*mortisRange))};
     }
 
+    function tickCrowPoison() {
+        for(const [target,effect] of tlbsCrowPoison){
+            if(target.out){tlbsCrowPoison.delete(target);continue;}
+            if(--effect.next===0){
+                effect.next=30;
+                hitEnemy(150,false,target);
+            }
+            if(--effect.left===0)tlbsCrowPoison.delete(target);
+        }
+    }
+
     function hitEnemy(dmg, canCharge, target=enemy) {
         if((target.altitude||0)>0 || !inPlane(target) || target.spawnShield>0 || target.out || match.finished || match.nextRound) return;
         if(current==='Chester'&&p.candyDamage>0)dmg*=1.25;
@@ -169,6 +180,7 @@ function clearCombatTimers() {
         sounds.hit.currentTime = 0;
         sounds.hit.play();
         if(target.hp <= 0) {
+            tlbsCrowPoison.delete(target);target.slow=0;
             if(arena){if(!target.safe)match.kills++;objectiveDeath(target);return;}
             if(p.attachment?.target===target)clearAttachment();
             if(realm?.target===target) realm=null;
@@ -247,18 +259,28 @@ function landRosterMove(m){
         const distance=Math.hypot(m.dx,m.dy);
         beginTravel(Math.atan2(-m.dy,-m.dx),distance,16,'Colette',m.radius);
         p.motion.returning=true;
-    }else if(['Edgar','Surge','Fang','Buzz'].includes(m.fighter)){
+    }else if(m.fighter==='Bonnie'){
+        p.bonnieOnFoot=true;
+        for(const t of targets)if(dist(t,p)<=m.radius)hitEnemy(1600,false,t);
+    }else if(m.fighter==='Fang'){
+        const chained=m.chain||new Set();
+        const landings=targets.filter(t=>!t.spawnShield&&!t.altitude&&!chained.has(t)&&dist(t,p)<=m.radius);
+        for(const t of landings.slice(0,4-chained.size)){
+            chained.add(t);
+            hitEnemy(1600,false,t);
+        }
+        if(landings.length&&chained.size<4&&!match.finished&&!match.nextRound&&current==='Fang'){
+            const next=targets.filter(t=>!t.safe&&!t.out&&!t.spawnShield&&!t.altitude&&!chained.has(t)&&dist(p,t)<=160)
+                .sort((a,b)=>dist(p,a)-dist(p,b))[0];
+            if(next){
+                beginTravel(angleTo(next),dist(p,next),14,'Fang',m.radius);
+                p.motion.chain=chained;
+            }
+        }
+    }else if(['Edgar','Surge','Buzz'].includes(m.fighter)){
         for(const t of targets) if(dist(t,p)<=m.radius){
             if(m.fighter==='Buzz' && !t.safe)t.stun=70;
             hitEnemy(1600,false,t);
-        }
-        if(m.fighter==='Fang'){
-            const chained=m.chain || new Set();
-            for(const t of targets)if(dist(t,p)<=m.radius)chained.add(t);
-            const next=targets.filter(t=>!t.safe && !chained.has(t) && dist(p,t)<=160).sort((a,b)=>dist(p,a)-dist(p,b))[0];
-            if(next && chained.size>0 && chained.size<4){
-                chained.add(next);beginTravel(angleTo(next),dist(p,next),14,'Fang',m.radius);p.motion.chain=chained;
-            }
         }
         if(m.fighter==='Surge'){
             p.surgeLevel=Math.min(4,(p.surgeLevel||1)+1);p.speedMult=1.25;p.boostTimer=0;

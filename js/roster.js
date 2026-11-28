@@ -18,7 +18,7 @@ const additions = {
     Chester:['#dc8bcb',7400,1900,14,32,0.22,3,'surprise'],
     Cordelius:['#ae81e3',6400,1250,13,25,0.07,2,'isolate'],
     Griff:['#e5a84a',6800,1500,14,35,.22,3,'griffReturn'],
-    Bonnie:['#ef7790',7200,1800,16,36,0,1,'leap'],
+    Bonnie:['#ef7790',7200,1800,16,36,0,1,'bonnie'],
     Kit:['#ded9b7',6000,850,10,10,0.35,3,'pounce']
 };
 for(const [name,[color,hp,reload,speed,life,spread,count,ability]] of Object.entries(additions)) {
@@ -33,6 +33,10 @@ function rosterAttack(angle) {
         const t=combatTargets().filter(t=>inFan(t,angle,fan(85,.58)) && visibleTo(p,t)).sort((a,b)=>dist(p,a)-dist(p,b))[0];
         if(t)hitEnemy(1440,true,t);
         else spawnBullet(angle,15,32,false,6,'shoe');
+        return;
+    }
+    if(current==='Bonnie'&&p.bonnieOnFoot){
+        for(const offset of [-.18,0,.18])spawnBullet(angle+offset,14,15,false,5,'bonnieFoot');
         return;
     }
     if(current==='Surge'){
@@ -67,14 +71,13 @@ function rosterSuper(angle) {
     const ability=BRAWLERS[current].ultType;
     const targets=combatTargets();
     const step=d=>({x:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(angle)*d)),y:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(angle)*d))});
-    const area=(pos,r,dmg)=>{for(const t of targets) if(Math.hypot(t.x-pos.x,t.y-pos.y)<r) hitEnemy(dmg,false,t);};
     switch(ability) {
         case 'heal':
             for(const ally of arena?.actors || [p])if(!ally.out && ally.team===p.team && (ally===p || inFan(ally,angle,superAimData.Poco)))ally.hp=Math.min(ally.maxHp,ally.hp+3000);
             break;
         case 'station': summon('station',destination(angle,superAimData.Pam.range)); break;
         case 'bear': summon('bear',destination(angle,superAimData.Nita.range)); break;
-        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true}); beginTravel(angle,285,32,'Piper',24); break;
+        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true,isUlt:true}); beginTravel(angle,285,32,'Piper',24); break;
         case 'cloak': p.hiddenTicks=260; break;
         case 'sandstorm': zones.push({...step(160),type:'sandstorm',r:140,life:360}); break;
         case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true}); break;
@@ -82,6 +85,10 @@ function rosterSuper(angle) {
         case 'wind': startWave('Gale',angle);break;
         case 'griffReturn': for(let i=-2;i<=2;i++){spawnBullet(angle+i*.26,12,72,true,9,'griffNote');bullets.at(-1).turn=35;}break;
         case 'swarm': for(let i=-3;i<=3;i++) spawnBullet(angle+i*.11,11,45,true,6,'swarm'); break;
+        case 'bonnie':
+            if(p.bonnieOnFoot)p.bonnieOnFoot=false;
+            else {const shape=combatShape(true);beginTravel(angle,shape.range,24,current,shape.radius);}
+            break;
         case 'upgrade': case 'return': case 'kick': case 'leap': case 'pounce': {
             const shape=combatShape(true);beginTravel(angle,shape.range,current==='Kit'?26:20,current,shape.radius);break;
         }

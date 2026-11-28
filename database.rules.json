@@ -44,7 +44,7 @@
               ".validate": false
             },
             "raceKills": {
-              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 80 && newData.val() % 1 === 0"
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 84 && newData.val() % 1 === 0"
             },
             "matchInput": {
               ".validate": "newData.isString() && newData.val().length <= 512"

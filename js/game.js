@@ -1,8 +1,8 @@
-const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушает статические препятствия в радиусе взрыва.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Пока не реализовано.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","Пока не реализовано."],["Пока не реализовано.","Пока не реализовано."]]};
+const tlbsAbilityDescriptions={"Griff":[["Бросает копилку на 180 единиц: после приземления через 2 секунды наносит 1000 урона в радиусе 90. Разрушает статические препятствия в радиусе взрыва.","Следующая атака выпускает дополнительную очередь монет."],["Уменьшает интервал между очередями до 75 мс.","Восстанавливает 15% недостающего здоровья каждые 2 секунды."]],"Dynamike":[["Ускоряет бойца и разбрасывает динамит вокруг.","Следующая атака предназначена для оглушения; механика требует проверки."],["Позволяет прыгать от собственного взрыва.","Усиливает урон ульты; требует игровой проверки."]],"Chester":[["Меняет готовую ульту на другую случайную.","Случайное усиление скорости, перезарядки или урона."],["Пока не реализовано.","Раскрывает тип ульты заранее."]],"Crow":[["Активирует временный щит.","На 3,5 секунды замедляет только противников, которых отравил Ворон."],["Пока не реализовано.","Пока не реализовано."]]};
 const tlbsLoadouts={Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}let info=document.getElementById(id+'-description');if(!info){info=document.createElement('small');info.id=id+'-description';info.style.cssText='display:block;color:#b9c8df;font-size:12px;line-height:1.5;margin:6px 0 12px';el.insertAdjacentElement('afterend',info);}const describe=()=>{info.textContent=tlbsAbilityDescriptions[current]?.[i]?.[Number(el.value)]||'Способность пока не реализована.';};describe();el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}describe();};}}
 let tlbsGadgetAim=null;
-function tlbsUseGadget(angleOverride){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return;const second=p.gadgetChoice==='1';if(current==='Dynamike'){if(second)p.satchel=true;else{p.speedMult=1.2;p.boostTimer=120;for(let i=0;i<12;i++)spawnBarleyBottle(i*Math.PI/6,70+i%3*45,'boom',false);}}else if(current==='Chester'){if(!second){if(ultCharge<100)return;p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else{const r=Math.floor(Math.random()*3);if(r===0){p.speedMult=1.25;p.boostTimer=300;}else if(r===1)p.candyReload=300;else p.candyDamage=300;}}else if(current==='Griff'){if(second)p.griffExtra=true;else {const a=Number.isFinite(angleOverride)?angleOverride:aimPoint?Math.atan2(aimPoint.y,aimPoint.x):joyR.active?Math.atan2(joyR.cy-joyR.y,joyR.cx-joyR.x):Math.atan2(enemy.y-p.y,enemy.x-p.x);zones.push({x:p.x,y:p.y,sx:p.x,sy:p.y,tx:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(a)*180)),ty:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(a)*180)),type:'griffPiggy',r:90,life:144});};}else if(current==='Crow'){if(second){for(const t of combatTargets()){if(t.out||t.safe||!inPlane(t))continue;t.slow=Math.max(t.slow||0,210);}}else p.shield=180;}else return;p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
+function tlbsUseGadget(angleOverride){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return;const second=p.gadgetChoice==='1';if(current==='Dynamike'){if(second)p.satchel=true;else{p.speedMult=1.2;p.boostTimer=120;for(let i=0;i<12;i++)spawnBarleyBottle(i*Math.PI/6,70+i%3*45,'boom',false);}}else if(current==='Chester'){if(!second){if(ultCharge<100)return;p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else{const r=Math.floor(Math.random()*3);if(r===0){p.speedMult=1.25;p.boostTimer=300;}else if(r===1)p.candyReload=300;else p.candyDamage=300;}}else if(current==='Griff'){if(second)p.griffExtra=true;else {const a=Number.isFinite(angleOverride)?angleOverride:aimPoint?Math.atan2(aimPoint.y,aimPoint.x):joyR.active?Math.atan2(joyR.cy-joyR.y,joyR.cx-joyR.x):Math.atan2(enemy.y-p.y,enemy.x-p.x);zones.push({x:p.x,y:p.y,sx:p.x,sy:p.y,tx:Math.max(22,Math.min(tlbsWorld.width-22,p.x+Math.cos(a)*180)),ty:Math.max(22,Math.min(tlbsWorld.height-22,p.y+Math.sin(a)*180)),type:'griffPiggy',r:90,life:144});};}else if(current==='Crow'){if(second){for(const t of combatTargets()){if(!tlbsCrowPoison.has(t)||t.safe||t.spawnShield)continue;t.slow=Math.max(t.slow||0,210);}}else p.shield=180;}else return;p.gadgetUses--;p.gadgetCooldown=300;updateUI();}
 // Chester's five existing super variants, in rosterSuper order.
 const chesterSuperIcons=[['💣','Взрыв'],['☠','Ядовитое облако'],['✦','Оглушение'],['✹','Леденцовая зона'],['✚','Лечение']];
 function tlbsSuperIcon(){return current==='Chester'&&ultCharge>=100?chesterSuperIcons[p.jackpot||0][0]:'★';}
@@ -24,15 +24,16 @@ function tlbsConfigureMap(mode){
  tlbsWorld={width:size[0],height:size[1]};
 }
 function tlbsDestroyCover(x,y,r){
- // Only break the static breakable map blocks. Objective walls remain intact.
- if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(r))return 0;
- const before=tlbsMapWalls.length;
- tlbsMapWalls=tlbsMapWalls.filter(w=>{
+ if(!Number.isFinite(x)||!Number.isFinite(y)||!Number.isFinite(r)||r<0)return 0;
+ let destroyed=0;
+ // Keep the arena's collision wall reference synchronized with the rendered map.
+ for(let i=tlbsMapWalls.length-1;i>=0;i--){
+  const w=tlbsMapWalls[i];
   const nearX=Math.max(w.x,Math.min(x,w.x+w.w));
   const nearY=Math.max(w.y,Math.min(y,w.y+w.h));
-  return (nearX-x)**2+(nearY-y)**2>r*r;
- });
- return before-tlbsMapWalls.length;
+  if((nearX-x)**2+(nearY-y)**2<=r*r){tlbsMapWalls.splice(i,1);destroyed++;}
+ }
+ return destroyed;
 }
 function tlbsBuildMap(mode){
  const blocks=mode==='duel'?[[.24,.33,.16,25],[.61,.66,.16,25]]:mode==='ball'?[[.12,.28,.2,25],[.68,.28,.2,25],[.12,.70,.2,25],[.68,.70,.2,25]]:[[.15,.28,.18,26],[.67,.28,.18,26],[.15,.72,.18,26],[.67,.72,.18,26]];
@@ -76,6 +77,16 @@ function tlbsMiniMap(){
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const tlbsCrowPoison = new Map();
+    const canvasState = trackCanvasState(ctx);
+
+    function drawFrame() {
+        try {
+            draw();
+        } finally {
+            canvasState.finishFrame();
+        }
+    }
 
     function toggleAI() {
         enemyAI = !enemyAI;
@@ -203,7 +214,9 @@ function tlbsMiniMap(){
         const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow','Griff'].includes(current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass']};
         const symbolName=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
         if(gadget.dataset.symbol!==symbolName){gadget.replaceChildren();const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbolName;const count=document.createElement('span');count.className='tlbs-gadget-count';gadget.append(icon,count);gadget.dataset.symbol=symbolName;}
-        const count=gadget.lastElementChild;count.textContent=p.gadgetCooldown>0?Math.ceil(p.gadgetCooldown/60)+'с':String(p.gadgetUses||0);gadget.style.background=p.gadgetUses<=0?'#30343b':p.gadgetCooldown>0?'#737982':'#38ad63';gadget.style.borderColor=gadget.disabled?'#a0a5ad':'#a4ffad';gadget.title=(tlbsLoadouts[current]?.[0]?.[Number(p.gadgetChoice)]||'Гаджет')+' (G)';gadget.setAttribute('aria-label',gadget.title+', '+count.textContent);}
+        const count=gadget.lastElementChild;
+        const status=String(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+' с':'');
+        if(count.textContent!==status)count.textContent=status;gadget.style.background=p.gadgetUses<=0?'#30343b':p.gadgetCooldown>0?'#737982':'#38ad63';gadget.style.borderColor=gadget.disabled?'#a0a5ad':'#a4ffad';gadget.title=(tlbsLoadouts[current]?.[0]?.[Number(p.gadgetChoice)]||'Гаджет')+' (G)';gadget.setAttribute('aria-label',gadget.title+', '+count.textContent);}
         isUltReady = (ultCharge >= 100);
         const bar=document.getElementById('ult-bar');
         const revealed=current==='Chester'&&(isUltReady||p.passiveChoice==='1');
@@ -227,11 +240,10 @@ function tlbsMiniMap(){
             while (accumulator >= 1000 / 60 && steps++<6) { tick(); accumulator -= 1000 / 60; }
             if(!match.finished)window.shareMatch?.();
             window.sendRoomPosition?.(p.x/tlbsWorld.width,p.y/tlbsWorld.height);
-            tlbsFollowCamera();updateUI();draw();tlbsMiniMap();
+            tlbsFollowCamera();updateUI();drawFrame();tlbsMiniMap();
         } catch(error) {
             // A single malformed ability must not silently kill requestAnimationFrame.
             console.error('[TL BS] Game frame failed:',error);
-            if(typeof ctx.reset==='function')ctx.reset();else{ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;ctx.shadowBlur=0;}
             accumulator=0;lastFrame=now;
             if(!window.tlbsLastFrameError || now-window.tlbsLastFrameError>3000){
                 window.tlbsLastFrameError=now;
@@ -244,7 +256,9 @@ function tlbsMiniMap(){
     }
     function tick() {
         if(match.finished) return;
-        if(p.gadgetCooldown>0)p.gadgetCooldown--;for(const t of combatTargets())if(t.slow>0)t.slow--;if(p.candyReload>0)p.candyReload--;if(p.candyDamage>0)p.candyDamage--;
+        tickCrowPoison();
+        for(const t of [enemy,...trainingTargets])if(t.slow>0)t.slow--;
+        if(p.gadgetCooldown>0)p.gadgetCooldown--;if(p.candyReload>0)p.candyReload--;if(p.candyDamage>0)p.candyDamage--;
         if(match.nextRound) duelTurn();
         if(p.hiddenTicks>0) p.hiddenTicks--;
         if(superFx && ++superFx.age>=45) superFx=null;
@@ -264,9 +278,9 @@ function tlbsMiniMap(){
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;if(current==='Griff'&&p.passiveChoice==='1'&&!p.out){p.griffHeal=(p.griffHeal||0)+1;if(p.griffHeal>=120){p.griffHeal=0;p.hp=Math.min(p.maxHp,p.hp+(p.maxHp-p.hp)*.15);}}
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
-        if(!arena && !enemy.stun && (!p.hiddenTicks || dist(p,enemy)<65) && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
+        if(!arena && !enemy.stun && (!p.hiddenTicks || dist(p,enemy)<65) && inPlane(enemy) && enemyAI && match.mode==='training') {
             let d = Math.hypot(p.x - enemy.x, p.y - enemy.y);
-            if(d > 160) { let a = Math.atan2(p.y-enemy.y, p.x-enemy.x); tlbsBotMove(enemy,p,1.5); }
+            if(d>160)tlbsBotMove(enemy,p,1.5*(enemy.slow>0?.5:1));
         }
         if(pip.active) {
             if(joyL.active) { let dx=joyL.cx-joyL.x, dy=joyL.cy-joyL.y; pip.angle = Math.atan2(dy, dx); }
@@ -352,8 +366,9 @@ function tlbsMiniMap(){
             if (b.special==='silence' || b.special==='swarm') match.cooldown=Math.max(match.cooldown,100);
             if (b.special==='Spike')burstSpike(b);
             if (b.special === 'pull') { target.x=p.x; target.y=p.y; }
-            if (b.special === 'poison') {
-                for(let n=1;n<=6;n++) scheduleCombatAction(()=>hitEnemy(150,false,target),500*n);
+            if(b.special==='poison'&&!target.safe&&!target.spawnShield&&!target.altitude){
+                const active=tlbsCrowPoison.get(target);
+                tlbsCrowPoison.set(target,{left:180,next:active?.next||30});
             }
             hitEnemy(b.special==='Colette'?Math.max(300,Math.round(target.hp*.2)):b.special==='energy' ? Math.round(1200*0.75**(b.visited?.length || 0)) : b.special==='gene_split' ? 150 : 400,!b.isUlt,target);
             if (b.special==='energy') {
@@ -366,10 +381,11 @@ function tlbsMiniMap(){
                     continue;
                 }
             }
-            if(b.special !== 'bubble' && b.special !== 'bounce') bullets.splice(i,1);
+            if(b.special==='bubble'||b.special==='bounce')(b.visited ||= []).push(target);
+            else bullets.splice(i,1);
         }
         for(let i=zones.length-1;i>=0;i--){ const z=zones[i]; 
-            if(z.type==='griffPiggy'&&z.life>120){const u=Math.max(0,Math.min(1,(144-z.life)/24));z.x=z.sx+(z.tx-z.sx)*u;z.y=z.sy+(z.ty-z.sy)*u;}
+            if(z.type==='griffPiggy'&&z.life>=120){const u=Math.max(0,Math.min(1,(144-z.life)/24));z.x=z.sx+(z.tx-z.sx)*u;z.y=z.sy+(z.ty-z.sy)*u;}
             if(z.type==='griffPiggy'&&z.life<=1){
                 for(const t of combatTargets())if(Math.hypot(t.x-z.x,t.y-z.y)<z.r)hitEnemy(1000,false,t);
                 tlbsDestroyCover(z.x,z.y,z.r);
@@ -448,7 +464,15 @@ function tlbsMiniMap(){
             drawAim(angle,joyU.active || Boolean(aimPoint && pressedKeys.has(bindings.super)));
         }
         if(p.altitude>0){ctx.save();ctx.fillStyle='#14152366';ctx.beginPath();ctx.ellipse(p.x,p.y,23,9,0,0,7);ctx.fill();ctx.restore();}
-        for(const t of combatTargets()) if(t.stun>0){ctx.save();ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe77b';ctx.fillText('Оглушение',t.x,t.y-63);ctx.restore();}
+        for(const t of combatTargets()){
+            const effects=[];
+            if(t.stun>0)effects.push('Оглушение');
+            if(tlbsCrowPoison.has(t))effects.push('Яд');
+            if(t.slow>0)effects.push('Замедление '+Math.ceil(t.slow/60)+' с');
+            if(!effects.length)continue;
+            ctx.save();ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe77b';
+            ctx.fillText(effects.join(' · '),t.x,t.y-76);ctx.restore();
+        }
         if(match.mode!=='gems' && !enemy.out && inPlane(enemy)){
         const botName=match.mode==='duel'?botTrio[Math.min(match.kills,2)]:enemy.fighter;
         ctx.fillStyle=BRAWLERS[botName]?.color||'#d65a65'; ctx.beginPath(); ctx.arc(enemy.x, enemy.y, 30, 0, 7); ctx.fill();
@@ -570,4 +594,4 @@ try {
     }
 } catch {}
 
-(function(){const button=document.getElementById('tlbs-gadget');if(!button)return;let start=null;button.style.touchAction='none';button.addEventListener('pointerdown',e=>{if(current!=='Griff'||p.gadgetChoice==='1'||button.disabled)return;e.preventDefault();start={x:e.clientX,y:e.clientY,id:e.pointerId};tlbsGadgetAim=Math.atan2(enemy.y-p.y,enemy.x-p.x);button.setPointerCapture(e.pointerId);});button.addEventListener('pointermove',e=>{if(!start||e.pointerId!==start.id)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.hypot(dx,dy)>8)tlbsGadgetAim=Math.atan2(dy,dx);});button.addEventListener('pointerup',e=>{if(!start||e.pointerId!==start.id)return;const a=tlbsGadgetAim;start=null;tlbsGadgetAim=null;tlbsUseGadget(a);});button.addEventListener('pointercancel',()=>{start=null;tlbsGadgetAim=null;});})();
+(function(){const button=document.getElementById('tlbs-gadget');if(!button)return;let start=null;button.style.touchAction='none';button.addEventListener('pointerdown',e=>{if(current!=='Griff'||p.gadgetChoice==='1'||button.disabled)return;e.preventDefault();start={x:e.clientX,y:e.clientY,id:e.pointerId};tlbsGadgetAim=Math.atan2(enemy.y-p.y,enemy.x-p.x);button.setPointerCapture(e.pointerId);});button.addEventListener('pointermove',e=>{if(!start||e.pointerId!==start.id||tlbsGadgetAim===null)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(Math.hypot(dx,dy)>8)tlbsGadgetAim=Math.atan2(dy,dx);});button.addEventListener('pointerup',e=>{if(!start||e.pointerId!==start.id)return;const a=tlbsGadgetAim;start=null;tlbsGadgetAim=null;if(a!==null)tlbsUseGadget(a);});button.addEventListener('pointercancel',()=>{start=null;tlbsGadgetAim=null;});})();
