@@ -1,4 +1,6 @@
 // Lengths are measured in arena units. Projectile range ends on its last collision tick.
+const chesterSpread=count=>.11*(count-1);
+function naniRange(){const j=joyR;const power=Number.isFinite(window.tlbsAttackPower)?window.tlbsAttackPower:j.active?Math.hypot(j.cx-j.x,j.cy-j.y)*window.tlbsSensitivity:aimPoint?Math.hypot(aimPoint.x,aimPoint.y)*window.tlbsSensitivity:60;return Math.max(24,320*Math.min(1,power/42));}
 const ray=(speed,life,width=5,spread=0)=>({kind:'ray',range:speed*(life-1),width,spread});
 const landing=(range,radius,offsets=[0])=>({kind:'landing',range,radius,offsets});
 const ring=radius=>landing(0,radius);
@@ -28,6 +30,7 @@ function combatShape(superMove){
  if((!superMove && ['Poco','Nita','Sandy'].includes(current)) || (superMove && current==='Gale')){
    const w=fronts[current];return w.spread?fan(w.range,w.spread):{kind:'ray',range:w.range,width:w.width,spread:0};
  }
+ if(!superMove && current==='Nani')return {kind:'nani',range:naniRange(),radius:12};
  if(!superMove && current==='Surge')return ray(13,surgeLife(),7);
  if(['Dynamike','Barley'].includes(current) || (!superMove && current==='Tick') || (superMove && current==='Kit')){
    const j=superMove?joyU:joyR;
@@ -38,7 +41,7 @@ function combatShape(superMove){
  if(superMove && current==='Chester')return [landing(220,80),fan(235,.45),ray(12,35,8),ring(120),ring(24)][p.jackpot||0];
  if(superMove)return superAimData[current];
  if(current==='Kit' && p.attachment?.ally)return kitYarn;
- if(current==='Chester'){const shot=BRAWLERS[current].shot,count=1+(p.bells||0);return {...ray(shot.speed,shot.life,6,count===1?0:shot.spread),count};}
+ if(current==='Chester'){const shot=BRAWLERS[current].shot,count=1+(p.bells||0);return {...ray(shot.speed,shot.life,6,chesterSpread(count)),count};}
  if(basicAim[current])return basicAim[current];
  const shot=BRAWLERS[current].shot;
  return ray(shot.speed,shot.life,6,shot.spread);
@@ -58,7 +61,8 @@ function drawAim(angle,superMove){
  if(current==='Fang' && !superMove && arena?.carrier!==p){
    ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.arc(p.x,p.y,85,angle-.58,angle+.58);ctx.closePath();ctx.fill();ctx.stroke();
  }
- if(s.kind==='dash'){
+ if(s.kind==='nani'){const end=destination(angle,s.range);const a=Math.atan2(end.y-p.y,end.x-p.x);for(const curve of [0,45,-45]){ctx.beginPath();for(let i=0;i<=24;i++){const u=i/24,off=Math.sin(u*Math.PI)*curve,x=p.x+(end.x-p.x)*u-Math.sin(a)*off,y=p.y+(end.y-p.y)*u+Math.cos(a)*off;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,7);ctx.fill();ctx.stroke();}
+ else if(s.kind==='dash'){
    const end=destination(angle,s.range);ctx.lineCap='round';ctx.lineWidth=s.radius*2;
    ctx.strokeStyle=ctx.fillStyle;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(end.x,end.y);ctx.stroke();
    ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,Math.PI*2);ctx.stroke();
