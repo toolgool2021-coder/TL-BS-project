@@ -13,3 +13,7 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/smoke.mjs
+      - name: Run arena scenarios in Chrome
+        env:
+          TLBS_CHROMIUM: google-chrome
+        run: node tests/arena.mjs
