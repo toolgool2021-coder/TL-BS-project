@@ -7,6 +7,8 @@ function tlbsConfigureMap(mode){
 }
 function tlbsBuildMap(mode){
  const blocks=mode==='duel'?[[.24,.33,.16,25],[.61,.66,.16,25]]:mode==='ball'?[[.12,.28,.2,25],[.68,.28,.2,25],[.12,.70,.2,25],[.68,.70,.2,25]]:[[.15,.28,.18,26],[.67,.28,.18,26],[.15,.72,.18,26],[.67,.72,.18,26]];
+ const extra={knockout:[[.35,.42,.12,35],[.53,.58,.12,35]],gems:[[.25,.47,.12,38],[.63,.47,.12,38]],solo:[[.32,.36,.1,40],[.58,.64,.1,40],[.45,.48,.1,30]],duo:[[.28,.45,.12,35],[.60,.55,.12,35]],heist:[[.38,.22,.24,30],[.38,.78,.24,30]],zone:[[.26,.5,.12,35],[.62,.5,.12,35]]};
+ blocks.push(...(extra[mode]||[]));
  tlbsMapWalls=blocks.map(([x,y,w,h])=>({x:x*tlbsWorld.width,y:y*tlbsWorld.height,w:w*tlbsWorld.width,h}));
 }
 function tlbsFollowCamera(snap=false){
