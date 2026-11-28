@@ -1,4 +1,4 @@
-function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return; if(current==='Dynamike'){p.speedMult=1.5;p.boostTimer=180;}else if(current==='Chester'){p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else return;p.gadgetUses--;p.gadgetCooldown=300;}
+function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return; if(p.gadgetChoice==='heal'){p.hp=Math.min(p.maxHp,p.hp+p.maxHp*.25);}else if(current==='Dynamike'){p.speedMult=1.5;p.boostTimer=180;}else if(current==='Chester'){p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else {p.shield=120;}p.gadgetUses--;p.gadgetCooldown=300;}
 // Chester's five existing super variants, in rosterSuper order.
 const chesterSuperIcons=[['💣','Взрыв'],['☠','Ядовитое облако'],['✦','Оглушение'],['✹','Леденцовая зона'],['✚','Лечение']];
 function tlbsSuperIcon(){return current==='Chester'&&ultCharge>=100?chesterSuperIcons[p.jackpot||0][0]:'★';}
@@ -185,7 +185,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester'].includes(current);gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.textContent='✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=false;gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.textContent='✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
         isUltReady = (ultCharge >= 100);
         const bar=document.getElementById('ult-bar');
         const revealed=current==='Chester'&&isUltReady;
@@ -227,7 +227,7 @@ function tlbsMiniMap(){
         keyboardMovement();
         if(!p.out && !realm && (current==='Edgar'||(current==='Kit' && !p.attachment)))
             ultCharge=Math.min(100,ultCharge+100/(current==='Edgar'?1800:1200));
-        if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / 16.6);
+        if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / (p.passiveChoice==='reload'?18.26:16.6));
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
         if(p.shield > 0) p.shield--;
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
