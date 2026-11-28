@@ -403,6 +403,7 @@ function tlbsMiniMap(){
                 else if(z.fuse>0) {
                     if(--z.fuse===0) {
                         for(const target of nearby) hitEnemy(2000,false,target);
+                        tlbsDestroyCover(z.x,z.y,z.r);
                         z.type='blast'; z.life=16;
                     }
                 } else if(nearby.length) z.fuse=24;
