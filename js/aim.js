@@ -52,8 +52,8 @@ function inFan(target,angle,shape){
 }
 function drawAim(angle,superMove){
  const s=combatShape(superMove);
- ctx.save();ctx.lineWidth=2;ctx.strokeStyle=superMove?'#ffe482':'#fff';
- ctx.fillStyle=superMove?'rgba(255,212,88,.18)':'rgba(255,255,255,.17)';
+ ctx.save();ctx.lineWidth=3;ctx.strokeStyle=superMove?'#ffe482':'#fff';
+ ctx.fillStyle=superMove?'rgba(255,212,88,.27)':'rgba(255,255,255,.23)';
  if(current==='Fang' && !superMove && arena?.carrier!==p){
    ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.arc(p.x,p.y,85,angle-.58,angle+.58);ctx.closePath();ctx.fill();ctx.stroke();
  }
@@ -63,19 +63,22 @@ function drawAim(angle,superMove){
    ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,Math.PI*2);ctx.stroke();
  }else if(s.kind==='jump'||s.kind==='landing'){
    for(const offset of s.offsets){
-     const a=angle+offset, end=s.kind==='jump'||(superMove && ['Pam','Jessie','Nita'].includes(current))?destination(a,s.range):{x:p.x+Math.cos(a)*s.range,y:p.y+Math.sin(a)*s.range};
+     const a=angle+offset, end=destination(a,s.range);
      if(s.range){
        ctx.beginPath();ctx.setLineDash([5,6]);ctx.moveTo(p.x,p.y);
        ctx.quadraticCurveTo((p.x+end.x)/2,(p.y+end.y)/2-(s.kind==='jump'?36:16),end.x,end.y);
        ctx.stroke();ctx.setLineDash([]);
      }
      ctx.beginPath();ctx.arc(end.x,end.y,s.radius,0,Math.PI*2);ctx.fill();ctx.stroke();
+     ctx.fillStyle=superMove?'#ffe482':'#fff';ctx.font='bold 15px system-ui';ctx.textAlign='center';ctx.fillText(String(s.offsets.indexOf(offset)+1),end.x,end.y+5);ctx.fillStyle=superMove?'rgba(255,212,88,.27)':'rgba(255,255,255,.23)';
    }
  }else{
    ctx.translate(p.x,p.y);ctx.rotate(angle);ctx.beginPath();
    if(s.spread){ctx.moveTo(0,0);ctx.arc(0,0,s.range,-s.spread,s.spread);ctx.closePath();}
    else ctx.rect(0,-s.width,s.range,2*s.width);
    ctx.fill();ctx.stroke();
+   const count=superMove?({Shelly:9,Colt:12,Rico:9}[current]||1):({Shelly:3,Bull:5,Darryl:5,Colt:5,El_Primo:3,Rosa:3,Bo:3,Crow:3,Tara:3,Max:4,Stu:2}[current]||BRAWLERS[current].shot?.count||1);
+   if(s.kind==='ray'&&count>1){ctx.strokeStyle=superMove?'#ffe482':'#fff';ctx.lineWidth=1.5;for(let i=0;i<count;i++){const a=count===1?0:(i/(count-1)*2-1)*(s.spread||0);ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*s.range,Math.sin(a)*s.range);ctx.stroke();}ctx.fillStyle=ctx.strokeStyle;ctx.font='bold 16px system-ui';ctx.fillText('×'+count,Math.min(s.range,100),-12);}
  }
  ctx.restore();
 }
