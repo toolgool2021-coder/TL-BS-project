@@ -155,6 +155,7 @@ function tlbsMiniMap(){
         superFx=null;
         p.motion=null;
         setupMatch();
+        tlbsFollowCamera(true);
         ammo = BRAWLERS[current].maxAmmo;
         renderAmmo();
         gameActive = true; frameId = requestAnimationFrame(update);
