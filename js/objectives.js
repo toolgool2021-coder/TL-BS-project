@@ -68,10 +68,38 @@ function kickBall(a,angle){
  arena.carrier=null;Object.assign(arena.ball,{x:a.x,y:a.y,vx:8*Math.cos(angle),vy:8*Math.sin(angle),lock:15});return true;
 }
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+function ballChasers(field){
+ const target=field.carrier||field.ball;
+ const chasers=new Map();
+ for(const actor of field.actors){
+   if(actor===p||actor.out||actor.stun>0||!inPlane(actor)||window.roomControlledBot?.(actor))continue;
+   const previous=chasers.get(actor.team);
+   if(!previous||dist(actor,target)<dist(previous,target))chasers.set(actor.team,actor);
+ }
+ return chasers;
+}
+
+function ballBotGoal(actor,field,chasers){
+ const owner=field.carrier;
+ const ball=owner||field.ball;
+ const w=tlbsWorld.width,h=tlbsWorld.height;
+ const direction=actor.team===0?-1:1;
+ const ownGoalY=actor.team===0?h:0;
+ if(owner===actor)return {x:w/2,y:actor.team===0?0:h};
+ if(owner?.team!==actor.team&&chasers.get(actor.team)===actor)return ball;
+
+ const side=actor.slot<3?-1:1;
+ const attacking=owner?.team===actor.team;
+ const x=Math.max(80,Math.min(w-80,ball.x+side*w*(attacking?.14:.10)));
+ const targetY=attacking?ball.y+direction*105:ball.y+(ownGoalY-ball.y)*.45;
+ return {x,y:Math.max(65,Math.min(h-65,targetY))};
+}
 function tickObjective(){
  if(!arena || match.finished)return;
  const A=arena,mode=match.mode,c={x:tlbsWorld.width/2,y:tlbsWorld.height/2};
  A.age++;
+ const chasers=mode==='ball'?ballChasers(A):null;
  for(const a of A.actors) {
    if(a.spawnShield>0)a.spawnShield--;
    if(a.out){if(a.respawn && --a.respawn===0)Object.assign(a,{out:false,spawnShield:match.mode==='gems'?90:0,hp:a.maxHp,x:a.homeX,y:a.homeY});continue;}
@@ -90,8 +118,7 @@ function tickObjective(){
    if(!realm || !inPlane(a)){
      if(mode==='zone'){goal={x:c.x+(Math.floor(a.slot/2)-1)*38,y:c.y+(a.team?18:-18)};stop=18;}
      if(mode==='gems'){goal=gemBotGoal(a,target,c);stop=5;}
-     if(mode==='ball'){const owner=A.carrier,side=a.slot<3?-1:1;
-       goal=owner===a?{x:c.x,y:a.team?tlbsWorld.height:0}:owner?.team===a.team?{x:c.x+side*tlbsWorld.width*.21,y:owner.y+(a.team?50:-50)}:A.ball;stop=12;}
+     if(mode==='ball'){goal=ballBotGoal(a,A,chasers);stop=12;}
      if(mode==='heist' && safe){goal=safe;stop=95;}
      if((mode==='solo'||mode==='duo') && dist(a,c)>safeRadius()-20){goal=c;stop=5;}
    }

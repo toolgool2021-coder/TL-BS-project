@@ -188,8 +188,9 @@
     check(!p.beeCharge, 'Bea regained her charge after missing');
 
     begin('Fang');
-    enemy.x=690;
-    trainingTargets=Array.from({length:4},(_,i)=>({x:795+105*i,y:500,hp:30000,maxHp:30000}));
+    check(combatShape(true).range===355,'Fang aim did not show his extended range');
+    enemy.x=p.x+355;
+    trainingTargets=Array.from({length:4},(_,i)=>({x:enemy.x+105*(i+1),y:500,hp:30000,maxHp:30000}));
     useUltimate(0);
     frames(80);
     const fangTargets=[enemy,...trainingTargets];
@@ -319,7 +320,7 @@
     tlbsUseGadget();
     check(p.shield===75,'Fang did not gain his shield');
     p.passiveChoice='0';
-    enemy.x=p.x+190;
+    enemy.x=p.x+355;
     trainingTargets=[{x:enemy.x+195,y:p.y,hp:30000,maxHp:30000}];
     useUltimate(0);
     frames(40);
@@ -1057,14 +1058,16 @@
           finishMatch(true);
           break;
         case 'arms':
+          ultCharge=77;
           for(let i=0;i<2*Object.keys(BRAWLERS).length;i++)recordElimination();
+          check(ultCharge===77,'Arms race lost charge after changing fighters');
           check(match.kills === 2*Object.keys(BRAWLERS).length, 'Arms race ended before all fighters');
           break;
         case 'duel':
           ultCharge = 90;
           recordElimination();
           frames(3);
-          check(!match.nextRound && ultCharge === 0, 'Duel leaked charge into a new round');
+          check(!match.nextRound && ultCharge === 90, 'Duel lost charge in the next round');
           recordElimination();
           frames(3);
           recordElimination();
@@ -1077,19 +1080,29 @@
           tickObjective();
           break;
         case 'knockout':
+          ultCharge=100;
           for(const rival of rivals)objectiveDeath(rival);
           tickObjective();
+          check(ultCharge===100,'Knockout discarded a ready super');
           check(arena.score[0] === 1 && rivals.every(a => !a.out), 'Knockout failed to reset between rounds');
           for(const rival of rivals)objectiveDeath(rival);
           tickObjective();
           break;
-        case 'ball':
+        case 'ball': {
+          const chasers=ballChasers(arena);
+          for(const team of [0,1]){
+            const bots=arena.actors.filter(a=>a!==p&&a.team===team);
+            check(bots.filter(a=>ballBotGoal(a,arena,chasers)===arena.ball).length===1,'Bots swarmed the ball');
+          }
+          ultCharge=100;
           for(let i=0;i<2;i++){
             Object.assign(arena.ball,{x:tlbsWorld.width/2,y:20,vx:0,vy:0});
             arena.carrier=null;
             tickObjective();
+            check(ultCharge===100,'Brawl Ball discarded a ready super after a goal');
           }
           break;
+        }
         case 'zone':
           objectiveDeath(enemy);
           enemy.respawn=1;

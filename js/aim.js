@@ -22,7 +22,7 @@ const superAimData={
  Darryl:jump(312,50),El_Primo:jump(250,120),Barley:landing(250,55,[-.6,-.3,0,.3,.6]),
  Dynamike:landing(250,140),Poco:fan(360,.55),Nita:landing(205,38),Piper:jump(440,24),Pam:landing(235,95),
  Leon:ring(25),Spike:landing(220,100),Sandy:landing(160,140),Edgar:jump(360,100),Colette:jump(220,48),
- Emz:ring(125),Bea:ray(11,45,6,.33),Gale:fan(350,.5),Surge:jump(90,90),Fang:jump(190,65),
+ Emz:ring(125),Bea:ray(11,45,6,.33),Gale:fan(350,.5),Surge:jump(90,90),Fang:jump(355,65),
  Buzz:ray(14,23,8),Chester:landing(220,80),Cordelius:ray(14,40,10),Kit:kitJump
 };
 function variableAim(superMove){
