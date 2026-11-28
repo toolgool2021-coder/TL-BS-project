@@ -1,6 +1,6 @@
-const tlbsLoadouts={Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
+const tlbsLoadouts={Griff:[['Piggy Bank','Coin Shower'],['Keep the Change','Business Resilience']],Dynamike:[['Fidget Spinner','Satchel Charge'],['Dyna-Jump','Demolition']],Chester:[['Spicy Dice','Candy Beans'],["Single Bell O Mania","Sneak Peek"]],Piper:[['Auto Aimer','Homemade Recipe'],['Ambush','Snappy Sniping']],Crow:[['Defense Booster','Slowing Toxin'],['Extra Toxic','Carrion Crow']],Frank:[['Active Noise Canceling','Irresistible Attraction'],['Power Grab','Sponge']]};
 function tlbsLoadoutMenu(){const kit=tlbsLoadouts[current];for(const [i,id] of ['gadget-choice','passive-choice'].entries()){const el=document.getElementById(id);if(!el)continue;el.replaceChildren();for(const [n,name] of (kit?.[i]||['Не реализовано']).entries()){const opt=document.createElement('option');opt.value=String(n);opt.textContent=name;el.append(opt);}try{el.value=localStorage.getItem('tlbs.loadout.'+current+'.'+id)||'0';}catch{}el.onchange=()=>{try{localStorage.setItem('tlbs.loadout.'+current+'.'+id,el.value);}catch{}};}}
-function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return;const second=p.gadgetChoice==='1';if(current==='Dynamike'){if(second)p.satchel=true;else{p.speedMult=1.2;p.boostTimer=120;for(let i=0;i<12;i++)spawnBarleyBottle(i*Math.PI/6,70+i%3*45,'boom',false);}}else if(current==='Chester'){if(!second){if(ultCharge<100)return;p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else{const r=Math.floor(Math.random()*3);if(r===0){p.speedMult=1.25;p.boostTimer=300;}else if(r===1)p.candyReload=300;else p.candyDamage=300;}}else if(current==='Crow'&&!second){p.shield=180;}else return;p.gadgetUses--;p.gadgetCooldown=300;}
+function tlbsUseGadget(){if(!gameActive||p.out||match.finished||!(p.gadgetUses>0)||p.gadgetCooldown>0)return;const second=p.gadgetChoice==='1';if(current==='Dynamike'){if(second)p.satchel=true;else{p.speedMult=1.2;p.boostTimer=120;for(let i=0;i<12;i++)spawnBarleyBottle(i*Math.PI/6,70+i%3*45,'boom',false);}}else if(current==='Chester'){if(!second){if(ultCharge<100)return;p.jackpot=((p.jackpot||0)+1+Math.floor(Math.random()*4))%5;}else{const r=Math.floor(Math.random()*3);if(r===0){p.speedMult=1.25;p.boostTimer=300;}else if(r===1)p.candyReload=300;else p.candyDamage=300;}}else if(current==='Griff'){if(second)p.griffExtra=true;else zones.push({x:p.x,y:p.y,type:'boom',r:90,life:60,isBig:true});}else if(current==='Crow'&&!second){p.shield=180;}else return;p.gadgetUses--;p.gadgetCooldown=300;}
 // Chester's five existing super variants, in rosterSuper order.
 const chesterSuperIcons=[['💣','Взрыв'],['☠','Ядовитое облако'],['✦','Оглушение'],['✹','Леденцовая зона'],['✚','Лечение']];
 function tlbsSuperIcon(){return current==='Chester'&&ultCharge>=100?chesterSuperIcons[p.jackpot||0][0]:'★';}
@@ -187,7 +187,7 @@ function tlbsMiniMap(){
 
     function updateUI() {
         gemHUD();
-        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.textContent='✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
+        const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow','Griff'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.textContent='✦ '+(p.gadgetUses||0)+(p.gadgetCooldown>0?' · '+Math.ceil(p.gadgetCooldown/60)+'с':'');}
         isUltReady = (ultCharge >= 100);
         const bar=document.getElementById('ult-bar');
         const revealed=current==='Chester'&&(isUltReady||p.passiveChoice==='1');
@@ -231,7 +231,7 @@ function tlbsMiniMap(){
             ultCharge=Math.min(100,ultCharge+100/(current==='Edgar'?1800:1200));
         if (ammo < BRAWLERS[current].maxAmmo) ammo += 1 / (BRAWLERS[current].reload / (p.candyReload>0?22:16.6));
         if(p.boostTimer > 0) { p.boostTimer--; if(p.boostTimer <= 0) p.speedMult = 1; }
-        if(p.shield > 0) p.shield--;
+        if(p.shield > 0) p.shield--;if(current==='Griff'&&p.passiveChoice==='1'&&!p.out){p.griffHeal=(p.griffHeal||0)+1;if(p.griffHeal>=120){p.griffHeal=0;p.hp=Math.min(p.maxHp,p.hp+(p.maxHp-p.hp)*.15);}}
         [activePin, enemyPin].forEach(p => { if(p.timer > 0) { p.timer--; p.scale += (p.timer > 300 ? 1.2 : 1.0 - p.scale) * 0.2; } else p.scale = 0; });
         if(!arena && !enemy.stun && (!p.hiddenTicks || dist(p,enemy)<65) && inPlane(enemy) && (enemyAI || match.mode!=='training')) {
             let d = Math.hypot(p.x - enemy.x, p.y - enemy.y);
@@ -295,7 +295,7 @@ function tlbsMiniMap(){
                 bullets.splice(i,1);continue;
             }
             if(b.special==='griffCoin'){hitEnemy(280,true,target);bullets.splice(i,1);continue;}
-            if(b.special==='griffNote'){(b.visited ||= []).push(target);hitEnemy(700,true,target);continue;}
+            if(b.special==='griffNote'){(b.visited ||= []).push(target);hitEnemy(Math.round(660+Math.min(1,Math.hypot(b.x-b.originX,b.y-b.originY)/420)*660),true,target);continue;}
             if(b.special==='bats') {
                 (b.visited ||= []).push(target);
                 const damage=Math.min(1200,target.hp);hitEnemy(damage,false,target);
@@ -453,12 +453,12 @@ function tlbsMiniMap(){
         for(const a of new Set([p,...(arena?.actors||[enemy,...trainingTargets])]))if(inPlane(a))tlbsActorHUD(a,a===p);
         drawPin(p.x, p.y, activePin);
         drawPin(enemy.x, enemy.y, enemyPin);
-        bullets.forEach(drawCombatProjectile);
+        bullets.forEach(b=>{if(!['griffCoin','griffNote'].includes(b.special)){drawCombatProjectile(b);return;}ctx.save();ctx.translate(b.x,b.y);ctx.rotate(Math.atan2(b.vy,b.vx));ctx.lineWidth=2;ctx.strokeStyle='#715c24';if(b.special==='griffCoin'){ctx.fillStyle='#ffd34e';ctx.beginPath();ctx.arc(0,0,6,0,Math.PI*2);ctx.fill();ctx.stroke();}else{ctx.fillStyle='#9ee4a1';ctx.fillRect(-11,-6,22,12);ctx.strokeRect(-11,-6,22,12);ctx.fillStyle='#39764a';ctx.fillRect(-3,-4,6,8);}ctx.restore();});
         tlbsPaintHits();
         paintHammer();paintWaves();
         for(const f of attackFx){
             const u=f.age/18,s=f.shape;
-            ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);
+            ctx.save();if(p.out||f.fighter!==current){ctx.restore();continue;}ctx.translate(p.x,p.y-(p.altitude||0));ctx.rotate(f.angle);
             ctx.globalAlpha=(1-u)*.65;ctx.strokeStyle=f.color;ctx.fillStyle=f.color;ctx.lineWidth=3;
             if(tlbsDrawWeapon(f,u)) {ctx.restore();continue;}
             if(['Barley','Dynamike','Tick'].includes(f.fighter)){ctx.save();ctx.rotate(-.8+u*1.6);ctx.fillStyle=f.color;ctx.fillRect(12,-7,25,14);ctx.strokeStyle='#fff';ctx.strokeRect(12,-7,25,14);ctx.restore();}
