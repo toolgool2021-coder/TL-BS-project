@@ -452,6 +452,10 @@ function tlbsMiniMap(){
             const u=f.age/18,s=f.shape;
             ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.angle);
             ctx.globalAlpha=(1-u)*.65;ctx.strokeStyle=f.color;ctx.fillStyle=f.color;ctx.lineWidth=3;
+            if(['Barley','Dynamike','Tick'].includes(f.fighter)){ctx.save();ctx.rotate(-.8+u*1.6);ctx.fillStyle=f.color;ctx.fillRect(12,-7,25,14);ctx.strokeStyle='#fff';ctx.strokeRect(12,-7,25,14);ctx.restore();}
+            else if(['El_Primo','Rosa','Edgar','Kit'].includes(f.fighter)){for(const side of [-1,1]){ctx.beginPath();ctx.arc(18+u*30,side*13,9*(1-u)+4,0,7);ctx.fill();}}
+            else if(['Mortis','Bibi','Fang'].includes(f.fighter)){ctx.beginPath();ctx.arc(0,0,24+u*42,-.8+u,.5+u);ctx.stroke();}
+            else {ctx.beginPath();ctx.moveTo(18,-7);ctx.lineTo(34+u*15,0);ctx.lineTo(18,7);ctx.fill();}
             if(s.kind==='fan'){ctx.beginPath();ctx.arc(0,0,s.range*(.25+.75*u),-s.spread,s.spread);ctx.stroke();}
             else if(s.kind==='landing'||s.kind==='jump'){ctx.beginPath();ctx.arc(0,0,22+u*18,0,Math.PI*2);ctx.stroke();}
             else {const reach=Math.min(s.range,75);ctx.beginPath();ctx.moveTo(18,0);ctx.lineTo(reach*(.5+.5*u),-9*(1-u));ctx.lineTo(reach*(.5+.5*u),9*(1-u));ctx.closePath();ctx.fill();}
