@@ -17,6 +17,8 @@ const additions = {
     Buzz:['#54cbb5',9600,1000,10,12,0.38,5,'hook'],
     Chester:['#dc8bcb',7400,1900,14,32,0.22,3,'surprise'],
     Cordelius:['#ae81e3',6400,1250,13,25,0.07,2,'isolate'],
+    Griff:['#e5a84a',6800,1500,14,35,.25,5,'swarm'],
+    Bonnie:['#ef7790',7200,1800,16,36,0,1,'leap'],
     Kit:['#ded9b7',6000,850,10,10,0.35,3,'pounce']
 };
 for(const [name,[color,hp,reload,speed,life,spread,count,ability]] of Object.entries(additions)) {
@@ -71,7 +73,7 @@ function rosterSuper(angle) {
             break;
         case 'station': summon('station',destination(angle,superAimData.Pam.range)); break;
         case 'bear': summon('bear',destination(angle,superAimData.Nita.range)); break;
-        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true}); beginTravel(angle,200,28,'Piper',24); break;
+        case 'escape': zones.push({...p,type:'boom',r:105,life:15,isBig:true}); beginTravel(angle,285,32,'Piper',24); break;
         case 'cloak': p.hiddenTicks=260; break;
         case 'sandstorm': zones.push({...step(160),type:'sandstorm',r:140,life:360}); break;
         case 'thorns': zones.push({...step(220),type:'fire',r:100,life:180,isUlt:true}); break;
