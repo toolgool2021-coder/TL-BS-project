@@ -493,7 +493,7 @@ function tlbsMiniMap(){
                 ctx.lineTo(superFx.x+Math.cos(a)*(radius+18*(1-u)),superFx.y+Math.sin(a)*(radius+18*(1-u)));ctx.stroke();
             }
             ctx.font='bold 15px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff4bd';
-            ctx.fillText('Супер · '+fighterNames[superFx.fighter],superFx.x,superFx.y-42-14*u);
+            ctx.fillText('Супер · '+(typeof fighterNames!=='undefined'?fighterNames[superFx.fighter]:superFx.fighter),superFx.x,superFx.y-42-14*u);
             ctx.restore();
         }
         if(drag) {
