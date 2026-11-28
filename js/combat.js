@@ -1,10 +1,11 @@
 function tlbsDrawWeapon(f,u){
- const c=ctx;const kind=({Piper:'umbrella',Colt:'dual',Shelly:'gun',Bull:'gun',Darryl:'dual',Brock:'rocket',Bibi:'bat',Mortis:'shovel',Dynamike:'sticks',Barley:'bottle',Crow:'daggers',Bo:'bow',Jessie:'gun',Rico:'gun',Max:'gun',Chester:'bells',Griff:'gun',Bonnie:'rocket',Bea:'gun',Gale:'gun',Nani:'orb',Spike:'orb',Tick:'orb',Tara:'cards',Gene:'lamp',Poco:'guitar',Pam:'gun',Leon:'daggers',Sandy:'orb',Colette:'book',Emz:'spray',Surge:'gun',Fang:'fist',Buzz:'fist',Cordelius:'orb',Kit:'fist',Edgar:'fist',Rosa:'fist',El_Primo:'fist',Stu:'gun',Nita:'fist'})[f.fighter];if(!kind)return false;
+ const c=ctx;const kind=({Piper:'umbrella',Colt:'dual',Shelly:'gun',Bull:'gun',Darryl:'dual',Brock:'rocket',Bibi:'bat',Mortis:'shovel',Dynamike:'sticks',Barley:'bottle',Crow:'daggers',Bo:'bow',Jessie:'gun',Rico:'gun',Max:'gun',Chester:'bells',Griff:'register',Bonnie:'rocket',Bea:'gun',Gale:'gun',Nani:'orb',Spike:'orb',Tick:'orb',Tara:'cards',Gene:'lamp',Poco:'guitar',Pam:'gun',Leon:'daggers',Sandy:'orb',Colette:'book',Emz:'spray',Surge:'gun',Fang:'fist',Buzz:'fist',Cordelius:'orb',Kit:'fist',Edgar:'fist',Rosa:'fist',El_Primo:'fist',Stu:'gun',Nita:'fist'})[f.fighter];if(!kind)return false;
  c.globalAlpha=Math.min(1,(1-u)*4);c.strokeStyle='#202333';c.lineWidth=2.5;c.lineJoin='round';const recoil=Math.sin(u*Math.PI*3)*4*(1-u);c.translate(18-recoil,0);
  const rect=(x,y,w,h,color)=>{c.fillStyle=color;c.fillRect(x,y,w,h);c.strokeRect(x,y,w,h);};
  const oval=(x,y,rx,ry,color)=>{c.fillStyle=color;c.beginPath();c.ellipse(x,y,rx,ry,0,0,7);c.fill();c.stroke();};
  const gun=(y)=>{rect(0,y-5,29,10,'#667386');rect(20,y-4,15,8,'#303746');rect(3,y+4,8,9,f.color);};
  if(kind==='umbrella'){rect(0,-2,43,4,'#d8b778');c.fillStyle='#f3a9cf';c.beginPath();c.moveTo(10,-13);c.quadraticCurveTo(34,-9,43,0);c.quadraticCurveTo(34,9,10,13);c.closePath();c.fill();c.stroke();oval(43,0,3,3,'#f4e5bd');}
+ else if(kind==='register'){rect(0,-12,27,24,'#d8ad59');rect(4,-9,17,8,'#354c50');rect(4,3,17,6,'#8c6536');oval(32,0,6,6,'#ffd66c');}
  else if(kind==='dual'){gun(-11);gun(11);}else if(kind==='gun'){gun(0);}else if(kind==='rocket'){rect(0,-9,37,18,'#54657a');oval(36,0,5,8,'#252b35');}
  else if(kind==='bat'||kind==='shovel'){c.rotate(-1.1+u*2.2);rect(0,-3,38,6,'#bd8b5b');if(kind==='bat')oval(30,0,19,7,'#dfb68a');else oval(39,0,13,10,'#8d9ba9');}
  else if(kind==='sticks'){c.rotate(-.7+u*1.4);for(const y of [-5,5]){rect(3,y-4,24,8,'#e55b51');rect(26,y-1,5,2,'#e9cb76');}}
