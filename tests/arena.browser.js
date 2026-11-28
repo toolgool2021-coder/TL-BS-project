@@ -122,20 +122,112 @@
       check(variant === 4 ? p.hp > health : enemy.hp < foeHealth, 'Chester super failed: ' + variant);
     }
 
+    for(const fighter of ['Dynamike','Chester','Griff','Crow']) {
+      for(const choice of ['0','1']) {
+        begin(fighter);
+        p.gadgetChoice=choice;
+        p.jackpot=0;
+        ultCharge=100;
+        tlbsUseGadget(0);
+        check(p.gadgetUses===2 && p.gadgetCooldown===300, fighter + ' gadget did not activate: ' + choice);
+        tlbsUseGadget(0);
+        check(p.gadgetUses===2, fighter + ' gadget activated during cooldown');
+      }
+    }
+
+    begin('Bea');
+    attack(0,false);
+    frames(14);
+    check(p.beeCharge, 'Bea failed to charge after a hit');
+    ammo=1;
+    attack(Math.PI,false);
+    check(bullets.at(-1).charged && !p.beeCharge, 'Bea did not spend her charge when firing');
+    frames(42);
+    check(!p.beeCharge, 'Bea regained her charge after missing');
+
+    begin('Fang');
+    enemy.x=690;
+    trainingTargets=Array.from({length:4},(_,i)=>({x:795+105*i,y:500,hp:30000,maxHp:30000}));
+    useUltimate(0);
+    frames(80);
+    const fangTargets=[enemy,...trainingTargets];
+    check(fangTargets.slice(0,4).every(t=>t.hp===28400) && fangTargets[4].hp===30000,
+      'Fang did not hit exactly four different opponents once');
+
     const modes = [...modeSelect.options].map(o => o.value);
     for (const mode of modes) {
       begin('Shelly', mode);
       frames(65);
       check(match.mode === mode && !match.finished, mode + ' failed to start');
-      finishMatch(true);
+      const rivals = arena?.actors.filter(a => a.team !== 0);
+      switch(mode) {
+        case 'training':
+          hitEnemy(enemy.hp, false);
+          check(enemy.hp === enemy.maxHp && !match.finished, 'Training target did not reset');
+          finishMatch(true);
+          break;
+        case 'arms':
+          for(let i=0;i<2*Object.keys(BRAWLERS).length;i++)recordElimination();
+          check(match.kills === 84, 'Arms race ended before all fighters');
+          break;
+        case 'duel':
+          ultCharge = 90;
+          recordElimination();
+          frames(3);
+          check(!match.nextRound && ultCharge === 0, 'Duel leaked charge into a new round');
+          recordElimination();
+          frames(3);
+          recordElimination();
+          break;
+        case 'skirmish': case 'custom':
+          for(let i=0;i<(mode==='custom'?match.limit:3);i++)recordElimination();
+          break;
+        case 'solo': case 'duo':
+          for(const rival of rivals)objectiveDeath(rival);
+          tickObjective();
+          break;
+        case 'knockout':
+          for(const rival of rivals)objectiveDeath(rival);
+          tickObjective();
+          check(arena.score[0] === 1 && rivals.every(a => !a.out), 'Knockout failed to reset between rounds');
+          for(const rival of rivals)objectiveDeath(rival);
+          tickObjective();
+          break;
+        case 'ball':
+          for(let i=0;i<2;i++){
+            Object.assign(arena.ball,{x:tlbsWorld.width/2,y:20,vx:0,vy:0});
+            arena.carrier=null;
+            tickObjective();
+          }
+          break;
+        case 'zone':
+          objectiveDeath(enemy);
+          enemy.respawn=1;
+          tickObjective();
+          check(!enemy.out && enemy.hp===enemy.maxHp, 'Zone opponent did not respawn');
+          Object.assign(p,{x:tlbsWorld.width/2,y:tlbsWorld.height/2});
+          arena.score[0]=1799;
+          tickObjective();
+          break;
+        case 'gems':
+          Object.assign(arena,{leader:0,hold:899});
+          p.gems=10;
+          tickObjective();
+          break;
+        case 'heist':
+          hitEnemy(arena.safes[1].hp,false,arena.safes[1]);
+          break;
+        default: throw Error('Missing mode scenario: ' + mode);
+      }
       check(!gameActive && match.finished, mode + ' failed to end');
+      check(document.querySelector('#result-text').textContent.startsWith('Победа'), mode + ' awarded the wrong winner');
       document.querySelector('#result').close();
       begin('Shelly', mode);
       frames(5);
       check(gameActive && !match.finished, mode + ' failed to restart');
     }
     report.textContent = 'PASS ' + Object.keys(BRAWLERS).length + ' attack and super activation scenarios, ' +
-      modes.length + ' mode lifecycle scenarios, Canvas, five Chester variants, Bo, Griff, Bonnie and Crow regressions';
+      modes.length + ' mode lifecycle scenarios, Canvas, 8 gadget activations, five Chester variants, Bo, Griff, Bonnie, Crow, Bea and Fang regressions';
   } catch (error) {
     report.textContent = 'FAIL ' + error.stack;
   }
