@@ -29,6 +29,7 @@ assert(game.includes('Math.max(0,Math.min(1,t.age/30))'),'Thrown projectile rend
 assert(game.includes('Math.max(0,Math.min(1,superFx.age/45))'),'Super effect rendering must clamp progress');
 assert(game.includes('Math.max(0,Math.min(1,f.age/18))'),'Attack effect rendering must clamp progress');
 assert(game.includes("if(z.type==='griffPiggy'&&z.life<=1)"),'Griff piggy bank must detonate on expiration');
+assert(game.includes('tlbsDestroyCover(z.x,z.y,z.r)'), 'Explosive projectiles must destroy applicable cover');
 assert(game.includes('Math.max(0,Math.min(1,(144-z.life)/24))'),'Griff flight progress must be bounded');
 assert(game.includes("else if(current==='Crow'){if(second)"),'Crow second gadget must execute in combat');
 assert(read('js/match.js').includes('enemy.slow>0?0.5:1'),'Crow slow must affect opponent movement');
