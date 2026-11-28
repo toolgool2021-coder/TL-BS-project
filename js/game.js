@@ -200,10 +200,9 @@ function tlbsMiniMap(){
     function updateUI() {
         gemHUD();
         const gadget=document.getElementById('tlbs-gadget');if(gadget){gadget.hidden=!['Dynamike','Chester','Crow','Griff'].includes(current)||(current==='Crow'&&p.gadgetChoice==='1');gadget.disabled=!(p.gadgetUses>0)||p.gadgetCooldown>0;gadget.style.display=gadget.hidden?'none':'block';const symbol={Griff:['pig','coins'],Dynamike:['spinner','spark'],Chester:['dice','candy'],Crow:['shield','hourglass']};
-        gadget.replaceChildren();
-        const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
-        const count=document.createElement('span');count.className='tlbs-gadget-count';count.textContent=p.gadgetCooldown>0?Math.ceil(p.gadgetCooldown/60)+'с':String(p.gadgetUses||0);
-        gadget.append(icon,count);gadget.style.background=p.gadgetUses<=0?'#30343b':p.gadgetCooldown>0?'#737982':'#38ad63';gadget.style.borderColor=gadget.disabled?'#a0a5ad':'#a4ffad';gadget.title=(tlbsLoadouts[current]?.[0]?.[Number(p.gadgetChoice)]||'Гаджет')+' (G)';gadget.setAttribute('aria-label',gadget.title+', '+count.textContent);}
+        const symbolName=symbol[current]?.[Number(p.gadgetChoice)]||'spark';
+        if(gadget.dataset.symbol!==symbolName){gadget.replaceChildren();const icon=document.createElement('span');icon.className='tlbs-gadget-symbol';icon.dataset.symbol=symbolName;const count=document.createElement('span');count.className='tlbs-gadget-count';gadget.append(icon,count);gadget.dataset.symbol=symbolName;}
+        const count=gadget.lastElementChild;count.textContent=p.gadgetCooldown>0?Math.ceil(p.gadgetCooldown/60)+'с':String(p.gadgetUses||0);gadget.style.background=p.gadgetUses<=0?'#30343b':p.gadgetCooldown>0?'#737982':'#38ad63';gadget.style.borderColor=gadget.disabled?'#a0a5ad':'#a4ffad';gadget.title=(tlbsLoadouts[current]?.[0]?.[Number(p.gadgetChoice)]||'Гаджет')+' (G)';gadget.setAttribute('aria-label',gadget.title+', '+count.textContent);}
         isUltReady = (ultCharge >= 100);
         const bar=document.getElementById('ult-bar');
         const revealed=current==='Chester'&&(isUltReady||p.passiveChoice==='1');
